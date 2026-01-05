@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ============================================================================
+     QUANTUM NEXUS: Indigo Authority + Aurora Semantics + P3 Wide Gamut
+     ============================================================================ */
+
+  /* === CHROMATIC GRAPHITE NEUTRALS (Violet-tinted, sophisticated) === */
+  --neutral-50:   oklch(98.5% 0.005 290);   /* Violet-white */
+  --neutral-100:  oklch(96.5% 0.008 288);   /* Soft gray */
+  --neutral-200:  oklch(92% 0.012 286);     /* Light gray */
+  --neutral-300:  oklch(87% 0.010 286);     /* Lighter gray */
+  --neutral-400:  oklch(73% 0.015 286);     /* Gray */
+  --neutral-500:  oklch(55% 0.025 285);     /* Mid-tone anchor */
+  --neutral-600:  oklch(42% 0.022 284);     /* Dark gray */
+  --neutral-700:  oklch(35% 0.018 283);     /* Darker gray */
+  --neutral-800:  oklch(28% 0.02 282);      /* Very dark gray */
+  --neutral-900:  oklch(20% 0.015 281);     /* Almost black */
+  --neutral-950:  oklch(15% 0.015 280);     /* Deep violet-black */
+
+  /* === QUANTUM INDIGO PRIMARY (P3 power source, CEO authority) === */
+  --primary-50:   oklch(97% 0.02 275);      /* Nearly white */
+  --primary-100:  oklch(93% 0.04 275);      /* Very light indigo */
+  --primary-200:  oklch(86% 0.08 275);      /* Light indigo */
+  --primary-300:  oklch(78% 0.12 275);      /* Lighter indigo */
+  --primary-400:  oklch(68% 0.18 275);      /* Medium light indigo */
+  --primary-500:  oklch(58% 0.25 275);      /* Brand core */
+  --primary-600:  oklch(48% 0.28 275);      /* ★ POWER SOURCE (P3 optimized, authority) */
+  --primary-700:  oklch(42% 0.26 275);      /* Dark indigo */
+  --primary-800:  oklch(35% 0.22 275);      /* Darker indigo */
+  --primary-900:  oklch(28% 0.18 275);      /* Very dark indigo */
+  --primary-950:  oklch(20% 0.12 275);      /* Nearly black indigo */
+
+  /* === AURORA EMERALD ACCENT (Growth, approval, progress) === */
+  --emerald-50:   oklch(96% 0.03 170);      /* Nearly white */
+  --emerald-100:  oklch(91% 0.06 168);      /* Very light emerald */
+  --emerald-200:  oklch(84% 0.10 167);      /* Light emerald */
+  --emerald-300:  oklch(75% 0.14 165);      /* Lighter emerald */
+  --emerald-400:  oklch(70% 0.18 164);      /* Medium light emerald */
+  --emerald-500:  oklch(62% 0.21 163);      /* Growth accent */
+  --emerald-600:  oklch(55% 0.23 162);      /* ★ SEMANTIC: Success/Approved (primary accent) */
+  --emerald-700:  oklch(48% 0.21 161);      /* Dark emerald */
+  --emerald-800:  oklch(42% 0.18 160);      /* Darker emerald */
+  --emerald-900:  oklch(32% 0.14 158);      /* Very dark emerald */
+  --emerald-950:  oklch(24% 0.10 156);      /* Nearly black emerald */
+
+  /* === AURORA CORAL ACCENT (Urgent, human, action needed) === */
+  --coral-50:     oklch(96% 0.03 30);       /* Nearly white */
+  --coral-100:    oklch(92% 0.06 28);       /* Very light coral */
+  --coral-200:    oklch(85% 0.10 26);       /* Light coral */
+  --coral-300:    oklch(78% 0.14 24);       /* Lighter coral */
+  --coral-400:    oklch(72% 0.17 24);       /* Medium light coral */
+  --coral-500:    oklch(68% 0.19 25);       /* Warm accent */
+  --coral-600:    oklch(62% 0.21 22);       /* ★ SEMANTIC: Urgent/Warning (secondary accent) */
+  --coral-700:    oklch(56% 0.20 20);       /* Dark coral */
+  --coral-800:    oklch(48% 0.17 20);       /* Darker coral */
+  --coral-900:    oklch(38% 0.14 18);       /* Very dark coral */
+  --coral-950:    oklch(28% 0.10 16);       /* Nearly black coral */
+
+  /* === TAILWIND SEMANTIC MAPPING (mapped to UI utilities) === */
+  --background:           oklch(98.5% 0.005 290);  /* Neutral-50 */
+  --foreground:           oklch(15% 0.015 280);    /* Neutral-950 */
+  --card:                 oklch(98.5% 0.005 290);  /* Neutral-50 */
+  --card-foreground:      oklch(15% 0.015 280);    /* Neutral-950 */
+  --popover:              oklch(98.5% 0.005 290);  /* Neutral-50 */
+  --popover-foreground:   oklch(15% 0.015 280);    /* Neutral-950 */
+  --muted:                oklch(92% 0.012 286);    /* Neutral-200 */
+  --muted-foreground:     oklch(42% 0.022 284);    /* Neutral-600 */
+  --primary:              oklch(48% 0.28 275);     /* Indigo-600 (button, link) */
+  --primary-foreground:   oklch(98.5% 0.005 290);  /* Neutral-50 */
+  --secondary:            oklch(92% 0.012 286);    /* Neutral-200 */
+  --secondary-foreground: oklch(15% 0.015 280);    /* Neutral-950 */
+  --accent:               oklch(55% 0.23 162);     /* Emerald-600 (success/approved) */
+  --accent-foreground:    oklch(98.5% 0.005 290);  /* Neutral-50 */
+  --destructive:          oklch(62% 0.21 22);      /* Coral-600 (danger/urgent) */
+  --destructive-foreground: oklch(98.5% 0.005 290); /* Neutral-50 */
+  --border:               oklch(92% 0.012 286);    /* Neutral-200 */
+  --input:                oklch(96.5% 0.008 288);  /* Neutral-100 */
+  
+  /* === SEMANTIC STATE COLORS (for alerts, messages, validation) === */
+  --error-bg:             oklch(98% 0.01 10);      /* Light red background */
+  --error-border:         oklch(88% 0.04 10);      /* Red border */
+  --error-fg:             oklch(42% 0.08 10);      /* Dark red text */
+  
+  --warning-bg:           oklch(98% 0.01 60);      /* Light amber background */
+  --warning-border:       oklch(88% 0.04 60);      /* Amber border */
+  --warning-fg:           oklch(42% 0.08 60);      /* Dark amber text */
+  
+  --info-bg:              oklch(98% 0.01 275);     /* Light indigo background */
+  --info-border:          oklch(88% 0.04 275);     /* Indigo border */
+  --info-fg:              oklch(42% 0.08 275);     /* Dark indigo text */
+  
+  --success-bg:           oklch(98% 0.01 165);     /* Light emerald background */
+  --success-border:       oklch(88% 0.04 165);     /* Emerald border */
+  --success-fg:           oklch(42% 0.08 165);     /* Dark emerald text */
+  --ring:                 oklch(48% 0.28 275);     /* Indigo-600 (focus ring) */
+  
+  /* === SEMANTIC UTILITY COLORS === */
+  --success:              oklch(55% 0.23 162);     /* Emerald-600 (requests approved) */
+  --warning:              oklch(68% 0.19 25);      /* Coral-500 (review needed) */
+  --danger:               oklch(62% 0.21 22);      /* Coral-600 (blocked/urgent) */
+  --info:                 oklch(58% 0.25 275);     /* Primary-500 (notifications) */
+}
+
+/* === P3 FALLBACK FOR sRGB DEVICES (graceful degradation) === */
+@media (color-gamut: sRGB) {
+  :root {
+    /* Reduce saturation for older screens */
+    --primary-600:        oklch(48% 0.20 275);     /* Less vibrant Indigo */
+    --primary-500:        oklch(58% 0.18 275);
+    --primary-400:        oklch(68% 0.14 275);
+    
+    --emerald-600:        oklch(55% 0.18 162);     /* Less vibrant Emerald */
+    --emerald-500:        oklch(62% 0.17 163);
+    --emerald-400:        oklch(70% 0.14 164);
+    
+    --coral-600:          oklch(62% 0.16 22);      /* Less vibrant Coral */
+    --coral-500:          oklch(68% 0.14 25);
+    --coral-400:          oklch(72% 0.12 24);
+  }
+}
+

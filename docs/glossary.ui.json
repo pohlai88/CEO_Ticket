@@ -1,0 +1,472 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-01-05",
+  "scopes": {
+    "onboarding": [
+      {
+        "field_id": "org_name",
+        "field_name": "Organization Name",
+        "label": "Organization Name",
+        "meaning": "The official legal name of your company, division, or team that will use this system",
+        "examples": [
+          "NexusCanon Holdings",
+          "Product Engineering Division",
+          "Executive Operations Team"
+        ],
+        "guidance": "Use the name that appears on official documents. This is visible to all users.",
+        "anti_patterns": [
+          "Abbreviations only (spell out full name)",
+          "Placeholder names like 'Test Company'",
+          "Names longer than 100 characters"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "manager_emails",
+        "field_name": "Manager Email Addresses",
+        "label": "Invite Senior Managers",
+        "meaning": "Email addresses of decision-capable managers who will receive approval requests and announcements",
+        "examples": [
+          "jane.doe@company.com",
+          "mike.chen@company.com"
+        ],
+        "guidance": "Add only managers with authority to make business decisions. Add more anytime from Settings. Separate by comma or newline.",
+        "anti_patterns": [
+          "Inviting all employees",
+          "Including personal email addresses",
+          "Typos in email addresses"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "operating_mode",
+        "field_name": "Operating Mode",
+        "label": "Default Operating Mode",
+        "meaning": "How strictly the system enforces approval workflows and audit requirements",
+        "examples": [
+          "Executive Fast Lane: Quick approvals, lighter documentation",
+          "Strict Compliance: All decisions logged, formal audit trail"
+        ],
+        "guidance": "Choose based on your industry. You can change this later in Admin Config.",
+        "anti_patterns": [
+          "Choosing wrong mode and not updating after learning system"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "first_announcement",
+        "field_name": "First Announcement",
+        "label": "Send First CEO Announcement?",
+        "meaning": "Whether to publish a welcome message to your team immediately after setup",
+        "examples": [
+          "Yes: 'Welcome to our new request system'",
+          "No: skip for now, send later from dashboard"
+        ],
+        "guidance": "Good practice: send a brief welcome. Sets tone for system usage.",
+        "anti_patterns": [
+          "Sending overly long announcements",
+          "Using technical jargon in welcome message"
+        ],
+        "required": false
+      },
+      {
+        "field_id": "constitution_acknowledge",
+        "field_name": "Constitution Acknowledgement",
+        "label": "I acknowledge the Request Constitution",
+        "meaning": "Agreement that you understand the system's decision rules, status lifecycle, and audit guarantees",
+        "examples": [
+          "Checked: You understand requests go DRAFT → SUBMITTED → APPROVED/REJECTED",
+          "Unchecked: You cannot proceed"
+        ],
+        "guidance": "Read the attached constitution summary before checking. It's a 2-minute read.",
+        "anti_patterns": [
+          "Checking without reading",
+          "Assuming you'll remember rules later"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "admin_email",
+        "field_name": "Admin Email",
+        "label": "Admin Email Address",
+        "meaning": "Email of the person who will manage system configuration (you, typically)",
+        "examples": [
+          "ceo@company.com",
+          "admin@company.com"
+        ],
+        "guidance": "This account gets CEO role and config access. You can invite others to admin later.",
+        "anti_patterns": [
+          "Using shared email address",
+          "Entering wrong email and being locked out"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "timezone",
+        "field_name": "Organization Timezone",
+        "label": "Organization Timezone",
+        "meaning": "Your timezone, used to display all timestamps in your local time",
+        "examples": [
+          "America/New_York",
+          "Asia/Tokyo"
+        ],
+        "guidance": "Select your primary office timezone. All reports and timestamps convert to this.",
+        "anti_patterns": [
+          "Selecting UTC when you don't work in UTC",
+          "Forgetting to change if you relocate"
+        ],
+        "required": true
+      }
+    ],
+    "request_form": [
+      {
+        "field_id": "request_title",
+        "field_name": "Request Title",
+        "label": "What are you requesting?",
+        "meaning": "A short, clear description of what you need approval for (not details—just the headline)",
+        "examples": [
+          "Approve Q2 marketing budget",
+          "Hire new senior engineer",
+          "Launch beta feature to 10% of users"
+        ],
+        "guidance": "Be specific but concise. CEO should understand the ask in 5 seconds. Use object + action format.",
+        "anti_patterns": [
+          "Vague titles like 'Need approval'",
+          "Titles longer than 80 characters",
+          "Titles that are full sentences"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "request_description",
+        "field_name": "Request Description",
+        "label": "Provide details and context",
+        "meaning": "Detailed explanation of your request, including background, options considered, and recommended approach",
+        "examples": [
+          "We've had 3 urgent customer complaints this week about feature X. Recommend fixing in hotfix.",
+          "Q2 budget proposal: $500K for new team, broken down as: 3x engineers ($150K), 1x designer ($50K)..."
+        ],
+        "guidance": "2-3 paragraphs max. Use bold for key numbers. Include 'Why now?' and 'What happens if we don't?'",
+        "anti_patterns": [
+          "Leaving blank (CEO won't know what to do)",
+          "Writing a novel (CEO won't read it)",
+          "Assuming CEO knows your context"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "priority_code",
+        "field_name": "Priority Level",
+        "label": "Priority",
+        "meaning": "How urgently this request needs a decision. Selected from CEO-configured labels (P1 Blocker → P5 Trivial)",
+        "examples": [
+          "P1 (Blocker): System down, customer impact, decision needed today",
+          "P3 (Medium): Standard request, decision in 1-2 days",
+          "P5 (Trivial): Nice-to-have, no time pressure"
+        ],
+        "guidance": "Be honest about urgency. P1 for true blockers only. CEO gets notified based on priority.",
+        "anti_patterns": [
+          "Marking everything P1 (dilutes signal)",
+          "Marking routine stuff as P1",
+          "Changing priority after submitting"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "category_id",
+        "field_name": "Category",
+        "label": "Category",
+        "meaning": "What type of request this is (e.g. Hiring, Budget, Product, Operations). Used for sorting and filtering.",
+        "examples": [
+          "Hiring",
+          "Budget",
+          "Product Launch",
+          "Partnership"
+        ],
+        "guidance": "Pick the best fit. CEO can add more categories in Admin Config.",
+        "anti_patterns": [
+          "Unclear categories like 'Misc'",
+          "Creating category for single request"
+        ],
+        "required": false
+      },
+      {
+        "field_id": "attachments",
+        "field_name": "Attachments",
+        "label": "Upload supporting documents",
+        "meaning": "Files (PDF, images, spreadsheets) that provide evidence or detail for your request",
+        "examples": [
+          "Q2_Budget_Proposal.pdf (500 KB)",
+          "Customer_Complaint_Logs.xlsx (2 MB)",
+          "Feature_Mockups.png (1.5 MB)"
+        ],
+        "guidance": "Max 10 MB per file, max 5 files. Include file name that is descriptive.",
+        "anti_patterns": [
+          "Uploading files with generic names like 'Document1.pdf'",
+          "Uploading entire email threads",
+          "Forgetting to attach key evidence"
+        ],
+        "required": false
+      },
+      {
+        "field_id": "watchers",
+        "field_name": "Watchers",
+        "label": "Who should follow this request?",
+        "meaning": "Team members who will be notified of status updates and decisions, even if not involved in approval",
+        "examples": [
+          "Your manager (optional)",
+          "Affected team leads",
+          "Finance if budget-related"
+        ],
+        "guidance": "Add people who need to know the outcome. Requester and CEO are automatic.",
+        "anti_patterns": [
+          "Adding everyone in company",
+          "Adding people without telling them",
+          "Forgetting key stakeholders"
+        ],
+        "required": false
+      }
+    ],
+    "approval": [
+      {
+        "field_id": "approval_decision",
+        "field_name": "CEO Decision",
+        "label": "Approve or Reject?",
+        "meaning": "Your (CEO's) final decision on the request. Approve = green light to execute. Reject = request denied.",
+        "examples": [
+          "Approve: Request approved. Proceed with hiring. Start Monday.",
+          "Reject: Denied. Budget year already committed. Discuss next quarter."
+        ],
+        "guidance": "Be clear and decisive. Requester sees this immediately. No ambiguity.",
+        "anti_patterns": [
+          "Saying 'maybe' or 'let's discuss'",
+          "Approving without reading description",
+          "Rejecting without explanation"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "approval_notes",
+        "field_name": "Decision Notes",
+        "label": "Add notes for the requester (optional)",
+        "meaning": "Optional explanation of your decision, next steps, or conditions. Visible to requester and watchers.",
+        "examples": [
+          "Approved. Budget approved for Q2. Work with Finance on schedule.",
+          "Rejected. Similar proposal was made 2 months ago. Let's revisit after that ship date."
+        ],
+        "guidance": "Keep brief. If complex, send executive message for deeper discussion.",
+        "anti_patterns": [
+          "Empty rejection with no explanation",
+          "Lengthy notes (use Executive Message instead)"
+        ],
+        "required": false
+      }
+    ],
+    "admin_config": [
+      {
+        "field_id": "max_attachment_mb",
+        "field_name": "Max Attachment Size",
+        "label": "Max Attachment Size (MB)",
+        "meaning": "Maximum file size per attachment upload (5, 10, 20, or 50 MB)",
+        "examples": [
+          "10 MB: Standard (default)",
+          "50 MB: Video engineering teams, large PDFs"
+        ],
+        "guidance": "Larger files = slower uploads. Balance user need with system performance.",
+        "anti_patterns": [
+          "Unlimited (causes storage bloat)",
+          "Too small (blocks legitimate documents)"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "auto_cancel_drafts_days",
+        "field_name": "Auto-Cancel Drafts",
+        "label": "Auto-Cancel Drafts After (Days)",
+        "meaning": "Number of days before system auto-cancels draft requests that were never submitted",
+        "examples": [
+          "14 days: Aggressive cleanup",
+          "30 days: Standard (default)",
+          "90 days: Hands-off, user controls"
+        ],
+        "guidance": "Prevents database clutter. Drafts auto-cancel by default, but requester can restore.",
+        "anti_patterns": [
+          "Very short (7 days: too aggressive)",
+          "Never auto-cancel (orphaned drafts litter system)"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "restore_window_days",
+        "field_name": "Restore Window",
+        "label": "Restore Window (Days)",
+        "meaning": "Number of days after soft-delete that a request can still be restored by requester",
+        "examples": [
+          "7 days: Quick restore, audit cleanup fast",
+          "14 days: More lenient"
+        ],
+        "guidance": "Provides safety net. After window, data is hard-deleted per audit retention.",
+        "anti_patterns": [
+          "Too long (months: causes audit confusion)",
+          "Zero (no recovery—frustrates users)"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "default_priority_code",
+        "field_name": "Default Priority",
+        "label": "Default Priority Code",
+        "meaning": "Which priority level is pre-selected when manager creates a new request (P1-P5)",
+        "examples": [
+          "P3 (Medium): Most requests are medium priority",
+          "P4 (Low): Only mark urgent things as high"
+        ],
+        "guidance": "Set to the most common priority. Requester can override per request.",
+        "anti_patterns": [
+          "Setting to P1 (inflates urgency perception)",
+          "Mismatching label to your actual default"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "mention_scope",
+        "field_name": "Default @Mention Scope",
+        "label": "Who can be @mentioned by default?",
+        "meaning": "Whether @mentions are limited to request stakeholders or open to entire organization",
+        "examples": [
+          "Default (Recommended): Requester + Watchers + CEO only",
+          "Org-wide: Any user can mention any other user"
+        ],
+        "guidance": "Default scope prevents spam @mention alerts. CEO can override per request.",
+        "anti_patterns": [
+          "Org-wide (notification spam)",
+          "So restricted users can't loop in relevant people"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "notification_email_frequency",
+        "field_name": "Email Frequency",
+        "label": "Email Notification Frequency",
+        "meaning": "How often users receive email notifications (instant, daily digest, or off)",
+        "examples": [
+          "Instant: Email on every action",
+          "Daily Digest: One email per day, summary of all events",
+          "Off: Only in-app notifications"
+        ],
+        "guidance": "Instant = best for critical requests. Digest = less email noise.",
+        "anti_patterns": [
+          "Instant for low-priority items (email fatigue)",
+          "Off for urgent requests (users might miss them)"
+        ],
+        "required": true
+      },
+      {
+        "field_id": "announcement_require_ack_on_urgent",
+        "field_name": "Require Ack on Urgent",
+        "label": "Require acknowledgement on Urgent announcements?",
+        "meaning": "Whether users must explicitly acknowledge receipt of 'Urgent' announcements",
+        "examples": [
+          "Yes: Users must click 'I acknowledge' to confirm they saw it",
+          "No: Read-only tracking, no confirmation required"
+        ],
+        "guidance": "Yes = ensures critical messages are noticed. No = less friction.",
+        "anti_patterns": [
+          "Required acknowledgement on low-priority items (busy users ignore)",
+          "No acknowledgement on critical stop-work orders"
+        ],
+        "required": true
+      }
+    ]
+  },
+  "concepts": [
+    {
+      "concept_id": "crud_s",
+      "concept_name": "CRUD-S Lifecycle",
+      "description": "Standard pattern for every request: Create (draft), Read (view), Update (edit), Delete (soft-delete), Submit (business transition).",
+      "visual_explanation": "DRAFT → (user edits) → SUBMITTED → (CEO decides) → APPROVED/REJECTED → CLOSED",
+      "rules": [
+        "Every new request starts as DRAFT (no audit trail, no CEO notification yet)",
+        "User can edit/delete draft anytime",
+        "SUBMIT triggers CEO notification and approval queue",
+        "CEO can only approve/reject submitted requests",
+        "After decision, request is archived (CLOSED) or can be resubmitted if rejected",
+        "Soft-delete is orthogonal: can be undone within 7-day restore window"
+      ],
+      "key_terms": {
+        "Create": "New request, DRAFT status, no notifications",
+        "Read": "View request details, comments, attachments",
+        "Update": "Edit request while in DRAFT or after rejection",
+        "Delete": "Soft-delete (reversible, audit trail kept), CEO can hard-delete",
+        "Submit": "Transition DRAFT → SUBMITTED, trigger CEO notification"
+      }
+    },
+    {
+      "concept_id": "soft_delete_vs_cancel",
+      "concept_name": "Soft-Delete vs Cancel (Orthogonal)",
+      "description": "Two independent mechanisms: soft-delete is access control (reversible), cancel is business decision (terminal).",
+      "visual_explanation": "Soft-Delete (deleted_at field): Access control, reversible. Cancel (status_code='CANCELLED'): Business decision, terminal.",
+      "rules": [
+        "Soft-Delete: Requester or CEO can hide a request by setting deleted_at timestamp",
+        "Soft-Delete is reversible: within 7 days, anyone with access can restore",
+        "Cancel: Only valid status transition when request is in DRAFT, SUBMITTED, or IN_REVIEW",
+        "Cancel is terminal: once cancelled, request cannot be resubmitted",
+        "They are independent: a cancelled request can be soft-deleted separately",
+        "Use soft-delete for accidents. Use cancel for business decision (e.g., 'we're not hiring')"
+      ],
+      "key_terms": {
+        "deleted_at": "Timestamp when soft-deleted, null if not deleted",
+        "restore": "Clear deleted_at within window, reversible",
+        "cancelled": "Status code, permanent business decision",
+        "Reversible": "Can undo soft-delete, cannot undo cancel",
+        "Access Control": "Soft-delete hides from view, cancel is a decision"
+      }
+    },
+    {
+      "concept_id": "priority_selection_tree",
+      "concept_name": "Priority Selection Guide (P1-P5)",
+      "description": "Decision tree to help managers select the right priority level for their request.",
+      "visual_explanation": "P1 (Blocker) → System down OR customer-blocking → P2 (High) → Team blocked OR deadline urgent → P3 (Medium) → Normal work, standard pace → P4 (Low) → Nice to have, no rush → P5 (Trivial) → Cosmetic or deferred",
+      "rules": [
+        "P1 (Blocker): System down, customer impact, decision needed TODAY",
+        "P2 (High): Team blocked or deadline within 24-48 hours",
+        "P3 (Medium): Normal work, needs decision within 1 week (DEFAULT)",
+        "P4 (Low): Nice-to-have, no business impact, flexible timeline",
+        "P5 (Trivial): Cosmetic improvements, can be indefinitely deferred",
+        "Do not abuse P1. Overuse dilutes signal and trains CEO to ignore urgency."
+      ],
+      "key_terms": {
+        "P1": "Blocker—drop everything, decide now",
+        "P2": "High—needs attention soon (24-48h)",
+        "P3": "Medium—standard timeline (1 week)",
+        "P4": "Low—flexible (2+ weeks)",
+        "P5": "Trivial—whenever"
+      }
+    },
+    {
+      "concept_id": "status_lifecycle",
+      "concept_name": "Request Status Lifecycle",
+      "description": "Complete state diagram showing all valid status transitions for a request.",
+      "visual_explanation": "DRAFT (editable) → SUBMITTED (awaiting CEO) → IN_REVIEW (CEO reviewing) → APPROVED or REJECTED → CLOSED (archived)",
+      "rules": [
+        "DRAFT: Initial state, user can edit/delete, no notifications",
+        "SUBMITTED: User submitted, CEO notified, user cannot edit without rejection",
+        "IN_REVIEW: CEO is actively reviewing (optional, implicit in approval process)",
+        "APPROVED: CEO approved, request is executed, auto-archive (CLOSED)",
+        "REJECTED: CEO rejected, requester can edit and resubmit",
+        "CANCELLED: Terminal state, cannot transition to any other state",
+        "CLOSED: Request is archived and read-only",
+        "Material edits (title/priority/category) after submission trigger approval invalidation"
+      ],
+      "key_terms": {
+        "DRAFT": "Editable, not yet submitted",
+        "SUBMITTED": "Waiting for CEO decision",
+        "IN_REVIEW": "CEO is looking at it",
+        "APPROVED": "CEO said yes, execute",
+        "REJECTED": "CEO said no, can resubmit",
+        "CANCELLED": "Permanently closed (not approved)",
+        "CLOSED": "Archived, read-only"
+      }
+    }
+  ]
+}
