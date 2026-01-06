@@ -165,14 +165,22 @@ export default function SignupPage() {
           return;
         }
 
-        // Verify session establishment
-        const { data: session } = await supabase.auth.getSession();
-        if (!session?.session) {
-          setGenesisError("Session not established. Refresh and authenticate.");
+        // Check if email confirmation is required
+        // Supabase returns session=null when email confirmation is pending
+        if (data.user && !data.session) {
+          // Email confirmation required - show success message
+          setGenesisError("");
           setProvisioning(false);
+          // Redirect to a confirmation pending page or show inline message
+          router.push(
+            `/auth/login?message=${encodeURIComponent(
+              "Check your email to confirm your account, then authenticate."
+            )}`
+          );
           return;
         }
 
+        // Session established immediately (email confirmation disabled in Supabase)
         // Command node initialized — proceed to onboarding
         router.push("/onboarding");
       } catch (err) {
@@ -231,9 +239,7 @@ export default function SignupPage() {
               {s < 3 && (
                 <div
                   className={`w-8 h-0.5 transition-colors ${
-                    s < step
-                      ? "bg-nx-success"
-                      : "bg-(--color-nx-surface-well)"
+                    s < step ? "bg-nx-success" : "bg-(--color-nx-surface-well)"
                   }`}
                 />
               )}
@@ -252,9 +258,7 @@ export default function SignupPage() {
               <AlertTriangle className="h-5 w-5 text-nx-danger-text shrink-0" />
               <div className="text-sm text-nx-danger-text">
                 <p className="font-medium">Genesis Error</p>
-                <p className="mt-1 text-nx-danger-text/80">
-                  {genesisError}
-                </p>
+                <p className="mt-1 text-nx-danger-text/80">{genesisError}</p>
               </div>
             </div>
           </motion.div>

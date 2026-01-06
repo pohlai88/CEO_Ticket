@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { motion } from "framer-motion";
-import { AlertTriangle, Eye, EyeOff } from "lucide-react";
+import { AlertTriangle, CheckCircle, Eye, EyeOff } from "lucide-react";
 
 import { AuthShell, ClearanceBar } from "@/components/auth";
 import { supabase } from "@/lib/supabase/client";
@@ -28,6 +28,8 @@ import { supabase } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const confirmationMessage = searchParams.get("message");
 
   // Form state (canonical naming)
   const [identity, setIdentity] = useState("");
@@ -123,6 +125,25 @@ export default function LoginPage() {
         {/* Clearance Level Bar */}
         <ClearanceBar level={clearanceLevel} />
 
+        {/* Email Confirmation Message */}
+        {confirmationMessage && !verifying && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-lg border border-nx-success/50 bg-nx-success-bg p-4"
+          >
+            <div className="flex gap-3">
+              <CheckCircle className="h-5 w-5 text-nx-success shrink-0" />
+              <div className="text-sm text-nx-success-text">
+                <p className="font-medium">Registration Successful</p>
+                <p className="mt-1 text-nx-success-text/80">
+                  {confirmationMessage}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Error Alert (Clearance Denied) */}
         {clearanceError && !verifying && (
           <motion.div
@@ -134,9 +155,7 @@ export default function LoginPage() {
               <AlertTriangle className="h-5 w-5 text-nx-danger-text shrink-0" />
               <div className="text-sm text-nx-danger-text">
                 <p className="font-medium">Clearance Denied</p>
-                <p className="mt-1 text-nx-danger-text/80">
-                  {clearanceError}
-                </p>
+                <p className="mt-1 text-nx-danger-text/80">{clearanceError}</p>
               </div>
             </div>
           </motion.div>
