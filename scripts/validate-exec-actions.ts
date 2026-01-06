@@ -189,19 +189,16 @@ export function validateExecutiveActionMatrix(): {
 
 // CLI execution
 if (require.main === module) {
+  const log = (msg: string) => process.stdout.write(msg + "\n");
   try {
     const result = validateExecutiveActionMatrix();
-    console.log("✅ Executive Action Matrix validated");
-    console.log(`   - ${result.total} actions defined`);
-    console.log("   - All IDs sequential (E01-E15)");
-    console.log("   - No duplicates");
-    console.log("");
-    console.log(
-      "⚠️  REMINDER: Each action requires manual or automated verification"
-    );
-    console.log(
-      "   Run `npm run test:exec` to execute E2E tests (when implemented)"
-    );
+    log("✅ Executive Action Matrix validated");
+    log(`   - ${result.total} actions defined`);
+    log("   - All IDs sequential (E01-E15)");
+    log("   - No duplicates");
+    log("");
+    log("⚠️  REMINDER: Each action requires manual or automated verification");
+    log("   Run `npm run test:exec` to execute E2E tests (when implemented)");
     process.exit(0);
   } catch (error) {
     console.error("❌ Executive Action Matrix validation failed");

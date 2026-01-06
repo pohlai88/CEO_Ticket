@@ -12,6 +12,7 @@ export default [
       "*.config.js",
       "*.config.mjs",
       "public/**",
+      "docs/**",
     ],
   },
   {
@@ -78,6 +79,13 @@ export default [
     rules: {
       // Server Components don't need explicit return types
       "@typescript-eslint/explicit-function-return-type": "off",
+    },
+  },
+  {
+    // Allow console in CLI scripts
+    files: ["scripts/**/*.ts", "scripts/**/*.js"],
+    rules: {
+      "no-console": "off",
     },
   },
 ];
