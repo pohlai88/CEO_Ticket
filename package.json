@@ -10,14 +10,16 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "validate": "npm run type-check && npm run lint && npm run validate:glossary",
     "validate:glossary": "node scripts/validate-glossary.js",
     "validate:exec": "npx tsx scripts/validate-exec-actions.ts",
     "prd:generate": "prd-guard generate",
     "prd:validate": "prd-guard validate",
     "prd:check": "prd-guard check",
-    "validate:all": "npm run validate && npm run validate:exec && npm run prd:validate && npm run prd:check",
-    "test:exec": "echo 'E2E executive action tests not yet implemented - see docs/02_PRD_RCF.md Section 13'",
+    "validate:all": "npm run validate && npm run test && npm run validate:exec && npm run prd:validate && npm run prd:check",
     "prepare": "husky"
   },
   "dependencies": {
@@ -45,22 +47,28 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@eslint/js": "^9.39.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^20.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "@vitejs/plugin-react": "^5.1.2",
     "autoprefixer": "^10.4.16",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
     "eslint-plugin-import": "^2.29.0",
     "husky": "^9.1.7",
+    "jsdom": "^27.4.0",
     "next-devtools-mcp": "^0.3.8",
     "postcss": "^8.4.32",
     "prd-guard": "github:pohlai88/PRD_GUARD",
     "shadcn-ui": "^0.9.5",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=18.0.0"
