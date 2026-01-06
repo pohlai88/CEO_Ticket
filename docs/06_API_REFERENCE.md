@@ -42,6 +42,7 @@ POST /api/requests
 ```
 
 **Body:**
+
 ```json
 {
   "title": "Request title",
@@ -72,6 +73,7 @@ PATCH /api/requests/:id
 ```
 
 **Body (content update):**
+
 ```json
 {
   "title": "Updated title",
@@ -81,6 +83,7 @@ PATCH /api/requests/:id
 ```
 
 **Body (status transition):**
+
 ```json
 {
   "target_status": "SUBMITTED",
@@ -99,6 +102,7 @@ DELETE /api/requests/:id
 ```
 
 **Body:**
+
 ```json
 {
   "reason": "Deletion reason"
@@ -128,6 +132,7 @@ POST /api/requests/:id/comments
 ```
 
 **Body:**
+
 ```json
 {
   "content": "Comment text",
@@ -179,6 +184,7 @@ PATCH /api/approvals/:id
 ```
 
 **Body:**
+
 ```json
 {
   "decision": "approved" | "rejected",
@@ -209,6 +215,7 @@ POST /api/announcements
 ```
 
 **Body:**
+
 ```json
 {
   "title": "Announcement title",
@@ -254,6 +261,7 @@ POST /api/messages
 ```
 
 **Body:**
+
 ```json
 {
   "message_type": "consultation",
@@ -275,6 +283,7 @@ PATCH /api/messages/:id
 ```
 
 **PATCH Body:**
+
 ```json
 {
   "action": "send" | "acknowledge" | "resolve"
@@ -308,6 +317,7 @@ POST /api/admin/invite
 ```
 
 **Body:**
+
 ```json
 {
   "emails": ["manager1@example.com", "manager2@example.com"]
@@ -326,10 +336,10 @@ All errors follow this format:
 }
 ```
 
-| Status | Meaning |
-|--------|---------|
-| 400 | Bad Request (validation error) |
-| 401 | Unauthorized (no auth) |
-| 403 | Forbidden (wrong role) |
-| 404 | Not Found |
-| 500 | Server Error |
+| Status | Meaning                        |
+| ------ | ------------------------------ |
+| 400    | Bad Request (validation error) |
+| 401    | Unauthorized (no auth)         |
+| 403    | Forbidden (wrong role)         |
+| 404    | Not Found                      |
+| 500    | Server Error                   |

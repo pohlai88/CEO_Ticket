@@ -1,6 +1,12 @@
 {
-  "version": "1.0",
-  "last_updated": "2026-01-05",
+  "_meta": {
+    "derived_from": "lib/types/database.ts + lib/constants/status.ts + API DTOs",
+    "rcf_version": "2.2.0",
+    "authoritative": false,
+    "last_validated": "2026-01-06"
+  },
+  "version": "1.1",
+  "last_updated": "2026-01-06",
   "scopes": {
     "onboarding": [
       {
@@ -26,10 +32,7 @@
         "field_name": "Manager Email Addresses",
         "label": "Invite Senior Managers",
         "meaning": "Email addresses of decision-capable managers who will receive approval requests and announcements",
-        "examples": [
-          "jane.doe@company.com",
-          "mike.chen@company.com"
-        ],
+        "examples": ["jane.doe@company.com", "mike.chen@company.com"],
         "guidance": "Add only managers with authority to make business decisions. Add more anytime from Settings. Separate by comma or newline.",
         "anti_patterns": [
           "Inviting all employees",
@@ -90,10 +93,7 @@
         "field_name": "Admin Email",
         "label": "Admin Email Address",
         "meaning": "Email of the person who will manage system configuration (you, typically)",
-        "examples": [
-          "ceo@company.com",
-          "admin@company.com"
-        ],
+        "examples": ["ceo@company.com", "admin@company.com"],
         "guidance": "This account gets CEO role and config access. You can invite others to admin later.",
         "anti_patterns": [
           "Using shared email address",
@@ -106,10 +106,7 @@
         "field_name": "Organization Timezone",
         "label": "Organization Timezone",
         "meaning": "Your timezone, used to display all timestamps in your local time",
-        "examples": [
-          "America/New_York",
-          "Asia/Tokyo"
-        ],
+        "examples": ["America/New_York", "Asia/Tokyo"],
         "guidance": "Select your primary office timezone. All reports and timestamps convert to this.",
         "anti_patterns": [
           "Selecting UTC when you don't work in UTC",
@@ -170,25 +167,26 @@
           "Marking routine stuff as P1",
           "Changing priority after submitting"
         ],
-        "required": true
+        "required": true,
+        "source": "PriorityCode",
+        "api_field": "priority_code",
+        "db_column": "priority_code"
       },
       {
         "field_id": "category_id",
         "field_name": "Category",
         "label": "Category",
         "meaning": "What type of request this is (e.g. Hiring, Budget, Product, Operations). Used for sorting and filtering.",
-        "examples": [
-          "Hiring",
-          "Budget",
-          "Product Launch",
-          "Partnership"
-        ],
+        "examples": ["Hiring", "Budget", "Product Launch", "Partnership"],
         "guidance": "Pick the best fit. CEO can add more categories in Admin Config.",
         "anti_patterns": [
           "Unclear categories like 'Misc'",
           "Creating category for single request"
         ],
-        "required": false
+        "required": false,
+        "source": "Category.id",
+        "api_field": "category_id",
+        "db_column": "category_id"
       },
       {
         "field_id": "attachments",
@@ -326,7 +324,10 @@
           "Setting to P1 (inflates urgency perception)",
           "Mismatching label to your actual default"
         ],
-        "required": true
+        "required": true,
+        "source": "PriorityCode",
+        "api_field": "default_priority_code",
+        "db_column": "default_priority_code"
       },
       {
         "field_id": "mention_scope",
@@ -441,7 +442,8 @@
         "P3": "Medium—standard timeline (1 week)",
         "P4": "Low—flexible (2+ weeks)",
         "P5": "Trivial—whenever"
-      }
+      },
+      "source": "PriorityCode + DEFAULT_PRIORITY_METADATA"
     },
     {
       "concept_id": "status_lifecycle",
@@ -466,7 +468,8 @@
         "REJECTED": "CEO said no, can resubmit",
         "CANCELLED": "Permanently closed (not approved)",
         "CLOSED": "Archived, read-only"
-      }
+      },
+      "source": "RequestStatus + FSM_TRANSITIONS"
     }
   ]
 }
