@@ -1,4 +1,4 @@
-# CEO Request Ticketing System
+# CEO Request Management System
 
 Executive decision-making, approval workflow, announcements, and communication system.
 
