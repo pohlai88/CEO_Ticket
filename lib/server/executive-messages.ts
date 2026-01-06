@@ -93,14 +93,19 @@ export async function createExecutiveMessage(
       return { success: false, error: insertError.message };
     }
 
-    // Write audit log (REQUIRED)
-    await supabase.from("ceo_audit_logs").insert({
+    // Write audit log (REQUIRED - use service role)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: orgId,
       entity_type: "message",
       entity_id: message.id,
       action: "created",
       user_id: userId,
-      new_values: message,
+      actor_role_code: userRole,
+      new_values: {
+        subject: message.subject,
+        message_type: message.message_type,
+      },
     });
 
     return { success: true, message: transformMessage(message, userId) };
@@ -158,12 +163,13 @@ export async function sendExecutiveMessage(
       return { success: false, error: updateError.message };
     }
 
-    // Write audit log (REQUIRED for send)
-    await supabase.from("ceo_audit_logs").insert({
+    // Write audit log (REQUIRED for send - use service role)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: orgId,
       entity_type: "message",
       entity_id: messageId,
-      action: "message_sent",
+      action: "sent",
       user_id: userId,
       new_values: { status: "sent", sent_at: now },
     });
@@ -232,12 +238,13 @@ export async function acknowledgeExecutiveMessage(
         return { success: false, error: updateError.message };
       }
 
-      // Write audit log (REQUIRED for resolve)
-      await supabase.from("ceo_audit_logs").insert({
+      // Write audit log (REQUIRED for resolve - use service role)
+      const { writeAuditLog } = await import("@/lib/supabase/server");
+      await writeAuditLog({
         org_id: orgId,
         entity_type: "message",
         entity_id: messageId,
-        action: "message_resolved",
+        action: "resolved",
         user_id: userId,
         new_values: { status: "resolved", resolved_at: now },
       });
@@ -262,12 +269,13 @@ export async function acknowledgeExecutiveMessage(
         return { success: false, error: upsertError.message };
       }
 
-      // Write audit log (REQUIRED for acknowledge)
-      await supabase.from("ceo_audit_logs").insert({
+      // Write audit log (REQUIRED for acknowledge - use service role)
+      const { writeAuditLog } = await import("@/lib/supabase/server");
+      await writeAuditLog({
         org_id: orgId,
         entity_type: "message",
         entity_id: messageId,
-        action: "message_acknowledged",
+        action: "acknowledged",
         user_id: userId,
         new_values: { acknowledged_at: now },
       });
@@ -446,20 +454,21 @@ function transformMessage(
   };
 }
 
-// Helper: Log notification for message recipients
+// Helper: Log notification for message recipients (uses service-role via writeNotificationLog)
 async function logMessageNotification(
   message: any,
   orgId: string,
   supabase: Awaited<ReturnType<typeof createServerAuthClient>>
 ) {
   try {
+    const { writeNotificationLog } = await import("@/lib/supabase/server");
+
     const allRecipients = [
       ...(message.recipient_ids || []),
       ...(message.cc_user_ids || []),
     ];
     const uniqueRecipients = [...new Set(allRecipients)];
 
-    const notificationRecords = [];
     for (const recipientId of uniqueRecipients) {
       const { data: user } = await supabase
         .from("ceo_users")
@@ -469,7 +478,8 @@ async function logMessageNotification(
         .single();
 
       if (user) {
-        notificationRecords.push({
+        // Use service-role helper to bypass RLS
+        await writeNotificationLog({
           org_id: orgId,
           event_type: "message_sent",
           recipient_id: recipientId,
@@ -480,11 +490,6 @@ async function logMessageNotification(
           sent_at: new Date().toISOString(),
         });
       }
-    }
-
-    // Batch insert
-    if (notificationRecords.length > 0) {
-      await supabase.from("ceo_notification_log").insert(notificationRecords);
     }
   } catch (error) {
     console.error("Failed to log message notification:", error);

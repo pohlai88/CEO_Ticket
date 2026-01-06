@@ -1,9 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Bell, FileText, Plus } from "lucide-react";
 
@@ -11,103 +6,13 @@ import {
   ImportantAnnouncementBanner,
   UrgentAnnouncementBanner,
 } from "@/components/announcements/AnnouncementBanners";
+import { LogoutButton } from "@/components/auth/LogoutButton";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase/client";
+import { getDashboardData } from "@/lib/server/dashboard";
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [org, setOrg] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        // Get current user
-        const {
-          data: { user: authUser },
-        } = await supabase.auth.getUser();
-
-        if (!authUser) {
-          router.push("/auth/login");
-          return;
-        }
-
-        setUser(authUser);
-
-        // Get user profile (org_id, role)
-        const { data: userProfile } = await supabase
-          .from("ceo_users")
-          .select("org_id, role_code")
-          .eq("id", authUser.id)
-          .single();
-
-        if (!userProfile) {
-          // First login - need to bootstrap
-          const response = await fetch("/api/auth/bootstrap", {
-            method: "POST",
-          });
-          if (!response.ok) {
-            throw new Error("Bootstrap failed");
-          }
-          const { org_id } = await response.json();
-          setOrg({ id: org_id });
-        } else {
-          // Get org details
-          const { data: orgData } = await supabase
-            .from("ceo_organizations")
-            .select("*")
-            .eq("id", userProfile.org_id)
-            .single();
-          setOrg(orgData);
-          setUserRole(userProfile.role_code);
-
-          // Get unread announcement count
-          if (userProfile.role_code !== "ceo") {
-            const res = await fetch("/api/announcements");
-            if (res.ok) {
-              const data = await res.json();
-              const unread =
-                data.announcements?.filter((a: any) => !a.is_read).length || 0;
-              setUnreadCount(unread);
-            }
-          }
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void checkAuth();
-  }, [router]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/auth/login");
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading dashboard...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="rounded-md bg-red-50 p-4">
-          <p className="text-sm font-medium text-red-800">{error}</p>
-        </div>
-      </div>
-    );
-  }
+export default async function DashboardPage() {
+  const { user, org, userRole, unreadAnnouncementCount } =
+    await getDashboardData();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -127,20 +32,15 @@ export default function DashboardPage() {
               <Link href="/announcements" className="relative">
                 <Button variant="ghost" size="sm">
                   <Bell className="h-5 w-5" />
-                  {unreadCount > 0 && (
+                  {unreadAnnouncementCount > 0 && (
                     <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
-                      {unreadCount}
+                      {unreadAnnouncementCount}
                     </span>
                   )}
                 </Button>
               </Link>
-              <span className="text-sm text-gray-600">{user?.email}</span>
-              <button
-                onClick={handleLogout}
-                className="text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                Sign out
-              </button>
+              <span className="text-sm text-gray-600">{user.email}</span>
+              <LogoutButton />
             </div>
           </div>
         </div>
@@ -190,8 +90,8 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900">Announcements</h3>
                   <p className="text-sm text-gray-600">
-                    {unreadCount > 0
-                      ? `${unreadCount} unread`
+                    {unreadAnnouncementCount > 0
+                      ? `${unreadAnnouncementCount} unread`
                       : "View all updates"}
                   </p>
                 </div>
@@ -203,9 +103,9 @@ export default function DashboardPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Welcome</h2>
           <div className="space-y-2 text-gray-600">
-            <p>Organization: {org?.name || "Loading..."}</p>
-            <p>Email: {user?.email}</p>
-            <p>Role: {userRole || "Loading..."}</p>
+            <p>Organization: {org?.name || "Not set"}</p>
+            <p>Email: {user.email}</p>
+            <p>Role: {userRole}</p>
           </div>
         </div>
       </main>

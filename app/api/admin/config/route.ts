@@ -14,8 +14,8 @@ const ConfigUpdateSchema = z.object({
   default_priority_code: z.enum(["P1", "P2", "P3", "P4", "P5"]).optional(),
   allow_manager_self_approve: z.boolean().optional(),
   require_approval_notes: z.boolean().optional(),
-  max_mentions_per_comment: z.number().int().min(1).max(20).optional(),
-  mention_scope_default: z.enum(["requester_watchers", "org_wide"]).optional(),
+  mention_max_per_comment: z.number().int().min(1).max(20).optional(),
+  mention_scope: z.array(z.string()).optional(),
 });
 
 // GET /api/admin/config - Get CEO config
@@ -141,13 +141,15 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: updateError.message }, { status: 500 });
     }
 
-    // Audit log (track what changed)
-    await supabase.from("ceo_audit_logs").insert({
+    // Audit log (track what changed) - use service-role helper
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: profile.org_id,
       entity_type: "ceo_config",
       entity_id: config.id.toString(),
       action: "config_updated",
       user_id: user.id,
+      actor_role_code: profile.role_code,
       old_values: oldConfig,
       new_values: updates,
     });

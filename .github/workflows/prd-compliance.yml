@@ -1,0 +1,71 @@
+name: PRD Compliance
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "docs/02_PRD*.md"
+      - "docs/02_PRD_COMPLIANCE.ts"
+      - "docs/02_SYSTEM_PROMPT.md"
+      - "lib/constants/status.ts"
+      - "lib/constants/material-changes.ts"
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/02_PRD*.md"
+      - "docs/02_PRD_COMPLIANCE.ts"
+      - "docs/02_SYSTEM_PROMPT.md"
+      - "lib/constants/status.ts"
+      - "lib/constants/material-changes.ts"
+
+jobs:
+  validate:
+    name: PRD Guard Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: PRD Guard Generate (Drift Check)
+        run: |
+          prd-guard generate
+          git diff --exit-code || (echo "❌ Generated docs differ from committed. Run: prd-guard generate" && exit 1)
+
+      - name: PRD Guard Validate
+        run: prd-guard validate
+
+      - name: PRD Guard Check
+        run: prd-guard check
+
+      - name: Type Check
+        run: npm run type-check
+
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint

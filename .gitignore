@@ -12,6 +12,7 @@ node_modules/
 
 # Production
 /build
+dist/
 
 # Environment variables
 .env
@@ -26,13 +27,30 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 lerna-debug.log*
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
+*.bak
 
 # Editor
 .idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
 *.swp
 *.swo
 *~
+
+# Temp files
+lint-results.json
+*.tmp
+*.temp
+
+# TypeScript
+*.tsbuildinfo
+
+# Turbo
+.turbo/

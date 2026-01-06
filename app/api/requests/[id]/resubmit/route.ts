@@ -93,9 +93,30 @@ export async function POST(
     );
   }
 
-  // 5. Update request status to IN_REVIEW
+  // 5. Update request status to SUBMITTED (first step of resubmission)
   const statusChangedAt = new Date().toISOString();
 
+  const { data: submittedRequest, error: submitError } = await supabase
+    .from("ceo_requests")
+    .update({
+      status_code: "SUBMITTED",
+      status_changed_at: statusChangedAt,
+      last_activity_at: statusChangedAt,
+      updated_at: statusChangedAt,
+    })
+    .eq("id", requestId)
+    .eq("org_id", profile.org_id)
+    .select()
+    .single();
+
+  if (submitError || !submittedRequest) {
+    return NextResponse.json(
+      { error: "Failed to transition to SUBMITTED status" },
+      { status: 500 }
+    );
+  }
+
+  // 6. Update request status to IN_REVIEW (second step for CEO queue)
   const { data: updatedRequest, error: updateError } = await supabase
     .from("ceo_requests")
     .update({
@@ -116,7 +137,7 @@ export async function POST(
     );
   }
 
-  // 6. Create new approval round
+  // 7. Create new approval round
   const approvalResult = await createResubmissionApproval({
     orgId: profile.org_id,
     requestId,
@@ -131,7 +152,7 @@ export async function POST(
     return NextResponse.json({ error: approvalResult.error }, { status: 500 });
   }
 
-  // 7. Audit log resubmission
+  // 8. Audit log resubmission (two transitions: REJECTED → SUBMITTED → IN_REVIEW)
   await writeAuditLog({
     org_id: profile.org_id,
     entity_type: "request",
@@ -141,10 +162,13 @@ export async function POST(
     actor_role_code: profile.role_code as "MANAGER" | "CEO" | "ADMIN",
     old_values: { status_code: "REJECTED" },
     new_values: { status_code: "IN_REVIEW" },
-    metadata: { approval_round: resubmitCheck.nextRound || 1 },
+    metadata: {
+      approval_round: resubmitCheck.nextRound || 1,
+      intermediate_status: "SUBMITTED",
+    },
   });
 
-  // 8. Return success
+  // 9. Return success
   return NextResponse.json({
     success: true,
     request: updatedRequest,

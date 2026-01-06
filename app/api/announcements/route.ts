@@ -134,13 +134,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Stub for email notification - logs to ceo_notification_log
+// Stub for email notification - logs to ceo_notification_log (uses service-role)
 async function logUrgentAnnouncementNotification(
   announcement: any,
   orgId: string,
   supabase: Awaited<ReturnType<typeof createServerAuthClient>>
 ) {
   try {
+    const { writeNotificationLog } = await import("@/lib/supabase/server");
+
     // Get target users based on scope
     let recipientIds: string[] = [];
 
@@ -156,8 +158,7 @@ async function logUrgentAnnouncementNotification(
       recipientIds = announcement.target_user_ids || [];
     }
 
-    // Batch insert notification logs (org-scoped)
-    const notificationRecords = [];
+    // Log notifications using service-role helper
     for (const recipientId of recipientIds) {
       const { data: user } = await supabase
         .from("ceo_users")
@@ -167,7 +168,8 @@ async function logUrgentAnnouncementNotification(
         .single();
 
       if (user) {
-        notificationRecords.push({
+        // Use service-role helper to bypass RLS
+        await writeNotificationLog({
           org_id: orgId,
           event_type: "announcement_published",
           recipient_id: recipientId,
@@ -178,11 +180,6 @@ async function logUrgentAnnouncementNotification(
           sent_at: new Date().toISOString(),
         });
       }
-    }
-
-    // Batch insert instead of loop
-    if (notificationRecords.length > 0) {
-      await supabase.from("ceo_notification_log").insert(notificationRecords);
     }
   } catch (error) {
     console.error("Failed to log urgent announcement notification:", error);

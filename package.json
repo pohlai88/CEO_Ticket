@@ -11,7 +11,12 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "validate": "npm run type-check && npm run lint && npm run validate:glossary",
-    "validate:glossary": "node scripts/validate-glossary.js"
+    "validate:glossary": "node scripts/validate-glossary.js",
+    "prd:generate": "prd-guard generate",
+    "prd:validate": "prd-guard validate",
+    "prd:check": "prd-guard check",
+    "validate:all": "npm run validate && npm run prd:validate && npm run prd:check",
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.0",
@@ -48,8 +53,10 @@
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
     "eslint-plugin-import": "^2.29.0",
+    "husky": "^9.1.7",
     "next-devtools-mcp": "^0.3.8",
     "postcss": "^8.4.32",
+    "prd-guard": "github:pohlai88/PRD_GUARD",
     "shadcn-ui": "^0.9.5",
     "typescript": "^5.3.0"
   },

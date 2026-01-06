@@ -8,7 +8,9 @@ import { createServerAuthClient } from "@/lib/supabase/server-auth";
 // Zod DTO for adding watcher
 const AddWatcherSchema = z.object({
   watcher_id: z.string().uuid("Invalid user ID"),
-  role: z.enum(["OBSERVER", "CONTRIBUTOR", "ESCALATION_CONTACT"]).optional(),
+  role_code: z
+    .enum(["OBSERVER", "CONTRIBUTOR", "ESCALATION_CONTACT"])
+    .optional(),
 });
 
 // POST /api/requests/[id]/watchers - Add watcher
@@ -52,7 +54,7 @@ export async function POST(
       );
     }
 
-    const { watcher_id, role } = validation.data;
+    const { watcher_id, role_code } = validation.data;
 
     // Verify request exists and user has access (org-scoped)
     const { data: request } = await supabase
@@ -101,7 +103,7 @@ export async function POST(
           request_id: requestId,
           watcher_id,
           org_id: profile.org_id,
-          role: role || "OBSERVER",
+          role_code: role_code || "OBSERVER",
           added_by: user.id,
         },
         {
@@ -115,14 +117,16 @@ export async function POST(
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    // Audit log
-    await supabase.from("ceo_audit_logs").insert({
+    // Audit log (use service role helper)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: profile.org_id,
-      entity_type: "request",
-      entity_id: requestId,
-      action: "watcher_added",
+      entity_type: "watcher",
+      entity_id: watcher.watcher_id,
+      action: "created",
       user_id: user.id,
-      new_values: { watcher_id, role: role || "OBSERVER" },
+      actor_role_code: profile.role_code,
+      new_values: { request_id: requestId, role_code: role_code || "OBSERVER" },
     });
 
     return NextResponse.json({ watcher }, { status: 201 });
@@ -208,14 +212,16 @@ export async function DELETE(
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
-    // Audit log
-    await supabase.from("ceo_audit_logs").insert({
+    // Audit log (use service role helper)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: profile.org_id,
-      entity_type: "request",
-      entity_id: requestId,
-      action: "watcher_removed",
+      entity_type: "watcher",
+      entity_id: watcherId,
+      action: "deleted",
       user_id: user.id,
-      old_values: { watcher_id: watcherId },
+      actor_role_code: profile.role_code,
+      old_values: { request_id: requestId, watcher_id: watcherId },
     });
 
     return NextResponse.json({ success: true });

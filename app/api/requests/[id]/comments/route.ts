@@ -120,11 +120,11 @@ export async function POST(
     // Get CEO config for mention limits
     const { data: config } = await supabase
       .from("ceo_config")
-      .select("max_mentions_per_comment")
+      .select("mention_max_per_comment")
       .eq("org_id", profile.org_id)
       .single();
 
-    const maxMentions = config?.max_mentions_per_comment || 5;
+    const maxMentions = config?.mention_max_per_comment || 5;
 
     if (mentionedUserIds.length > maxMentions) {
       return NextResponse.json(
@@ -170,22 +170,25 @@ export async function POST(
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    // Audit log
-    await supabase.from("ceo_audit_logs").insert({
+    // Audit log (use service role helper)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: profile.org_id,
-      entity_type: "request",
-      entity_id: requestId,
-      action: "comment_added",
+      entity_type: "comment",
+      entity_id: comment.id,
+      action: "created",
       user_id: user.id,
+      actor_role_code: profile.role_code,
       new_values: {
-        comment_id: comment.id,
-        mentioned_users: mentionedUserIds.length,
+        request_id: requestId,
+        mentioned_user_ids: mentionedUserIds,
       },
     });
 
-    // Log notifications for mentioned users
+    // Log notifications for mentioned users (use service role helper)
     if (mentionedUserIds.length > 0) {
-      const notificationRecords = [];
+      const { writeNotificationLog } = await import("@/lib/supabase/server");
+
       for (const mentionedUserId of mentionedUserIds) {
         const { data: mentionedUser } = await supabase
           .from("ceo_users")
@@ -195,21 +198,15 @@ export async function POST(
           .single();
 
         if (mentionedUser) {
-          notificationRecords.push({
+          await writeNotificationLog({
             org_id: profile.org_id,
-            event_type: "user_mentioned",
+            event_type: "mention",
             recipient_id: mentionedUserId,
             recipient_email: mentionedUser.email,
             related_entity_type: "comment",
             related_entity_id: comment.id,
-            status: "sent",
-            sent_at: new Date().toISOString(),
           });
         }
-      }
-
-      if (notificationRecords.length > 0) {
-        await supabase.from("ceo_notification_log").insert(notificationRecords);
       }
     }
 

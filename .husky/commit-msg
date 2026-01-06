@@ -1,0 +1,29 @@
+#!/bin/sh
+# Commit Message Validation for PRD Changes
+# Constitutional Engine: github.com/pohlai88/PRD_GUARD
+
+COMMIT_MSG=$(cat "$1")
+
+# Check if commit touches PRD-controlled files
+PRD_FILES=$(git diff --cached --name-only | grep -E "(docs/02_PRD|docs/02_SYSTEM_PROMPT|lib/constants/(status|material-changes)\.ts)" || true)
+
+if [ -n "$PRD_FILES" ]; then
+  # Require PRD scope in commit message
+  if ! echo "$COMMIT_MSG" | grep -qE "^\[PRD\]|^(feat|fix|docs|refactor)\(prd\):"; then
+    echo ""
+    echo "❌ COMMIT MESSAGE VALIDATION FAILED"
+    echo ""
+    echo "This commit modifies PRD-controlled files:"
+    echo "$PRD_FILES"
+    echo ""
+    echo "Commit message must start with [PRD] or use conventional format:"
+    echo "  - [PRD] description of change"
+    echo "  - feat(prd): description"
+    echo "  - fix(prd): description"
+    echo "  - docs(prd): description"
+    echo ""
+    exit 1
+  fi
+  
+  echo "✅ PRD commit message format validated"
+fi

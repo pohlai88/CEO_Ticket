@@ -483,6 +483,175 @@ CREATE POLICY "No modifications to audit logs" ON ceo_audit_logs
 CREATE POLICY "No deletions of audit logs" ON ceo_audit_logs
   FOR DELETE USING (false);
 
+-- CEO_CATEGORIES: all org members can read, CEO can manage
+CREATE POLICY "View org categories" ON ceo_categories
+  FOR SELECT USING (org_id = auth.current_org_id());
+
+CREATE POLICY "CEO can manage categories" ON ceo_categories
+  FOR INSERT WITH CHECK (
+    org_id = auth.current_org_id() AND
+    auth.is_ceo_or_admin()
+  );
+
+CREATE POLICY "CEO can update categories" ON ceo_categories
+  FOR UPDATE USING (
+    org_id = auth.current_org_id() AND
+    auth.is_ceo_or_admin()
+  );
+
+-- CEO_REQUEST_COMMENTS: requester, CEO, watchers can view and comment
+CREATE POLICY "View request comments" ON ceo_request_comments
+  FOR SELECT USING (
+    org_id = auth.current_org_id() AND EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin() OR
+        EXISTS (SELECT 1 FROM ceo_request_watchers rw WHERE rw.request_id = r.id AND rw.watcher_id = auth.uid())
+      )
+    )
+  );
+
+CREATE POLICY "Users can add comments to visible requests" ON ceo_request_comments
+  FOR INSERT WITH CHECK (
+    org_id = auth.current_org_id() AND
+    author_id = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin() OR
+        EXISTS (SELECT 1 FROM ceo_request_watchers rw WHERE rw.request_id = r.id AND rw.watcher_id = auth.uid())
+      )
+    )
+  );
+
+CREATE POLICY "Users can update own comments" ON ceo_request_comments
+  FOR UPDATE USING (
+    org_id = auth.current_org_id() AND
+    author_id = auth.uid()
+  );
+
+-- CEO_REQUEST_WATCHERS: requester and CEO can manage, all can view
+CREATE POLICY "View request watchers" ON ceo_request_watchers
+  FOR SELECT USING (
+    org_id = auth.current_org_id() AND EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin()
+      )
+    )
+  );
+
+CREATE POLICY "Requester and CEO can add watchers" ON ceo_request_watchers
+  FOR INSERT WITH CHECK (
+    org_id = auth.current_org_id() AND EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin()
+      )
+    )
+  );
+
+CREATE POLICY "Requester and CEO can remove watchers" ON ceo_request_watchers
+  FOR DELETE USING (
+    org_id = auth.current_org_id() AND EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin()
+      )
+    )
+  );
+
+-- CEO_REQUEST_ATTACHMENTS: requester, CEO, watchers can view; requester can upload
+CREATE POLICY "View request attachments" ON ceo_request_attachments
+  FOR SELECT USING (
+    org_id = auth.current_org_id() AND EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin() OR
+        EXISTS (SELECT 1 FROM ceo_request_watchers rw WHERE rw.request_id = r.id AND rw.watcher_id = auth.uid())
+      )
+    )
+  );
+
+CREATE POLICY "Requester can upload attachments" ON ceo_request_attachments
+  FOR INSERT WITH CHECK (
+    org_id = auth.current_org_id() AND
+    uploaded_by = auth.uid() AND
+    EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND r.requester_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Requester and CEO can delete attachments" ON ceo_request_attachments
+  FOR DELETE USING (
+    org_id = auth.current_org_id() AND EXISTS (
+      SELECT 1 FROM ceo_requests r 
+      WHERE r.id = request_id AND (
+        r.requester_id = auth.uid() OR
+        auth.is_ceo_or_admin()
+      )
+    )
+  );
+
+-- CEO_EXECUTIVE_MESSAGES: recipients, CC'd, and author can view; author can send
+CREATE POLICY "View messages where you're author, recipient, or CC'd" ON ceo_executive_messages
+  FOR SELECT USING (
+    org_id = auth.current_org_id() AND (
+      author_id = auth.uid() OR
+      recipient_ids @> ARRAY[auth.uid()::TEXT] OR
+      cc_user_ids @> ARRAY[auth.uid()::TEXT]
+    )
+  );
+
+CREATE POLICY "Users can create draft messages" ON ceo_executive_messages
+  FOR INSERT WITH CHECK (
+    org_id = auth.current_org_id() AND
+    author_id = auth.uid()
+  );
+
+CREATE POLICY "Author can update own draft messages" ON ceo_executive_messages
+  FOR UPDATE USING (
+    org_id = auth.current_org_id() AND
+    author_id = auth.uid() AND
+    status = 'draft'
+  );
+
+-- CEO_EXECUTIVE_MESSAGE_READS: users can manage own read status
+CREATE POLICY "View own message reads" ON ceo_executive_message_reads
+  FOR SELECT USING (
+    org_id = auth.current_org_id() AND
+    user_id = auth.uid()
+  );
+
+CREATE POLICY "Users can mark messages read/ack" ON ceo_executive_message_reads
+  FOR INSERT WITH CHECK (
+    org_id = auth.current_org_id() AND
+    user_id = auth.uid()
+  );
+
+CREATE POLICY "Users can update own read status" ON ceo_executive_message_reads
+  FOR UPDATE USING (
+    org_id = auth.current_org_id() AND
+    user_id = auth.uid()
+  );
+
+-- CEO_NOTIFICATION_LOG: users can read own notifications; service role can insert
+CREATE POLICY "View own notifications" ON ceo_notification_log
+  FOR SELECT USING (
+    org_id = auth.current_org_id() AND
+    recipient_id = auth.uid()
+  );
+
+-- CRITICAL: Only service role can insert notification logs (not users)
+-- No INSERT policy = only service role can write
+
 -- ============================================================================
 -- INITIAL DATA
 -- ============================================================================

@@ -92,3 +92,48 @@ export async function writeAuditLog(params: {
     // TODO: Write to audit_failures table post-ship
   }
 }
+
+/**
+ * Write notification log entry (service role only)
+ *
+ * CRITICAL: This bypasses RLS to write notification logs
+ * Uses service-role client to ensure notification logging never fails
+ */
+export async function writeNotificationLog(params: {
+  org_id: string;
+  event_type:
+    | "request_created"
+    | "approval_decision"
+    | "status_change"
+    | "mention"
+    | "watcher_added"
+    | "announcement_published"
+    | "message_sent";
+  recipient_id: string;
+  recipient_email: string;
+  related_entity_type?: "request" | "announcement" | "message" | "comment";
+  related_entity_id?: string;
+  status?: "sent" | "failed" | "bounced";
+  sent_at?: string;
+}): Promise<void> {
+  const { error } = await supabaseAdmin.from("ceo_notification_log").insert({
+    org_id: params.org_id,
+    event_type: params.event_type,
+    recipient_id: params.recipient_id,
+    recipient_email: params.recipient_email,
+    related_entity_type: params.related_entity_type,
+    related_entity_id: params.related_entity_id,
+    status: params.status || "sent",
+    sent_at: params.sent_at || new Date().toISOString(),
+  });
+
+  if (error) {
+    console.error("Failed to write notification log:", {
+      org_id: params.org_id,
+      event_type: params.event_type,
+      recipient_id: params.recipient_id,
+      error,
+    });
+    // Don't throw - notification failure should not block user operations
+  }
+}

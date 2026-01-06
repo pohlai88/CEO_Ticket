@@ -132,9 +132,9 @@ export async function POST(
       .insert({
         request_id: requestId,
         org_id: profile.org_id,
-        filename: file.name,
-        content_type: file.type,
-        size_bytes: file.size,
+        file_name: file.name,
+        file_type: file.type,
+        file_size: file.size,
         storage_path: storagePath,
         uploaded_by: user.id,
       })
@@ -148,17 +148,19 @@ export async function POST(
       return NextResponse.json({ error: insertError.message }, { status: 500 });
     }
 
-    // Audit log
-    await supabase.from("ceo_audit_logs").insert({
+    // Audit log (use service role helper)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: profile.org_id,
-      entity_type: "request",
-      entity_id: requestId,
-      action: "attachment_uploaded",
+      entity_type: "attachment",
+      entity_id: attachment.id,
+      action: "created",
       user_id: user.id,
+      actor_role_code: profile.role_code,
       new_values: {
-        attachment_id: attachment.id,
-        filename: file.name,
-        size_bytes: file.size,
+        file_name: file.name,
+        file_size: file.size,
+        request_id: requestId,
       },
     });
 
@@ -259,16 +261,18 @@ export async function DELETE(
       return NextResponse.json({ error: deleteError.message }, { status: 500 });
     }
 
-    // Audit log
-    await supabase.from("ceo_audit_logs").insert({
+    // Audit log (use service role helper)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: profile.org_id,
-      entity_type: "request",
-      entity_id: requestId,
-      action: "attachment_deleted",
+      entity_type: "attachment",
+      entity_id: attachmentId,
+      action: "deleted",
       user_id: user.id,
+      actor_role_code: profile.role_code,
       old_values: {
-        attachment_id: attachmentId,
-        filename: attachment.filename,
+        file_name: attachment.file_name,
+        file_size: attachment.file_size,
       },
     });
 

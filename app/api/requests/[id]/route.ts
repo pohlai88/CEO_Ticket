@@ -135,6 +135,18 @@ export async function PATCH(
 
       const { target_status, notes } = validation.data;
 
+      // CRITICAL: Lock approval/rejection/closure to CEO/ADMIN only (PRD governance)
+      const ceoOnlyStatuses = ["APPROVED", "REJECTED", "CLOSED"];
+      if (
+        ceoOnlyStatuses.includes(target_status) &&
+        !["CEO", "ADMIN"].includes(roleCode)
+      ) {
+        return NextResponse.json(
+          { error: `Only CEO/Admin can transition to ${target_status}` },
+          { status: 403 }
+        );
+      }
+
       // Validate transition
       if (!canTransitionTo(existingRequest.status_code, target_status)) {
         return NextResponse.json(

@@ -1,0 +1,29 @@
+#!/bin/sh
+# PRD Guard Enforcement — Prevents commits with drift
+# Constitutional Engine: github.com/pohlai88/PRD_GUARD
+
+echo "🔍 Running PRD Guard validation..."
+
+# Validate sync between canonical and docs
+prd-guard validate
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ PRD SYNC VALIDATION FAILED"
+  echo ""
+  echo "Run: prd-guard generate"
+  echo ""
+  exit 1
+fi
+
+# Run compliance checks
+prd-guard check
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ PRD COMPLIANCE CHECK FAILED"
+  echo ""
+  exit 1
+fi
+
+echo "✅ PRD Guard validation passed"

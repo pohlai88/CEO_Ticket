@@ -1,315 +1,167 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
-import { useParams, useRouter } from "next/navigation";
-
-import { AlertCircle, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+  ApprovalDecisionForm,
+  BackToQueueButton,
+} from "@/components/approvals/ApprovalDecisionForm";
+import { getApprovalDetail } from "@/lib/server/approvals-data";
 
-interface ApprovalDetail {
-  approval_id: string;
-  request_id: string;
-  approval_round: number;
-  decision: string;
-  decision_notes?: string;
-  is_valid: boolean;
-  submitted_at: string;
-  decided_at?: string;
-  request_snapshot: {
-    title: string;
-    description?: string;
-    priority: string;
-    category: string;
-  };
-  ceo_requests: {
-    request_id: string;
-    title: string;
-    status_code: string;
-    ceo_users: {
-      full_name: string;
-      email: string;
-    };
-  };
-}
+export default async function ApprovalDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const result = await getApprovalDetail(id);
 
-export default function ApprovalDecisionPage() {
-  const router = useRouter();
-  const params = useParams();
-  const approvalId = params.id as string;
-
-  const [approval, setApproval] = useState<ApprovalDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [decisionNotes, setDecisionNotes] = useState("");
-
-  useEffect(() => {
-    void loadApproval();
-  }, [approvalId]);
-
-  async function loadApproval() {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/approvals?status=all`);
-      if (!res.ok) throw new Error("Failed to fetch approval");
-
-      const data = await res.json();
-      const found = data.approvals?.find(
-        (a: ApprovalDetail) => a.approval_id === approvalId
-      );
-
-      if (found) {
-        setApproval(found);
-        setDecisionNotes(found.decision_notes || "");
-      }
-    } catch (error) {
-      console.error("Error loading approval:", error);
-    } finally {
-      setLoading(false);
-    }
+  if (!result?.approval) {
+    notFound();
   }
 
-  async function handleDecision(decision: "approved" | "rejected") {
-    if (!approval) return;
+  const { approval } = result;
 
-    setSubmitting(true);
-    try {
-      const res = await fetch(`/api/approvals/${approvalId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          decision,
-          decision_notes: decisionNotes || undefined,
-        }),
-      });
+  // Handle Supabase array returns
+  const request = Array.isArray(approval.ceo_requests)
+    ? approval.ceo_requests[0]
+    : approval.ceo_requests;
+  const requester = request
+    ? Array.isArray(request.ceo_users)
+      ? request.ceo_users[0]
+      : request.ceo_users
+    : null;
+  const category = request
+    ? Array.isArray(request.ceo_categories)
+      ? request.ceo_categories[0]
+      : request.ceo_categories
+    : null;
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || "Failed to submit decision");
-      }
+  const isPending = approval.decision === "pending";
+  const isInvalidated = !approval.is_valid;
 
-      // Success - redirect back to queue
-      router.push("/approvals");
-    } catch (error) {
-      console.error("Error submitting decision:", error);
-      alert(
-        error instanceof Error ? error.message : "Failed to submit decision"
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
+  function formatDate(dateStr: string | null) {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleDateString("en-US", {
       year: "numeric",
+      month: "short",
+      day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     });
   }
 
-  function getPriorityColor(priority: string) {
-    switch (priority?.toLowerCase()) {
-      case "urgent":
+  function getPriorityVariant(priority: string) {
+    switch (priority) {
+      case "P1":
         return "destructive";
-      case "high":
-        return "default";
-      case "normal":
+      case "P2":
         return "secondary";
-      case "low":
+      default:
         return "outline";
+    }
+  }
+
+  function getDecisionVariant(decision: string) {
+    switch (decision) {
+      case "approved":
+        return "default";
+      case "rejected":
+        return "destructive";
       default:
         return "secondary";
     }
   }
 
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="text-center py-12 text-muted-foreground">
-          Loading approval...
-        </div>
-      </div>
-    );
-  }
-
-  if (!approval) {
-    return (
-      <div className="container mx-auto p-6 max-w-4xl">
-        <Card>
-          <CardContent className="py-12 text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-lg font-medium">Approval not found</p>
-            <Button className="mt-4" onClick={() => router.push("/approvals")}>
-              Back to Queue
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const isPending = approval.decision === "pending" && approval.is_valid;
-  const isDecided = approval.decision !== "pending";
-  const isInvalidated = !approval.is_valid;
-
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
-      {/* Header */}
-      <div className="mb-6">
-        <Button variant="ghost" onClick={() => router.push("/approvals")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Queue
-        </Button>
+    <div className="container max-w-4xl mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <BackToQueueButton />
+        <Badge variant={getDecisionVariant(approval.decision)}>
+          {approval.decision.toUpperCase()}
+        </Badge>
       </div>
 
       {/* Status Alerts */}
       {isInvalidated && (
-        <Card className="mb-6 border-yellow-500">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2 text-yellow-700">
-              <AlertCircle className="h-5 w-5" />
-              <p className="font-medium">
-                This approval has been invalidated due to material changes.
-                Request must be resubmitted.
-              </p>
-            </div>
+        <Card className="border-amber-500 bg-amber-50 dark:bg-amber-900/20">
+          <CardContent className="py-4">
+            <p className="text-amber-700 dark:text-amber-300 font-medium">
+              ⚠️ This approval has been invalidated due to version drift. The
+              request may have been modified.
+            </p>
           </CardContent>
         </Card>
       )}
 
-      {isDecided && (
-        <Card
-          className={`mb-6 ${
-            approval.decision === "approved"
-              ? "border-green-500"
-              : "border-red-500"
-          }`}
-        >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              {approval.decision === "approved" ? (
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-              ) : (
-                <XCircle className="h-5 w-5 text-red-600" />
-              )}
-              <p className="font-medium">
-                Decision made: {approval.decision.toUpperCase()}
-                {approval.decided_at &&
-                  ` on ${formatDate(approval.decided_at)}`}
-              </p>
-            </div>
+      {approval.decision !== "pending" && (
+        <Card className="border-blue-500 bg-blue-50 dark:bg-blue-900/20">
+          <CardContent className="py-4">
+            <p className="text-blue-700 dark:text-blue-300 font-medium">
+              ℹ️ This request has already been {approval.decision}
+              {approval.decided_at
+                ? ` on ${formatDate(approval.decided_at)}`
+                : ""}
+              .
+            </p>
           </CardContent>
         </Card>
       )}
 
       {/* Request Details */}
-      <Card className="mb-6">
+      <Card>
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <CardTitle>{approval.request_snapshot.title}</CardTitle>
-                {approval.approval_round > 1 && (
-                  <Badge variant="outline">
-                    Round {approval.approval_round}
-                  </Badge>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Submitted by {approval.ceo_requests.ceo_users.full_name} •{" "}
-                {formatDate(approval.submitted_at)}
-              </p>
-            </div>
-            <Badge
-              variant={getPriorityColor(approval.request_snapshot.priority)}
-            >
-              {approval.request_snapshot.priority}
-            </Badge>
-          </div>
+          <CardTitle>{request?.title || "Request"}</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-sm font-medium">Category</Label>
-              <p className="mt-1">{approval.request_snapshot.category}</p>
-            </div>
-            <div>
-              <Label className="text-sm font-medium">Description</Label>
-              <p className="mt-1 text-muted-foreground whitespace-pre-wrap">
-                {approval.request_snapshot.description ||
-                  "No description provided"}
+              <p className="text-sm text-muted-foreground">Requester</p>
+              <p className="font-medium">{requester?.full_name || "Unknown"}</p>
+              <p className="text-sm text-muted-foreground">
+                {requester?.email || ""}
               </p>
             </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Category</p>
+              <p className="font-medium">{category?.name || "N/A"}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Priority</p>
+              <Badge
+                variant={getPriorityVariant(request?.priority_code || "P3")}
+              >
+                {request?.priority_code || "P3"}
+              </Badge>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Submitted</p>
+              <p className="font-medium">{formatDate(request?.submitted_at)}</p>
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">Description</p>
+            <p className="whitespace-pre-wrap bg-muted p-4 rounded-md">
+              {request?.description || "No description provided."}
+            </p>
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            <p>Approval Round: {approval.approval_round}</p>
+            <p>Request Version: {approval.request_version}</p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Decision Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {isPending ? "Make Decision" : "Decision Notes"}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="notes">
-                Notes (optional, max 500 characters)
-              </Label>
-              <Textarea
-                id="notes"
-                placeholder="Add any notes about this decision..."
-                value={decisionNotes}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setDecisionNotes(e.target.value.slice(0, 500))
-                }
-                disabled={!isPending || submitting}
-                rows={4}
-                className="mt-2"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {decisionNotes.length}/500 characters
-              </p>
-            </div>
-          </div>
-        </CardContent>
-        {isPending && (
-          <CardFooter className="flex gap-3 justify-end">
-            <Button
-              variant="outline"
-              onClick={async () => handleDecision("rejected")}
-              disabled={submitting}
-              className="min-w-32"
-            >
-              <XCircle className="mr-2 h-4 w-4" />
-              Reject
-            </Button>
-            <Button
-              onClick={async () => handleDecision("approved")}
-              disabled={submitting}
-              className="min-w-32 bg-green-600 hover:bg-green-700"
-            >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Approve
-            </Button>
-          </CardFooter>
-        )}
-      </Card>
+      {/* Decision Form - Only show for pending, valid approvals */}
+      {isPending && !isInvalidated && (
+        <ApprovalDecisionForm
+          approvalId={approval.id}
+          initialNotes={approval.notes || ""}
+        />
+      )}
     </div>
   );
 }

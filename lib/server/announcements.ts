@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { createServerAuthClient } from "@/lib/supabase/server-auth";
 import "server-only";
 
@@ -32,6 +34,42 @@ export interface Announcement {
   is_urgent_outstanding: boolean;
 }
 
+/**
+ * Get announcements for the current authenticated user.
+ * Redirects to login if not authenticated.
+ */
+export async function getAnnouncements(): Promise<{
+  announcements: Announcement[];
+  isCEO: boolean;
+}> {
+  const supabase = await createServerAuthClient();
+
+  const {
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
+
+  if (!authUser) {
+    redirect("/auth/login");
+  }
+
+  const { data: user } = await supabase
+    .from("ceo_users")
+    .select("id, org_id, role_code")
+    .eq("id", authUser.id)
+    .single();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  const result = await getAnnouncementsForUser(user.id, user.org_id);
+
+  return {
+    announcements: result.announcements || [],
+    isCEO: user.role_code === "CEO",
+  };
+}
+
 export async function publishAnnouncement(
   data: AnnouncementData,
   userId: string,
@@ -62,14 +100,18 @@ export async function publishAnnouncement(
       return { success: false, error: insertError.message };
     }
 
-    // Write audit log (REQUIRED for publish)
-    await supabase.from("ceo_audit_logs").insert({
+    // Write audit log (REQUIRED for publish - use service role)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: orgId,
       entity_type: "announcement",
       entity_id: announcement.id,
-      action: "announcement_published",
+      action: "created",
       user_id: userId,
-      new_values: announcement,
+      new_values: {
+        title: announcement.title,
+        announcement_type: announcement.announcement_type,
+      },
     });
 
     return { success: true, announcement: announcement as Announcement };
@@ -183,17 +225,15 @@ export async function acknowledgeAnnouncement(
       return { success: false, error: upsertError.message };
     }
 
-    // CRITICAL: Write audit log for acknowledgement
-    await supabase.from("ceo_audit_logs").insert({
+    // CRITICAL: Write audit log for acknowledgement (use service role)
+    const { writeAuditLog } = await import("@/lib/supabase/server");
+    await writeAuditLog({
       org_id: orgId,
       entity_type: "announcement",
       entity_id: announcementId,
       action: "acknowledged",
       user_id: userId,
-      new_values: {
-        announcement_id: announcementId,
-        acknowledged_at: new Date().toISOString(),
-      },
+      new_values: { acknowledged_at: new Date().toISOString() },
     });
 
     return { success: true };
