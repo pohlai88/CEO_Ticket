@@ -1,0 +1,102 @@
+name: Executive Action E2E Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Validate Executive Action Matrix
+        run: npm run validate:exec
+
+  e2e-tests:
+    name: E2E Executive Actions (E01-E15)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    # E2E tests require a test database - skip if not configured
+    if: ${{ vars.E2E_ENABLED == 'true' }}
+
+    env:
+      SUPABASE_URL: ${{ secrets.TEST_SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.TEST_SUPABASE_ANON_KEY }}
+      TEST_MANAGER_EMAIL: ${{ secrets.TEST_MANAGER_EMAIL }}
+      TEST_MANAGER_PASSWORD: ${{ secrets.TEST_MANAGER_PASSWORD }}
+      TEST_CEO_EMAIL: ${{ secrets.TEST_CEO_EMAIL }}
+      TEST_CEO_PASSWORD: ${{ secrets.TEST_CEO_PASSWORD }}
+      TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+      TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # Merge blocker - ensures all executive actions are verified
+  executive-gate:
+    name: Executive Action Gate
+    runs-on: ubuntu-latest
+    needs: [unit-tests, e2e-tests]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.unit-tests.result }}" != "success" ]; then
+            echo "❌ Unit tests failed - MERGE BLOCKED"
+            exit 1
+          fi
+
+          if [ "${{ vars.E2E_ENABLED }}" == "true" ] && [ "${{ needs.e2e-tests.result }}" != "success" ]; then
+            echo "❌ E2E executive action tests failed - MERGE BLOCKED"
+            echo "RCF-EXEC-TEST-2: Every executive action MUST be verified"
+            exit 1
+          fi
+
+          echo "✅ All executive action tests passed"
