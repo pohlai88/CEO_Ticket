@@ -12,10 +12,12 @@
     "type-check": "tsc --noEmit",
     "validate": "npm run type-check && npm run lint && npm run validate:glossary",
     "validate:glossary": "node scripts/validate-glossary.js",
+    "validate:exec": "npx tsx scripts/validate-exec-actions.ts",
     "prd:generate": "prd-guard generate",
     "prd:validate": "prd-guard validate",
     "prd:check": "prd-guard check",
-    "validate:all": "npm run validate && npm run prd:validate && npm run prd:check",
+    "validate:all": "npm run validate && npm run validate:exec && npm run prd:validate && npm run prd:check",
+    "test:exec": "echo 'E2E executive action tests not yet implemented - see docs/02_PRD_RCF.md Section 13'",
     "prepare": "husky"
   },
   "dependencies": {

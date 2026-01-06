@@ -68,9 +68,11 @@ The system SHALL NOT:
 
 <!-- RCF:ROLES:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```ts
 type RoleCode = "MANAGER" | "CEO" | "ADMIN";
 ```
+
 <!-- RCF:ROLES:END -->
 
 ### Forbidden
@@ -95,6 +97,7 @@ ALL database tables MUST:
 
 <!-- RCF:TABLES:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```sql
 ceo_config
 ceo_organizations
@@ -113,6 +116,7 @@ ceo_audit_logs
 ceo_notification_log
 ceo_ref_reason_codes
 ```
+
 <!-- RCF:TABLES:END -->
 
 ### Forbidden
@@ -153,6 +157,7 @@ const {
 
 <!-- RCF:STATUS:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```ts
 type RequestStatus =
   | "DRAFT"
@@ -163,12 +168,14 @@ type RequestStatus =
   | "CANCELLED"
   | "CLOSED";
 ```
+
 <!-- RCF:STATUS:END -->
 
 ### Allowed Transitions (ONLY)
 
 <!-- RCF:FSM:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```txt
 DRAFT → SUBMITTED | CANCELLED
 SUBMITTED → IN_REVIEW | CANCELLED
@@ -176,6 +183,7 @@ IN_REVIEW → APPROVED | REJECTED | CANCELLED
 APPROVED → CLOSED
 REJECTED → SUBMITTED
 ```
+
 <!-- RCF:FSM:END -->
 
 ### Forbidden Transitions
@@ -240,6 +248,7 @@ writeAuditLog();
 
 <!-- RCF:EVENTS:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```ts
 type NotificationEvent =
   | "request_created"
@@ -250,6 +259,7 @@ type NotificationEvent =
   | "announcement_published"
   | "message_sent";
 ```
+
 <!-- RCF:EVENTS:END -->
 
 ### Rules
@@ -271,12 +281,11 @@ type NotificationEvent =
 
 <!-- RCF:MESSAGES:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```ts
-type MessageType =
-  | "consultation"
-  | "direction"
-  | "clarification";
+type MessageType = "consultation" | "direction" | "clarification";
 ```
+
 <!-- RCF:MESSAGES:END -->
 
 ### Rules
@@ -322,11 +331,13 @@ type MessageType =
 
 <!-- RCF:ATTACHMENTS:START -->
 <!-- AUTO-GENERATED FROM prd-guard/canonical.ts — DO NOT EDIT -->
+
 ```sql
 file_name
 file_type
 file_size
 ```
+
 <!-- RCF:ATTACHMENTS:END -->
 
 ### Rules
@@ -361,36 +372,111 @@ file_size
 
 ---
 
-## 13. DoD — DEFINITION OF DONE (SHIP GATE)
+## 13. RCF-12 — EXECUTIVE ACTION TESTING (MANDATORY)
+
+### Principle
+
+> **This system is an EXECUTIVE INSTRUMENT, not software.** > **A single broken action equals a governance failure.**
+
+Executives will not:
+
+- Wait for a fix
+- Retry later
+- File a bug
+
+They will **abandon the system**.
+
+### RCF-EXEC-1 — Authority Completeness Rule
+
+> **Every executive action defined in this PRD MUST be:**
+>
+> 1. Implemented
+> 2. Executable
+> 3. Verified to work
+> 4. Verified symmetrically (no partial paths)
+> 5. Fail-loud if broken
+
+### Executive Action Test Matrix (MANDATORY)
+
+<!-- RCF:EXEC-TEST:START -->
+
+| ID  | Capability               | Actor       | MUST Be Proven                        | Failure =    |
+| --- | ------------------------ | ----------- | ------------------------------------- | ------------ |
+| E01 | Submit request           | MANAGER     | ✅ Request enters SUBMITTED           | Ship blocker |
+| E02 | View pending approvals   | CEO         | ✅ CEO sees all SUBMITTED             | Ship blocker |
+| E03 | Approve request          | CEO         | ✅ Status → APPROVED, audit logged    | Ship blocker |
+| E04 | Reject request           | CEO         | ✅ Status → REJECTED, reason persists | Ship blocker |
+| E05 | Resubmit after rejection | MANAGER     | ✅ REJECTED → SUBMITTED works         | Ship blocker |
+| E06 | Cancel request           | MANAGER     | ✅ Status → CANCELLED, terminal       | Ship blocker |
+| E07 | Send executive message   | CEO/MANAGER | ✅ Message persists, recipient sees   | Ship blocker |
+| E08 | Respond to message       | CEO         | ✅ Response delivered, audit logged   | Ship blocker |
+| E09 | Publish announcement     | CEO/ADMIN   | ✅ All managers receive               | Ship blocker |
+| E10 | Track announcement reads | SYSTEM      | ✅ Read receipts recorded             | Ship blocker |
+| E11 | Add comment to request   | ANY         | ✅ Comment persists with author       | Ship blocker |
+| E12 | Upload attachment        | MANAGER     | ✅ File stored, metadata recorded     | Ship blocker |
+| E13 | Add watcher              | MANAGER     | ✅ Watcher receives notifications     | Ship blocker |
+| E14 | Soft-delete request      | MANAGER     | ✅ Reversible within window           | Ship blocker |
+| E15 | Audit trail complete     | SYSTEM      | ✅ Every E01-E14 has audit entry      | Ship blocker |
+
+<!-- RCF:EXEC-TEST:END -->
+
+### Forbidden
+
+- ❌ Shipping with any E01-E15 unverified
+- ❌ "Works on my machine" as proof
+- ❌ Partial path validation (e.g., approve without reject)
+- ❌ Silent failure on any executive action
+
+### Fail-Loud Contract
+
+Executive actions MUST:
+
+- Return explicit success/failure
+- Display user-visible error on failure
+- Log failure to `ceo_audit_logs` with `action: 'error'`
+- Never swallow exceptions silently
+
+---
+
+## 14. DoD — DEFINITION OF DONE (SHIP GATE)
 
 A feature is **DONE** only if ALL are true:
 
 ### Code
 
-- [ ] Type-check passes
-- [ ] Lint passes
+- [ ] Type-check passes (`npm run type-check`)
+- [ ] Lint passes (`npm run lint`)
+- [ ] PRD sync validated (`npm run prd:validate`)
 - [ ] No schema mismatch
 - [ ] No forbidden transitions
 
-### Data
+### Executive Action Verification (MANDATORY)
+
+- [ ] ALL 15 executive actions (E01-E15) verified
+- [ ] Each action tested with correct actor role
+- [ ] Each action produces expected audit log entry
+- [ ] No silent failures observed
+
+### Data Integrity
 
 - [ ] Audit rows written (verified via SQL)
 - [ ] Notification rows valid
-- [ ] RLS enforced across orgs
+- [ ] RLS enforced across orgs (cross-org access denied)
 
-### Manual Validation
+### Authority Path Validation
 
-- [ ] Request lifecycle verified
-- [ ] Approval path CEO-only
-- [ ] Resubmit follows FSM
-- [ ] Attachments upload & persist
-- [ ] Messages audited
+- [ ] Request lifecycle: DRAFT → SUBMITTED → APPROVED/REJECTED → CLOSED
+- [ ] Approval path CEO-only (MANAGER cannot approve)
+- [ ] Resubmit follows FSM (REJECTED → SUBMITTED only)
+- [ ] Executive messages: send AND respond work
+- [ ] Announcements: publish AND read-tracking work
 
 ❌ **Failing any item blocks release**
+❌ **Partial executive action coverage = NOT SHIPPABLE**
 
 ---
 
-## 14. IDE / AI ENFORCEMENT NOTES
+## 15. IDE / AI ENFORCEMENT NOTES
 
 This document is intended to be used as:
 
