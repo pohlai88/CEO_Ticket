@@ -132,7 +132,7 @@ export default async function Home() {
           {/* Primary CTA — ONE DOMINANT ACTION */}
           <Link
             href="/auth/login"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] text-white font-semibold tracking-wide transition-all shadow-lg shadow-[var(--color-nx-success)]/20 hover:shadow-[var(--color-nx-success)]/30 group"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] text-nx-text-inverse font-semibold tracking-wide transition-all shadow-lg shadow-[var(--color-nx-success)]/20 hover:shadow-[var(--color-nx-success)]/30 group"
           >
             ENTER COMMAND BRIDGE
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

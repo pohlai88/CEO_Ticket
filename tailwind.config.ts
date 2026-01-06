@@ -77,6 +77,24 @@ const config: Config = {
     },
   },
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     HYBRID MODE — TAILWIND v4 CSS-FIRST APPROACH
+     ═══════════════════════════════════════════════════════════════════════
+     
+     In Tailwind v4, corePlugins restrictions are handled via CSS, not config.
+     The nexus_input_v2.css defines semantic tokens in @theme blocks.
+     
+     Enforcement happens via:
+     1. nx:check script — scans for forbidden patterns (bg-gray-*, text-red-*)
+     2. CI gate — blocks PRs with violations
+     3. ESLint canonical-purity — prevents hardcoded values
+     
+     Layout utilities (flex, grid, position) remain fully available.
+     Design tokens (colors, shadows, typography) come from CSS variables.
+     
+     @see .ui_preview/Nexus_tailwind.config.ts (v3 reference, not applicable to v4)
+     ═══════════════════════════════════════════════════════════════════════ */
+
   plugins: [],
 };
 

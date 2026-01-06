@@ -206,7 +206,7 @@ export default function LoginPage() {
           type="submit"
           disabled={clearanceLevel < 100 || verifying}
           whileTap={{ scale: 0.98 }}
-          className="w-full rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)]"
+          className="w-full rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)]"
         >
           {verifying ? (
             <span className="flex items-center justify-center gap-2">

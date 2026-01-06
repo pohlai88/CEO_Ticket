@@ -220,7 +220,7 @@ export default function SignupPage() {
               <div
                 className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-mono transition-all ${
                   s < step
-                    ? "bg-[var(--color-nx-success)] text-white"
+                    ? "bg-[var(--color-nx-success)] text-nx-text-inverse"
                     : s === step
                     ? "bg-[var(--color-nx-success)]/20 border border-[var(--color-nx-success)] text-[var(--color-nx-success)]"
                     : "bg-[var(--color-nx-surface-well)] text-[var(--color-nx-text-muted)]"
@@ -300,7 +300,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={advanceStep}
                 disabled={!isStepComplete()}
-                className="w-full rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)] flex items-center justify-center gap-2"
+                className="w-full rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)] flex items-center justify-center gap-2"
               >
                 PROCEED
                 <ArrowRight className="h-4 w-4" />
@@ -354,7 +354,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={advanceStep}
                   disabled={!isStepComplete()}
-                  className="flex-1 rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)] flex items-center justify-center gap-2"
+                  className="flex-1 rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)] flex items-center justify-center gap-2"
                 >
                   PROCEED
                   <ArrowRight className="h-4 w-4" />
@@ -445,7 +445,7 @@ export default function SignupPage() {
                   type="submit"
                   disabled={!isStepComplete() || provisioning}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)]"
+                  className="flex-1 rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)]"
                 >
                   {provisioning ? (
                     <span className="flex items-center justify-center gap-2">

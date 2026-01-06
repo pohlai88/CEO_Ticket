@@ -1,6 +1,11 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import importPlugin from "eslint-plugin-import";
+import { createRequire } from "module";
+
+// Load UI_GUARD canonical rule (local copy with .cjs extension for CommonJS compatibility)
+const require = createRequire(import.meta.url);
+const nexusCanonicalRule = require("./eslint/canonical-rule.cjs");
 
 export default [
   {
@@ -13,6 +18,7 @@ export default [
       "*.config.mjs",
       "public/**",
       "docs/**",
+      ".ui_preview/**",
     ],
   },
   {
@@ -20,6 +26,11 @@ export default [
     plugins: {
       "@typescript-eslint": typescriptEslint,
       import: importPlugin,
+      nexus: {
+        rules: {
+          "canonical-purity": nexusCanonicalRule,
+        },
+      },
     },
     languageOptions: {
       parser: tsParser,
@@ -71,6 +82,9 @@ export default [
       eqeqeq: ["error", "always", { null: "ignore" }],
       "prefer-const": "warn",
       "no-var": "error",
+
+      // Nexus UI_GUARD — Constitutional Enforcement (soft)
+      "nexus/canonical-purity": "warn",
     },
   },
   {

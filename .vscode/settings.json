@@ -51,10 +51,12 @@
     "**/package-lock.json": true
   },
 
-  // Tailwind CSS
+  // Tailwind CSS — UI_GUARD IntelliSense Alignment
+  "tailwindCSS.experimental.configFile": ".ui_preview/Nexus_tailwind.config.ts",
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
+    ["className\\s*=\\s*\"([^\"]*)\"", "([^\\s]+)"]
   ],
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
