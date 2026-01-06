@@ -12,23 +12,23 @@ import { test as base, expect } from "@playwright/test";
 
 // Page Objects
 import {
-  LoginPage,
-  RequestsPage,
-  ApprovalsPage,
-  MessagesPage,
   AnnouncementsPage,
+  ApprovalsPage,
+  LoginPage,
+  MessagesPage,
+  RequestsPage,
 } from "./pages";
 
 // Factories
 import {
-  RequestFactory,
-  MessageFactory,
   AnnouncementFactory,
+  MessageFactory,
   RejectionReasonFactory,
+  RequestFactory,
 } from "./factories";
 
 // Database Helper
-import { getDbHelper, DatabaseHelper } from "./helpers";
+import { DatabaseHelper, getDbHelper } from "./helpers";
 
 // Test user credentials (must exist in test environment)
 export const TEST_USERS = {
@@ -103,7 +103,10 @@ export const test = base.extend<ExecutiveFixtures>({
   // Auth helpers using LoginPage POM
   loginAsManager: async ({ loginPage }, use) => {
     const login = async () => {
-      await loginPage.login(TEST_USERS.manager.email, TEST_USERS.manager.password);
+      await loginPage.login(
+        TEST_USERS.manager.email,
+        TEST_USERS.manager.password
+      );
     };
     await use(login);
   },

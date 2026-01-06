@@ -12,7 +12,7 @@
  * @rcf-version 2.2.0
  */
 
-import { test, expect } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 /**
  * Executive Actions Test Suite
@@ -81,7 +81,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create a request as manager
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E02 Test ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E02 Test ${Date.now()}`,
+    });
     await requestsPage.submitRequest(requestData);
     await logout();
 
@@ -109,7 +111,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create request as manager
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E03 Approve ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E03 Approve ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
     await logout();
 
@@ -193,12 +197,17 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create and reject request
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E05 Resubmit ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E05 Resubmit ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
     await logout();
 
     await loginAsCEO();
-    await approvalsPage.rejectRequest(requestId, rejectionReasonFactory.generic());
+    await approvalsPage.rejectRequest(
+      requestId,
+      rejectionReasonFactory.generic()
+    );
     await logout();
 
     // Act: Manager resubmits
@@ -299,9 +308,13 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Manager sends message
     await loginAsManager();
-    const messageData = messageFactory.create({ subject: `E08 Reply Test ${Date.now()}` });
+    const messageData = messageFactory.create({
+      subject: `E08 Reply Test ${Date.now()}`,
+    });
     await messagesPage.sendMessage(messageData);
-    const { id: messageId } = await db.verifyMessageExists({ subject: messageData.subject });
+    const { id: messageId } = await db.verifyMessageExists({
+      subject: messageData.subject,
+    });
     await logout();
 
     // Act: CEO replies
@@ -362,7 +375,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Admin publishes announcement
     await loginAsAdmin();
-    const announcementData = announcementFactory.create({ title: `E10 Read Test ${Date.now()}` });
+    const announcementData = announcementFactory.create({
+      title: `E10 Read Test ${Date.now()}`,
+    });
     await announcementsPage.publishAnnouncement(announcementData);
     const { id: announcementId } = await db.verifyAnnouncementPublished({
       title: announcementData.title,
@@ -392,7 +407,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create request
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E11 Comment Test ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E11 Comment Test ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
 
     // Act: Add comment
@@ -426,7 +443,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create request
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E12 Attachment Test ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E12 Attachment Test ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
 
     // Act: Upload attachment (if UI supports it)
@@ -464,7 +483,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create request
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E13 Watcher Test ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E13 Watcher Test ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
 
     // Act: Add watcher (if UI supports it)
@@ -475,7 +496,9 @@ test.describe("Executive Actions (RCF-12)", () => {
       await addWatcherButton.click();
 
       // Select a watcher from list
-      const watcherOption = page.locator('[data-testid="watcher-option"]').first();
+      const watcherOption = page
+        .locator('[data-testid="watcher-option"]')
+        .first();
       if (await watcherOption.isVisible({ timeout: 2_000 })) {
         await watcherOption.click();
         await requestsPage.waitForNetworkIdle();
@@ -502,7 +525,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create request
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E14 Delete Test ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E14 Delete Test ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
 
     // Act: Soft-delete (if UI supports it)
@@ -520,7 +545,9 @@ test.describe("Executive Actions (RCF-12)", () => {
 
         // Assert: Request no longer visible in list
         await requestsPage.gotoList();
-        const deletedRequest = requestsPage.getRequestRowByTitle(requestData.title);
+        const deletedRequest = requestsPage.getRequestRowByTitle(
+          requestData.title
+        );
         await expect(deletedRequest).not.toBeVisible();
       }
     }
@@ -540,7 +567,9 @@ test.describe("Executive Actions (RCF-12)", () => {
   }) => {
     // Arrange: Create request
     await loginAsManager();
-    const requestData = requestFactory.create({ title: `E15 Auth Test ${Date.now()}` });
+    const requestData = requestFactory.create({
+      title: `E15 Auth Test ${Date.now()}`,
+    });
     const requestId = await requestsPage.submitRequest(requestData);
     await logout();
 

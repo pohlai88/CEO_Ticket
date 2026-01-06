@@ -2,6 +2,11 @@
  * Page Object Model Index
  * RCF-E2E-1: Centralized POM exports
  *
+ * Architecture:
+ * - PRD_GUARD provides abstract base classes: BasePage, BaseLoginPage
+ * - CEO_Ticket extends with project-specific implementations
+ *
+ * @see prd-guard/e2e for reusable governance patterns
  * @rcf-version 2.2.0
  */
 
