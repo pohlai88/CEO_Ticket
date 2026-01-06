@@ -1,12 +1,34 @@
 /**
  * E2E Test Fixtures for Executive Actions
  *
- * Provides authenticated test contexts for different roles.
+ * RCF-E2E-1: Page Object Model integration
+ * RCF-E2E-2: Database verification integration
+ * RCF-E2E-3: Test data factory integration
  *
  * @rcf-version 2.2.0
  */
 
 import { test as base, expect } from "@playwright/test";
+
+// Page Objects
+import {
+  LoginPage,
+  RequestsPage,
+  ApprovalsPage,
+  MessagesPage,
+  AnnouncementsPage,
+} from "./pages";
+
+// Factories
+import {
+  RequestFactory,
+  MessageFactory,
+  AnnouncementFactory,
+  RejectionReasonFactory,
+} from "./factories";
+
+// Database Helper
+import { getDbHelper, DatabaseHelper } from "./helpers";
 
 // Test user credentials (must exist in test environment)
 export const TEST_USERS = {
@@ -27,64 +49,108 @@ export const TEST_USERS = {
   },
 };
 
-// Extended test with authentication helpers
-export const test = base.extend<{
+// Extended fixture types
+type ExecutiveFixtures = {
+  // Page Objects (RCF-E2E-1)
+  loginPage: LoginPage;
+  requestsPage: RequestsPage;
+  approvalsPage: ApprovalsPage;
+  messagesPage: MessagesPage;
+  announcementsPage: AnnouncementsPage;
+
+  // Auth helpers
   loginAsManager: () => Promise<void>;
   loginAsCEO: () => Promise<void>;
   loginAsAdmin: () => Promise<void>;
   logout: () => Promise<void>;
-}>({
-  loginAsManager: async ({ page }, use) => {
+
+  // Database helper (RCF-E2E-2)
+  db: DatabaseHelper;
+
+  // Factories (RCF-E2E-3)
+  requestFactory: typeof RequestFactory;
+  messageFactory: typeof MessageFactory;
+  announcementFactory: typeof AnnouncementFactory;
+  rejectionReasonFactory: typeof RejectionReasonFactory;
+};
+
+/**
+ * Extended test with executive-grade fixtures
+ * RCF-E2E: Full POM, DB verification, and factory integration
+ */
+export const test = base.extend<ExecutiveFixtures>({
+  // Page Objects
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
+  },
+
+  requestsPage: async ({ page }, use) => {
+    await use(new RequestsPage(page));
+  },
+
+  approvalsPage: async ({ page }, use) => {
+    await use(new ApprovalsPage(page));
+  },
+
+  messagesPage: async ({ page }, use) => {
+    await use(new MessagesPage(page));
+  },
+
+  announcementsPage: async ({ page }, use) => {
+    await use(new AnnouncementsPage(page));
+  },
+
+  // Auth helpers using LoginPage POM
+  loginAsManager: async ({ loginPage }, use) => {
     const login = async () => {
-      await page.goto("/auth/login");
-      await page.fill('[name="email"]', TEST_USERS.manager.email);
-      await page.fill('[name="password"]', TEST_USERS.manager.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL("/dashboard");
+      await loginPage.login(TEST_USERS.manager.email, TEST_USERS.manager.password);
     };
     await use(login);
   },
 
-  loginAsCEO: async ({ page }, use) => {
+  loginAsCEO: async ({ loginPage }, use) => {
     const login = async () => {
-      await page.goto("/auth/login");
-      await page.fill('[name="email"]', TEST_USERS.ceo.email);
-      await page.fill('[name="password"]', TEST_USERS.ceo.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL("/dashboard");
+      await loginPage.login(TEST_USERS.ceo.email, TEST_USERS.ceo.password);
     };
     await use(login);
   },
 
-  loginAsAdmin: async ({ page }, use) => {
+  loginAsAdmin: async ({ loginPage }, use) => {
     const login = async () => {
-      await page.goto("/auth/login");
-      await page.fill('[name="email"]', TEST_USERS.admin.email);
-      await page.fill('[name="password"]', TEST_USERS.admin.password);
-      await page.click('button[type="submit"]');
-      await page.waitForURL("/dashboard");
+      await loginPage.login(TEST_USERS.admin.email, TEST_USERS.admin.password);
     };
     await use(login);
   },
 
-  logout: async ({ page }, use) => {
+  logout: async ({ loginPage }, use) => {
     const logout = async () => {
-      await page.click('[data-testid="logout-button"]');
-      await page.waitForURL("/auth/login");
+      await loginPage.logout();
     };
     await use(logout);
+  },
+
+  // Database helper for verification
+  db: async ({}, use) => {
+    const helper = getDbHelper();
+    await use(helper);
+  },
+
+  // Factories for test data generation
+  requestFactory: async ({}, use) => {
+    await use(RequestFactory);
+  },
+
+  messageFactory: async ({}, use) => {
+    await use(MessageFactory);
+  },
+
+  announcementFactory: async ({}, use) => {
+    await use(AnnouncementFactory);
+  },
+
+  rejectionReasonFactory: async ({}, use) => {
+    await use(RejectionReasonFactory);
   },
 });
 
 export { expect };
-
-/**
- * Test data generators
- */
-export function generateRequestTitle(): string {
-  return `E2E Test Request ${Date.now()}`;
-}
-
-export function generateRequestDescription(): string {
-  return `This is an automated E2E test request created at ${new Date().toISOString()}`;
-}
