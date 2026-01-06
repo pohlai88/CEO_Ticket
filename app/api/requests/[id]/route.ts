@@ -1,17 +1,19 @@
 import "server-only";
 
-import { NextRequest, NextResponse } from "next/server";
-import {
-  updateRequestSchema,
-  transitionStatusSchema,
-} from "@/lib/validations/request";
-import { createServerAuthClient } from "@/lib/supabase/server-auth";
-import { writeAuditLog } from "@/lib/supabase/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+
 import { canTransitionTo, isMaterialChange } from "@/lib/constants/status";
 import {
   createApprovalForRequest,
   invalidateApproval,
 } from "@/lib/server/approvals";
+import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+import {
+  transitionStatusSchema,
+  updateRequestSchema,
+} from "@/lib/validations/request";
 
 export async function GET(
   _req: NextRequest,
@@ -183,9 +185,12 @@ export async function PATCH(
       // PHASE 4: Create approval when moving to IN_REVIEW
       if (target_status === "IN_REVIEW") {
         const approvalResult = await createApprovalForRequest({
+          orgId,
           requestId: id,
+          requestVersion: updatedRequest.request_version,
           requestSnapshot: updatedRequest,
           submittedBy: authUser.id,
+          actorRoleCode: roleCode as "MANAGER" | "CEO" | "ADMIN",
         });
 
         if (!approvalResult.success) {
@@ -229,9 +234,11 @@ export async function PATCH(
       if (materialChange) {
         // PHASE 4: Invalidate approvals using helper
         await invalidateApproval({
+          orgId,
           requestId: id,
           reason:
             "Material change detected: title, description, or priority modified",
+          actorRoleCode: roleCode as "MANAGER" | "CEO" | "ADMIN",
         });
       }
     }

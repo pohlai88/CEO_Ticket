@@ -1,9 +1,11 @@
 import "server-only";
 
-import { NextRequest, NextResponse } from "next/server";
-import { createRequestSchema } from "@/lib/validations/request";
-import { createServerAuthClient } from "@/lib/supabase/server-auth";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
+
 import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+import { createRequestSchema } from "@/lib/validations/request";
 
 export async function POST(req: NextRequest) {
   try {

@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { NextResponse } from 'next/server';
+
 import { bootstrapOrgIfNeeded } from '@/lib/auth/bootstrap';
 import { createServerAuthClient } from '@/lib/supabase/server-auth';
 

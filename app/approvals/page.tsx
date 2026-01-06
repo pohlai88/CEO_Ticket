@@ -1,10 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface Approval {
   approval_id: string;
@@ -28,22 +36,24 @@ export default function ApprovalsPage() {
   const router = useRouter();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected' | 'all'>('pending');
+  const [filter, setFilter] = useState<
+    "pending" | "approved" | "rejected" | "all"
+  >("pending");
 
   useEffect(() => {
-    loadApprovals();
+    void loadApprovals();
   }, [filter]);
 
   async function loadApprovals() {
     setLoading(true);
     try {
       const res = await fetch(`/api/approvals?status=${filter}`);
-      if (!res.ok) throw new Error('Failed to fetch approvals');
+      if (!res.ok) throw new Error("Failed to fetch approvals");
 
       const data = await res.json();
       setApprovals(data.approvals || []);
     } catch (error) {
-      console.error('Error loading approvals:', error);
+      console.error("Error loading approvals:", error);
     } finally {
       setLoading(false);
     }
@@ -51,20 +61,25 @@ export default function ApprovalsPage() {
 
   function getPriorityColor(priority: string) {
     switch (priority?.toLowerCase()) {
-      case 'urgent': return 'destructive';
-      case 'high': return 'default';
-      case 'normal': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'secondary';
+      case "urgent":
+        return "destructive";
+      case "high":
+        return "default";
+      case "normal":
+        return "secondary";
+      case "low":
+        return "outline";
+      default:
+        return "secondary";
     }
   }
 
   function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
@@ -80,26 +95,26 @@ export default function ApprovalsPage() {
       {/* Filter Tabs */}
       <div className="flex gap-2 mb-6">
         <Button
-          variant={filter === 'pending' ? 'default' : 'outline'}
-          onClick={() => setFilter('pending')}
+          variant={filter === "pending" ? "default" : "outline"}
+          onClick={() => setFilter("pending")}
         >
           Pending
         </Button>
         <Button
-          variant={filter === 'approved' ? 'default' : 'outline'}
-          onClick={() => setFilter('approved')}
+          variant={filter === "approved" ? "default" : "outline"}
+          onClick={() => setFilter("approved")}
         >
           Approved
         </Button>
         <Button
-          variant={filter === 'rejected' ? 'default' : 'outline'}
-          onClick={() => setFilter('rejected')}
+          variant={filter === "rejected" ? "default" : "outline"}
+          onClick={() => setFilter("rejected")}
         >
           Rejected
         </Button>
         <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
-          onClick={() => setFilter('all')}
+          variant={filter === "all" ? "default" : "outline"}
+          onClick={() => setFilter("all")}
         >
           All
         </Button>
@@ -113,7 +128,7 @@ export default function ApprovalsPage() {
       ) : approvals.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-muted-foreground">
-            No {filter !== 'all' && filter} approvals found
+            No {filter !== "all" && filter} approvals found
           </CardContent>
         </Card>
       ) : (
@@ -138,18 +153,22 @@ export default function ApprovalsPage() {
                       )}
                     </div>
                     <CardDescription>
-                      Submitted by {approval.ceo_requests.ceo_users.full_name} •{' '}
+                      Submitted by {approval.ceo_requests.ceo_users.full_name} •{" "}
                       {formatDate(approval.submitted_at)}
                     </CardDescription>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <Badge variant={getPriorityColor(approval.ceo_requests.priority)}>
+                    <Badge
+                      variant={getPriorityColor(approval.ceo_requests.priority)}
+                    >
                       {approval.ceo_requests.priority}
                     </Badge>
-                    {approval.decision === 'pending' ? (
+                    {approval.decision === "pending" ? (
                       <Badge variant="secondary">Pending Decision</Badge>
-                    ) : approval.decision === 'approved' ? (
-                      <Badge variant="default" className="bg-green-600">Approved</Badge>
+                    ) : approval.decision === "approved" ? (
+                      <Badge variant="default" className="bg-green-600">
+                        Approved
+                      </Badge>
                     ) : (
                       <Badge variant="destructive">Rejected</Badge>
                     )}

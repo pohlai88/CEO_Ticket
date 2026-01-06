@@ -1,9 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
-import { STATUS_METADATA, DEFAULT_PRIORITY_METADATA, canTransitionTo } from '@/lib/constants/status';
-import type { Request, RequestComment, RequestAttachment, Approval } from '@/lib/types/database';
+import { use, useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
+import {
+  DEFAULT_PRIORITY_METADATA,
+  STATUS_METADATA,
+  canTransitionTo,
+} from "@/lib/constants/status";
+import type {
+  Approval,
+  Request,
+  RequestAttachment,
+  RequestComment,
+} from "@/lib/types/database";
 
 type RequestWithRelations = Request & {
   requester: { id: string; email: string } | null;
@@ -13,29 +24,33 @@ type RequestWithRelations = Request & {
   attachments: RequestAttachment[];
 };
 
-export default function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function RequestDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = use(params);
   const router = useRouter();
-  
+
   const [request, setRequest] = useState<RequestWithRelations | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
-    fetchRequest();
+    void fetchRequest();
   }, [id]);
 
   const fetchRequest = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const res = await fetch(`/api/requests/${id}`);
-      
+
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to fetch request');
+        throw new Error(data.error || "Failed to fetch request");
       }
 
       const data = await res.json();
@@ -59,14 +74,14 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
     try {
       const res = await fetch(`/api/requests/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ target_status: targetStatus }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to update status');
+        throw new Error(data.error || "Failed to update status");
       }
 
       await fetchRequest();
@@ -78,13 +93,13 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -93,7 +108,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-sm text-muted-foreground mt-4">Loading request...</p>
+          <p className="text-sm text-muted-foreground mt-4">
+            Loading request...
+          </p>
         </div>
       </div>
     );
@@ -105,9 +122,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         <div className="max-w-md w-full mx-auto px-6">
           <div className="rounded-lg border p-6 bg-error-bg border-error-border text-error-fg text-center">
             <p className="font-semibold text-lg">Error</p>
-            <p className="text-sm mt-2">{error || 'Request not found'}</p>
+            <p className="text-sm mt-2">{error || "Request not found"}</p>
             <button
-              onClick={() => router.push('/requests')}
+              onClick={() => router.push("/requests")}
               className="mt-4 px-4 py-2 rounded-lg bg-error-fg text-error-bg font-semibold hover:opacity-90 transition-opacity"
             >
               Back to Requests
@@ -121,8 +138,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   const statusMeta = STATUS_METADATA[request.status_code];
   const priorityMeta = DEFAULT_PRIORITY_METADATA[request.priority_code];
   const latestApproval = request.approvals
-    .filter(a => a.is_valid)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+    .filter((a) => a.is_valid)
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )[0];
 
   return (
     <div className="min-h-screen bg-background">
@@ -133,15 +153,19 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <button
-                  onClick={() => router.push('/requests')}
+                  onClick={() => router.push("/requests")}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   ← Back
                 </button>
               </div>
-              <h1 className="text-3xl font-bold text-foreground">{request.title}</h1>
+              <h1 className="text-3xl font-bold text-foreground">
+                {request.title}
+              </h1>
               <div className="flex items-center gap-3 mt-3">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusMeta.color}`}>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusMeta.color}`}
+                >
                   {statusMeta.label}
                 </span>
                 <div className="flex items-center gap-2">
@@ -157,7 +181,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Actions */}
-            {request.status_code === 'DRAFT' && (
+            {request.status_code === "DRAFT" && (
               <div className="flex gap-2">
                 <button
                   onClick={() => router.push(`/requests/${id}/edit`)}
@@ -166,11 +190,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   Edit
                 </button>
                 <button
-                  onClick={() => handleStatusTransition('SUBMITTED')}
+                  onClick={async () => handleStatusTransition("SUBMITTED")}
                   disabled={actionLoading}
                   className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 transition-colors"
                 >
-                  {actionLoading ? 'Submitting...' : 'Submit'}
+                  {actionLoading ? "Submitting..." : "Submit"}
                 </button>
               </div>
             )}
@@ -182,42 +206,56 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
         {/* Metadata */}
         <div className="bg-card rounded-lg border p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-4">Details</h2>
+          <h2 className="text-lg font-semibold text-foreground mb-4">
+            Details
+          </h2>
           <dl className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <dt className="text-muted-foreground">Requester</dt>
               <dd className="text-foreground font-medium mt-1">
-                {request.requester?.email || 'Unknown'}
+                {request.requester?.email || "Unknown"}
               </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Version</dt>
-              <dd className="text-foreground font-medium mt-1">v{request.request_version}</dd>
+              <dd className="text-foreground font-medium mt-1">
+                v{request.request_version}
+              </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Created</dt>
-              <dd className="text-foreground font-medium mt-1">{formatDate(request.created_at)}</dd>
+              <dd className="text-foreground font-medium mt-1">
+                {formatDate(request.created_at)}
+              </dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Last Updated</dt>
-              <dd className="text-foreground font-medium mt-1">{formatDate(request.updated_at)}</dd>
+              <dd className="text-foreground font-medium mt-1">
+                {formatDate(request.updated_at)}
+              </dd>
             </div>
             {request.submitted_at && (
               <div>
                 <dt className="text-muted-foreground">Submitted</dt>
-                <dd className="text-foreground font-medium mt-1">{formatDate(request.submitted_at)}</dd>
+                <dd className="text-foreground font-medium mt-1">
+                  {formatDate(request.submitted_at)}
+                </dd>
               </div>
             )}
             {request.approved_at && (
               <div>
                 <dt className="text-muted-foreground">Approved</dt>
-                <dd className="text-foreground font-medium mt-1">{formatDate(request.approved_at)}</dd>
+                <dd className="text-foreground font-medium mt-1">
+                  {formatDate(request.approved_at)}
+                </dd>
               </div>
             )}
             {request.category && (
               <div>
                 <dt className="text-muted-foreground">Category</dt>
-                <dd className="text-foreground font-medium mt-1">{request.category.name}</dd>
+                <dd className="text-foreground font-medium mt-1">
+                  {request.category.name}
+                </dd>
               </div>
             )}
           </dl>
@@ -226,7 +264,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {/* Description */}
         {request.description && (
           <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Description</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
+              Description
+            </h2>
             <div className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
               {request.description}
             </div>
@@ -236,30 +276,42 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {/* Approval Status */}
         {latestApproval && (
           <div className="bg-card rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Approval Status</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
+              Approval Status
+            </h2>
             <div className="space-y-3">
               <div>
-                <span className="text-sm text-muted-foreground">Decision: </span>
-                <span className={`text-sm font-medium ${
-                  latestApproval.decision === 'approved'
-                    ? 'text-success-fg'
-                    : latestApproval.decision === 'rejected'
-                    ? 'text-error-fg'
-                    : 'text-warning-fg'
-                }`}>
+                <span className="text-sm text-muted-foreground">
+                  Decision:{" "}
+                </span>
+                <span
+                  className={`text-sm font-medium ${
+                    latestApproval.decision === "approved"
+                      ? "text-success-fg"
+                      : latestApproval.decision === "rejected"
+                      ? "text-error-fg"
+                      : "text-warning-fg"
+                  }`}
+                >
                   {latestApproval.decision.toUpperCase()}
                 </span>
               </div>
               {latestApproval.notes && (
                 <div>
                   <span className="text-sm text-muted-foreground">Notes: </span>
-                  <p className="text-sm text-foreground mt-1">{latestApproval.notes}</p>
+                  <p className="text-sm text-foreground mt-1">
+                    {latestApproval.notes}
+                  </p>
                 </div>
               )}
               {latestApproval.decided_at && (
                 <div>
-                  <span className="text-sm text-muted-foreground">Decided at: </span>
-                  <span className="text-sm text-foreground">{formatDate(latestApproval.decided_at)}</span>
+                  <span className="text-sm text-muted-foreground">
+                    Decided at:{" "}
+                  </span>
+                  <span className="text-sm text-foreground">
+                    {formatDate(latestApproval.decided_at)}
+                  </span>
                 </div>
               )}
             </div>
@@ -283,9 +335,12 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                       FILE
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">{attachment.file_name}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {attachment.file_name}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {(attachment.file_size / 1024).toFixed(2)} KB • {formatDate(attachment.uploaded_at)}
+                        {(attachment.file_size / 1024).toFixed(2)} KB •{" "}
+                        {formatDate(attachment.uploaded_at)}
                       </p>
                     </div>
                   </div>
@@ -303,16 +358,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             </h2>
             <div className="space-y-4">
               {request.comments.map((comment) => (
-                <div key={comment.id} className="border-l-2 border-primary pl-4 py-2">
+                <div
+                  key={comment.id}
+                  className="border-l-2 border-primary pl-4 py-2"
+                >
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-sm font-medium text-foreground">
-                      {comment.author?.email || 'Unknown'}
+                      {comment.author?.email || "Unknown"}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {formatDate(comment.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm text-foreground whitespace-pre-wrap">{comment.content}</p>
+                  <p className="text-sm text-foreground whitespace-pre-wrap">
+                    {comment.content}
+                  </p>
                 </div>
               ))}
             </div>

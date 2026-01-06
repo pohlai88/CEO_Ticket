@@ -1,9 +1,12 @@
 import 'server-only';
 
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerAuthClient } from '@/lib/supabase/server-auth';
-import { supabaseAdmin, writeAuditLog } from '@/lib/supabase/server';
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server';
+
 import { z } from 'zod';
+
+import { supabaseAdmin, writeAuditLog } from '@/lib/supabase/server';
+import { createServerAuthClient } from '@/lib/supabase/server-auth';
 
 const InviteSchema = z.object({
   emails: z.array(z.string().email('Invalid email address')).min(1, 'At least one email is required'),

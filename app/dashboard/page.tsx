@@ -1,20 +1,26 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { supabase } from '@/lib/supabase/client';
-import { UrgentAnnouncementBanner, ImportantAnnouncementBanner } from '@/components/announcements/AnnouncementBanners';
-import { Bell, FileText, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { Bell, FileText, Plus } from "lucide-react";
+
+import {
+  ImportantAnnouncementBanner,
+  UrgentAnnouncementBanner,
+} from "@/components/announcements/AnnouncementBanners";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase/client";
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [org, setOrg] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -26,52 +32,63 @@ export default function DashboardPage() {
         } = await supabase.auth.getUser();
 
         if (!authUser) {
-          router.push('/auth/login');
+          router.push("/auth/login");
           return;
         }
 
         setUser(authUser);
 
         // Get user profile (org_id, role)
-        const { data: userProfile } = await supabase.from('ceo_users').select('org_id, role_code').eq('id', authUser.id).single();
+        const { data: userProfile } = await supabase
+          .from("ceo_users")
+          .select("org_id, role_code")
+          .eq("id", authUser.id)
+          .single();
 
         if (!userProfile) {
           // First login - need to bootstrap
-          const response = await fetch('/api/auth/bootstrap', { method: 'POST' });
+          const response = await fetch("/api/auth/bootstrap", {
+            method: "POST",
+          });
           if (!response.ok) {
-            throw new Error('Bootstrap failed');
+            throw new Error("Bootstrap failed");
           }
           const { org_id } = await response.json();
           setOrg({ id: org_id });
         } else {
           // Get org details
-          const { data: orgData } = await supabase.from('ceo_organizations').select('*').eq('id', userProfile.org_id).single();
+          const { data: orgData } = await supabase
+            .from("ceo_organizations")
+            .select("*")
+            .eq("id", userProfile.org_id)
+            .single();
           setOrg(orgData);
           setUserRole(userProfile.role_code);
 
           // Get unread announcement count
-          if (userProfile.role_code !== 'ceo') {
-            const res = await fetch('/api/announcements');
+          if (userProfile.role_code !== "ceo") {
+            const res = await fetch("/api/announcements");
             if (res.ok) {
               const data = await res.json();
-              const unread = data.announcements?.filter((a: any) => !a.is_read).length || 0;
+              const unread =
+                data.announcements?.filter((a: any) => !a.is_read).length || 0;
               setUnreadCount(unread);
             }
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Unknown error');
+        setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
+    void checkAuth();
   }, [router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/auth/login');
+    router.push("/auth/login");
   };
 
   if (loading) {
@@ -102,7 +119,9 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">CEO Request System</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                CEO Request System
+              </h1>
             </div>
             <div className="flex items-center space-x-4">
               <Link href="/announcements" className="relative">
@@ -138,7 +157,9 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">New Request</h3>
-                  <p className="text-sm text-gray-600">Submit a request to CEO</p>
+                  <p className="text-sm text-gray-600">
+                    Submit a request to CEO
+                  </p>
                 </div>
               </div>
             </div>
@@ -152,7 +173,9 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">My Requests</h3>
-                  <p className="text-sm text-gray-600">View all your requests</p>
+                  <p className="text-sm text-gray-600">
+                    View all your requests
+                  </p>
                 </div>
               </div>
             </div>
@@ -167,7 +190,9 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-semibold text-gray-900">Announcements</h3>
                   <p className="text-sm text-gray-600">
-                    {unreadCount > 0 ? `${unreadCount} unread` : 'View all updates'}
+                    {unreadCount > 0
+                      ? `${unreadCount} unread`
+                      : "View all updates"}
                   </p>
                 </div>
               </div>
@@ -178,9 +203,9 @@ export default function DashboardPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Welcome</h2>
           <div className="space-y-2 text-gray-600">
-            <p>Organization: {org?.name || 'Loading...'}</p>
+            <p>Organization: {org?.name || "Loading..."}</p>
             <p>Email: {user?.email}</p>
-            <p>Role: {userRole || 'Loading...'}</p>
+            <p>Role: {userRole || "Loading..."}</p>
           </div>
         </div>
       </main>

@@ -1,6 +1,10 @@
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import "server-only";
-import { NextRequest, NextResponse } from "next/server";
+
 import { createServerAuthClient } from "@/lib/supabase/server-auth";
+
+const DECISIONS = ["pending", "approved", "rejected", "all"] as const;
 
 /**
  * GET /api/approvals
@@ -27,54 +31,64 @@ export async function GET(req: NextRequest) {
   }
 
   // 2. Role authorization - CEO or Admin only
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("ceo_users")
-    .select("role")
-    .eq("user_id", user.id)
+    .select("org_id, role_code")
+    .eq("id", user.id)
     .single();
 
-  if (!profile || !["ceo", "admin"].includes(profile.role)) {
+  if (
+    profileError ||
+    !profile ||
+    !["CEO", "ADMIN"].includes(profile.role_code)
+  ) {
     return NextResponse.json(
       { error: "Forbidden - CEO/Admin only" },
       { status: 403 }
     );
   }
 
+  const orgId = profile.org_id;
+
   // 3. Query parameters for filtering
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get("status") || "pending"; // pending, approved, rejected, all
+  const statusParam = (searchParams.get("status") || "pending").toLowerCase();
+  const status = DECISIONS.includes(statusParam as (typeof DECISIONS)[number])
+    ? (statusParam as (typeof DECISIONS)[number])
+    : "pending";
 
   // 4. Build query
   let query = supabase
     .from("ceo_request_approvals")
     .select(
       `
-      approval_id,
+      id,
+      org_id,
       request_id,
+      request_version,
       approval_round,
       decision,
-      decision_notes,
+      notes,
       is_valid,
-      submitted_at,
       decided_at,
-      decided_by,
-      ceo_requests!inner (
-        request_id,
+      approved_by,
+      created_at,
+      request:ceo_requests!inner (
+        id,
         title,
-        priority,
-        category,
+        priority_code,
         status_code,
-        requested_by,
-        ceo_users!ceo_requests_requested_by_fkey (
-          user_id,
-          full_name,
-          email
+        requester:ceo_users!ceo_requests_requester_id_fkey (
+          id,
+          email,
+          full_name
         )
       )
     `
     )
+    .eq("org_id", orgId)
     .eq("is_valid", true)
-    .order("submitted_at", { ascending: true });
+    .order("created_at", { ascending: true });
 
   // Filter by decision status
   if (status !== "all") {

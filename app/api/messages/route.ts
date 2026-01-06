@@ -1,13 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import "server-only";
+import { z } from "zod";
+
 import {
   createExecutiveMessage,
   getUserMessages,
 } from "@/lib/server/executive-messages";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+
+// Zod DTO for message creation
+const MessageCreateSchema = z.object({
+  message_type: z.enum(["consultation", "direction", "clarification"]),
+  context_type: z.enum(["request", "announcement", "general"]),
+  context_id: z.string().uuid().optional(),
+  subject: z.string().min(3, "Subject must be at least 3 characters"),
+  body: z.string().min(1, "Body cannot be empty"),
+  recipient_ids: z
+    .array(z.string().uuid())
+    .min(1, "At least one recipient required"),
+  cc_user_ids: z.array(z.string().uuid()).optional(),
+});
 
 // POST /api/messages - Create a new message (draft)
 export async function POST(req: NextRequest) {
   try {
+    const supabase = await createServerAuthClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -31,10 +49,21 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
+    // Zod validation (REQUIRED)
+    const validation = MessageCreateSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const validatedData = validation.data;
+
     const result = await createExecutiveMessage(
-      body,
+      validatedData,
       user.id,
-      profile.role_code,
+      profile.role_code as "MANAGER" | "CEO" | "ADMIN",
       profile.org_id
     );
 
@@ -54,6 +83,7 @@ export async function POST(req: NextRequest) {
 // GET /api/messages - List messages for current user (inbox)
 export async function GET(req: NextRequest) {
   try {
+    const supabase = await createServerAuthClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

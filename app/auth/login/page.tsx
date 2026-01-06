@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+
 import {
   Eye,
   EyeOff,
@@ -13,6 +14,9 @@ import {
   Github,
   Command
 } from 'lucide-react';
+
+import { supabase } from '@/lib/supabase/client';
+
 
 export default function LoginPage() {
   const router = useRouter();

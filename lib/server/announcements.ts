@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase/client";
-import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+import "server-only";
 
 export interface AnnouncementData {
   title: string;
@@ -7,7 +7,7 @@ export interface AnnouncementData {
   announcement_type: "info" | "important" | "urgent";
   target_scope: "all" | "team" | "individuals";
   target_user_ids?: string[];
-  require_acknowledgement: boolean;
+  require_acknowledgement?: boolean;
   sticky_until?: string;
 }
 
@@ -38,7 +38,9 @@ export async function publishAnnouncement(
   orgId: string
 ): Promise<{ success: boolean; announcement?: Announcement; error?: string }> {
   try {
-    // Insert announcement
+    const supabase = await createServerAuthClient();
+
+    // Insert announcement (org-scoped)
     const { data: announcement, error: insertError } = await supabase
       .from("ceo_announcements")
       .insert({
@@ -48,7 +50,7 @@ export async function publishAnnouncement(
         announcement_type: data.announcement_type,
         target_scope: data.target_scope,
         target_user_ids: data.target_user_ids || [],
-        require_acknowledgement: data.require_acknowledgement,
+        require_acknowledgement: data.require_acknowledgement ?? false,
         sticky_until: data.sticky_until || null,
         published_by: userId,
         created_by: userId,
@@ -60,8 +62,8 @@ export async function publishAnnouncement(
       return { success: false, error: insertError.message };
     }
 
-    // Write audit log
-    await writeAuditLog({
+    // Write audit log (REQUIRED for publish)
+    await supabase.from("ceo_audit_logs").insert({
       org_id: orgId,
       entity_type: "announcement",
       entity_id: announcement.id,
@@ -88,7 +90,9 @@ export async function getAnnouncementsForUser(
   error?: string;
 }> {
   try {
-    // Get announcements targeted to this user
+    const supabase = await createServerAuthClient();
+
+    // Get announcements targeted to this user (org-scoped)
     const { data: announcements, error: fetchError } = await supabase
       .from("ceo_announcements")
       .select(
@@ -143,6 +147,8 @@ export async function acknowledgeAnnouncement(
   orgId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = await createServerAuthClient();
+
     // Check if already acknowledged
     const { data: existing } = await supabase
       .from("ceo_announcement_reads")
@@ -178,7 +184,7 @@ export async function acknowledgeAnnouncement(
     }
 
     // CRITICAL: Write audit log for acknowledgement
-    await writeAuditLog({
+    await supabase.from("ceo_audit_logs").insert({
       org_id: orgId,
       entity_type: "announcement",
       entity_id: announcementId,
@@ -205,6 +211,8 @@ export async function markAnnouncementRead(
   orgId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = await createServerAuthClient();
+
     // Upsert read record (without acknowledgement)
     const { error: upsertError } = await supabase
       .from("ceo_announcement_reads")

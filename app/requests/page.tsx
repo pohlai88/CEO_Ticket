@@ -1,9 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { STATUS_METADATA, DEFAULT_PRIORITY_METADATA } from '@/lib/constants/status';
-import type { Request } from '@/lib/types/database';
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
+import {
+  DEFAULT_PRIORITY_METADATA,
+  STATUS_METADATA,
+} from "@/lib/constants/status";
+import type { Request } from "@/lib/types/database";
 
 type RequestWithRequester = Request & {
   ceo_users: { email: string } | null;
@@ -11,33 +16,33 @@ type RequestWithRequester = Request & {
 
 export default function RequestsPage() {
   const router = useRouter();
-  
+
   const [requests, setRequests] = useState<RequestWithRequester[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [error, setError] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [priorityFilter, setPriorityFilter] = useState<string>("all");
   const [showDeleted, setShowDeleted] = useState(false);
 
   useEffect(() => {
-    fetchRequests();
+    void fetchRequests();
   }, [statusFilter, priorityFilter, showDeleted]);
 
   const fetchRequests = async () => {
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const params = new URLSearchParams();
-      if (statusFilter !== 'all') params.set('status', statusFilter);
-      if (priorityFilter !== 'all') params.set('priority', priorityFilter);
-      if (showDeleted) params.set('show_deleted', 'true');
+      if (statusFilter !== "all") params.set("status", statusFilter);
+      if (priorityFilter !== "all") params.set("priority", priorityFilter);
+      if (showDeleted) params.set("show_deleted", "true");
 
       const res = await fetch(`/api/requests?${params.toString()}`);
-      
+
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to fetch requests');
+        throw new Error(data.error || "Failed to fetch requests");
       }
 
       const data = await res.json();
@@ -50,11 +55,11 @@ export default function RequestsPage() {
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -71,7 +76,7 @@ export default function RequestsPage() {
               </p>
             </div>
             <button
-              onClick={() => router.push('/requests/new')}
+              onClick={() => router.push("/requests/new")}
               className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
             >
               New Request
@@ -86,7 +91,10 @@ export default function RequestsPage() {
           <div className="flex flex-wrap items-center gap-4">
             {/* Status Filter */}
             <div className="flex items-center gap-2">
-              <label htmlFor="status" className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="status"
+                className="text-sm font-medium text-foreground"
+              >
                 Status:
               </label>
               <select
@@ -108,7 +116,10 @@ export default function RequestsPage() {
 
             {/* Priority Filter */}
             <div className="flex items-center gap-2">
-              <label htmlFor="priority" className="text-sm font-medium text-foreground">
+              <label
+                htmlFor="priority"
+                className="text-sm font-medium text-foreground"
+              >
                 Priority:
               </label>
               <select
@@ -139,7 +150,7 @@ export default function RequestsPage() {
 
             {/* Count */}
             <div className="ml-auto text-sm text-muted-foreground">
-              {requests.length} {requests.length === 1 ? 'request' : 'requests'}
+              {requests.length} {requests.length === 1 ? "request" : "requests"}
             </div>
           </div>
         </div>
@@ -157,24 +168,30 @@ export default function RequestsPage() {
         {isLoading ? (
           <div className="text-center py-12">
             <div className="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-sm text-muted-foreground mt-4">Loading requests...</p>
+            <p className="text-sm text-muted-foreground mt-4">
+              Loading requests...
+            </p>
           </div>
         ) : requests.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-lg border">
-            <p className="text-lg font-medium text-foreground">No requests found</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {statusFilter !== 'all' || priorityFilter !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Create your first request to get started'}
+            <p className="text-lg font-medium text-foreground">
+              No requests found
             </p>
-            {statusFilter === 'all' && priorityFilter === 'all' && !showDeleted && (
-              <button
-                onClick={() => router.push('/requests/new')}
-                className="mt-6 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
-              >
-                Create Request
-              </button>
-            )}
+            <p className="text-sm text-muted-foreground mt-2">
+              {statusFilter !== "all" || priorityFilter !== "all"
+                ? "Try adjusting your filters"
+                : "Create your first request to get started"}
+            </p>
+            {statusFilter === "all" &&
+              priorityFilter === "all" &&
+              !showDeleted && (
+                <button
+                  onClick={() => router.push("/requests/new")}
+                  className="mt-6 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring transition-colors"
+                >
+                  Create Request
+                </button>
+              )}
           </div>
         ) : (
           <div className="bg-card rounded-lg border overflow-hidden">
@@ -201,24 +218,29 @@ export default function RequestsPage() {
               <tbody className="divide-y">
                 {requests.map((request) => {
                   const statusMeta = STATUS_METADATA[request.status_code];
-                  const priorityMeta = DEFAULT_PRIORITY_METADATA[request.priority_code];
-                  
+                  const priorityMeta =
+                    DEFAULT_PRIORITY_METADATA[request.priority_code];
+
                   return (
                     <tr
                       key={request.id}
                       onClick={() => router.push(`/requests/${request.id}`)}
                       className={`cursor-pointer hover:bg-muted/50 transition-colors ${
-                        request.deleted_at ? 'opacity-50' : ''
+                        request.deleted_at ? "opacity-50" : ""
                       }`}
                     >
                       <td className="px-6 py-4">
-                        <div className="font-medium text-foreground">{request.title}</div>
+                        <div className="font-medium text-foreground">
+                          {request.title}
+                        </div>
                         {request.deleted_at && (
                           <span className="text-xs text-error-fg">Deleted</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusMeta.color}`}>
+                        <span
+                          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${statusMeta.color}`}
+                        >
                           {statusMeta.label}
                         </span>
                       </td>
@@ -234,7 +256,7 @@ export default function RequestsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-foreground">
-                        {request.ceo_users?.email || 'Unknown'}
+                        {request.ceo_users?.email || "Unknown"}
                       </td>
                       <td className="px-6 py-4 text-sm text-muted-foreground">
                         {formatDate(request.created_at)}

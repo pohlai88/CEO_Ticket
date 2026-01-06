@@ -1,5 +1,5 @@
-import { supabase } from "@/lib/supabase/client";
-import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+import "server-only";
 
 export type MessageType = "consultation" | "direction" | "clarification";
 export type ContextType = "request" | "announcement" | "general";
@@ -51,6 +51,8 @@ export async function createExecutiveMessage(
   orgId: string
 ): Promise<{ success: boolean; message?: ExecutiveMessage; error?: string }> {
   try {
+    const supabase = await createServerAuthClient();
+
     // Validation: general messages only from CEO/ADMIN
     if (data.context_type === "general" && userRole === "MANAGER") {
       return {
@@ -67,7 +69,7 @@ export async function createExecutiveMessage(
       };
     }
 
-    // Insert message
+    // Insert message (org-scoped)
     const { data: message, error: insertError } = await supabase
       .from("ceo_executive_messages")
       .insert({
@@ -91,8 +93,8 @@ export async function createExecutiveMessage(
       return { success: false, error: insertError.message };
     }
 
-    // Write audit log
-    await writeAuditLog({
+    // Write audit log (REQUIRED)
+    await supabase.from("ceo_audit_logs").insert({
       org_id: orgId,
       entity_type: "message",
       entity_id: message.id,
@@ -117,7 +119,9 @@ export async function sendExecutiveMessage(
   orgId: string
 ): Promise<{ success: boolean; message?: ExecutiveMessage; error?: string }> {
   try {
-    // Get message and verify ownership
+    const supabase = await createServerAuthClient();
+
+    // Get message and verify ownership (org-scoped)
     const { data: message } = await supabase
       .from("ceo_executive_messages")
       .select("*")
@@ -154,8 +158,8 @@ export async function sendExecutiveMessage(
       return { success: false, error: updateError.message };
     }
 
-    // Write audit log
-    await writeAuditLog({
+    // Write audit log (REQUIRED for send)
+    await supabase.from("ceo_audit_logs").insert({
       org_id: orgId,
       entity_type: "message",
       entity_id: messageId,
@@ -165,7 +169,7 @@ export async function sendExecutiveMessage(
     });
 
     // Log notification for each recipient + CC
-    await logMessageNotification(updated, orgId);
+    await logMessageNotification(updated, orgId, supabase);
 
     return { success: true, message: transformMessage(updated, userId) };
   } catch (error) {
@@ -184,7 +188,9 @@ export async function acknowledgeExecutiveMessage(
   action: "acknowledged" | "resolved" = "acknowledged"
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Get message and verify user is recipient
+    const supabase = await createServerAuthClient();
+
+    // Get message and verify user is recipient (org-scoped)
     const { data: message } = await supabase
       .from("ceo_executive_messages")
       .select("*")
@@ -226,12 +232,12 @@ export async function acknowledgeExecutiveMessage(
         return { success: false, error: updateError.message };
       }
 
-      // Write audit log
-      await writeAuditLog({
+      // Write audit log (REQUIRED for resolve)
+      await supabase.from("ceo_audit_logs").insert({
         org_id: orgId,
         entity_type: "message",
         entity_id: messageId,
-        action: "message_acknowledged",
+        action: "message_resolved",
         user_id: userId,
         new_values: { status: "resolved", resolved_at: now },
       });
@@ -256,8 +262,8 @@ export async function acknowledgeExecutiveMessage(
         return { success: false, error: upsertError.message };
       }
 
-      // Write audit log
-      await writeAuditLog({
+      // Write audit log (REQUIRED for acknowledge)
+      await supabase.from("ceo_audit_logs").insert({
         org_id: orgId,
         entity_type: "message",
         entity_id: messageId,
@@ -287,7 +293,9 @@ export async function getUserMessages(
   error?: string;
 }> {
   try {
-    // Get messages where user is author, recipient, or CC'd
+    const supabase = await createServerAuthClient();
+
+    // Get messages where user is author, recipient, or CC'd (org-scoped)
     let query = supabase
       .from("ceo_executive_messages")
       .select(
@@ -340,6 +348,8 @@ export async function getExecutiveMessage(
   orgId: string
 ): Promise<{ success: boolean; message?: ExecutiveMessage; error?: string }> {
   try {
+    const supabase = await createServerAuthClient();
+
     const { data: message, error: fetchError } = await supabase
       .from("ceo_executive_messages")
       .select(
@@ -388,6 +398,8 @@ export async function markMessageRead(
   orgId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = await createServerAuthClient();
+
     const { error: upsertError } = await supabase
       .from("ceo_executive_message_reads")
       .upsert(
@@ -435,7 +447,11 @@ function transformMessage(
 }
 
 // Helper: Log notification for message recipients
-async function logMessageNotification(message: any, orgId: string) {
+async function logMessageNotification(
+  message: any,
+  orgId: string,
+  supabase: Awaited<ReturnType<typeof createServerAuthClient>>
+) {
   try {
     const allRecipients = [
       ...(message.recipient_ids || []),
@@ -443,15 +459,17 @@ async function logMessageNotification(message: any, orgId: string) {
     ];
     const uniqueRecipients = [...new Set(allRecipients)];
 
+    const notificationRecords = [];
     for (const recipientId of uniqueRecipients) {
       const { data: user } = await supabase
         .from("ceo_users")
         .select("email")
         .eq("id", recipientId)
+        .eq("org_id", orgId) // Org-scoped filter
         .single();
 
       if (user) {
-        await supabase.from("ceo_notification_log").insert({
+        notificationRecords.push({
           org_id: orgId,
           event_type: "message_sent",
           recipient_id: recipientId,
@@ -462,6 +480,11 @@ async function logMessageNotification(message: any, orgId: string) {
           sent_at: new Date().toISOString(),
         });
       }
+    }
+
+    // Batch insert
+    if (notificationRecords.length > 0) {
+      await supabase.from("ceo_notification_log").insert(notificationRecords);
     }
   } catch (error) {
     console.error("Failed to log message notification:", error);

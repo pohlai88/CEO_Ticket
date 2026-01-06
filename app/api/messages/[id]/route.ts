@@ -1,10 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import "server-only";
+import { z } from "zod";
+
 import {
-  sendExecutiveMessage,
   acknowledgeExecutiveMessage,
   markMessageRead,
+  sendExecutiveMessage,
 } from "@/lib/server/executive-messages";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+
+// Zod DTO for message actions
+const MessageActionSchema = z.object({
+  action: z.enum(["send", "mark-read", "acknowledge", "resolve"]),
+});
 
 // PATCH /api/messages/[id] - Send or update a message
 export async function PATCH(
@@ -13,6 +22,7 @@ export async function PATCH(
 ) {
   try {
     const { id: messageId } = await params;
+    const supabase = await createServerAuthClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -35,7 +45,17 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { action } = body; // 'send' or 'mark-read'
+
+    // Zod validation (REQUIRED)
+    const validation = MessageActionSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const { action } = validation.data;
 
     if (action === "send") {
       const result = await sendExecutiveMessage(
@@ -81,6 +101,7 @@ export async function POST(
 ) {
   try {
     const { id: messageId } = await params;
+    const supabase = await createServerAuthClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -103,7 +124,17 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { action } = body; // 'acknowledge' or 'resolve'
+
+    // Zod validation (REQUIRED)
+    const validation = MessageActionSchema.safeParse(body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: validation.error.errors },
+        { status: 400 }
+      );
+    }
+
+    const { action } = validation.data;
 
     if (action === "resolve") {
       const result = await acknowledgeExecutiveMessage(

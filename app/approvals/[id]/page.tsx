@@ -1,13 +1,22 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { CheckCircle2, XCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from "react";
+
+import { useParams, useRouter } from "next/navigation";
+
+import { AlertCircle, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ApprovalDetail {
   approval_id: string;
@@ -43,40 +52,42 @@ export default function ApprovalDecisionPage() {
   const [approval, setApproval] = useState<ApprovalDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [decisionNotes, setDecisionNotes] = useState('');
+  const [decisionNotes, setDecisionNotes] = useState("");
 
   useEffect(() => {
-    loadApproval();
+    void loadApproval();
   }, [approvalId]);
 
   async function loadApproval() {
     setLoading(true);
     try {
       const res = await fetch(`/api/approvals?status=all`);
-      if (!res.ok) throw new Error('Failed to fetch approval');
+      if (!res.ok) throw new Error("Failed to fetch approval");
 
       const data = await res.json();
-      const found = data.approvals?.find((a: ApprovalDetail) => a.approval_id === approvalId);
+      const found = data.approvals?.find(
+        (a: ApprovalDetail) => a.approval_id === approvalId
+      );
 
       if (found) {
         setApproval(found);
-        setDecisionNotes(found.decision_notes || '');
+        setDecisionNotes(found.decision_notes || "");
       }
     } catch (error) {
-      console.error('Error loading approval:', error);
+      console.error("Error loading approval:", error);
     } finally {
       setLoading(false);
     }
   }
 
-  async function handleDecision(decision: 'approved' | 'rejected') {
+  async function handleDecision(decision: "approved" | "rejected") {
     if (!approval) return;
 
     setSubmitting(true);
     try {
       const res = await fetch(`/api/approvals/${approvalId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           decision,
           decision_notes: decisionNotes || undefined,
@@ -85,36 +96,43 @@ export default function ApprovalDecisionPage() {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(error.error || 'Failed to submit decision');
+        throw new Error(error.error || "Failed to submit decision");
       }
 
       // Success - redirect back to queue
-      router.push('/approvals');
+      router.push("/approvals");
     } catch (error) {
-      console.error('Error submitting decision:', error);
-      alert(error instanceof Error ? error.message : 'Failed to submit decision');
+      console.error("Error submitting decision:", error);
+      alert(
+        error instanceof Error ? error.message : "Failed to submit decision"
+      );
     } finally {
       setSubmitting(false);
     }
   }
 
   function formatDate(dateString: string) {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   }
 
   function getPriorityColor(priority: string) {
     switch (priority?.toLowerCase()) {
-      case 'urgent': return 'destructive';
-      case 'high': return 'default';
-      case 'normal': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'secondary';
+      case "urgent":
+        return "destructive";
+      case "high":
+        return "default";
+      case "normal":
+        return "secondary";
+      case "low":
+        return "outline";
+      default:
+        return "secondary";
     }
   }
 
@@ -135,7 +153,7 @@ export default function ApprovalDecisionPage() {
           <CardContent className="py-12 text-center">
             <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium">Approval not found</p>
-            <Button className="mt-4" onClick={() => router.push('/approvals')}>
+            <Button className="mt-4" onClick={() => router.push("/approvals")}>
               Back to Queue
             </Button>
           </CardContent>
@@ -144,15 +162,15 @@ export default function ApprovalDecisionPage() {
     );
   }
 
-  const isPending = approval.decision === 'pending' && approval.is_valid;
-  const isDecided = approval.decision !== 'pending';
+  const isPending = approval.decision === "pending" && approval.is_valid;
+  const isDecided = approval.decision !== "pending";
   const isInvalidated = !approval.is_valid;
 
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       {/* Header */}
       <div className="mb-6">
-        <Button variant="ghost" onClick={() => router.push('/approvals')}>
+        <Button variant="ghost" onClick={() => router.push("/approvals")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Queue
         </Button>
@@ -165,7 +183,8 @@ export default function ApprovalDecisionPage() {
             <div className="flex items-center gap-2 text-yellow-700">
               <AlertCircle className="h-5 w-5" />
               <p className="font-medium">
-                This approval has been invalidated due to material changes. Request must be resubmitted.
+                This approval has been invalidated due to material changes.
+                Request must be resubmitted.
               </p>
             </div>
           </CardContent>
@@ -173,17 +192,24 @@ export default function ApprovalDecisionPage() {
       )}
 
       {isDecided && (
-        <Card className={`mb-6 ${approval.decision === 'approved' ? 'border-green-500' : 'border-red-500'}`}>
+        <Card
+          className={`mb-6 ${
+            approval.decision === "approved"
+              ? "border-green-500"
+              : "border-red-500"
+          }`}
+        >
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              {approval.decision === 'approved' ? (
+              {approval.decision === "approved" ? (
                 <CheckCircle2 className="h-5 w-5 text-green-600" />
               ) : (
                 <XCircle className="h-5 w-5 text-red-600" />
               )}
               <p className="font-medium">
                 Decision made: {approval.decision.toUpperCase()}
-                {approval.decided_at && ` on ${formatDate(approval.decided_at)}`}
+                {approval.decided_at &&
+                  ` on ${formatDate(approval.decided_at)}`}
               </p>
             </div>
           </CardContent>
@@ -198,15 +224,19 @@ export default function ApprovalDecisionPage() {
               <div className="flex items-center gap-2 mb-2">
                 <CardTitle>{approval.request_snapshot.title}</CardTitle>
                 {approval.approval_round > 1 && (
-                  <Badge variant="outline">Round {approval.approval_round}</Badge>
+                  <Badge variant="outline">
+                    Round {approval.approval_round}
+                  </Badge>
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                Submitted by {approval.ceo_requests.ceo_users.full_name} •{' '}
+                Submitted by {approval.ceo_requests.ceo_users.full_name} •{" "}
                 {formatDate(approval.submitted_at)}
               </p>
             </div>
-            <Badge variant={getPriorityColor(approval.request_snapshot.priority)}>
+            <Badge
+              variant={getPriorityColor(approval.request_snapshot.priority)}
+            >
               {approval.request_snapshot.priority}
             </Badge>
           </div>
@@ -220,7 +250,8 @@ export default function ApprovalDecisionPage() {
             <div>
               <Label className="text-sm font-medium">Description</Label>
               <p className="mt-1 text-muted-foreground whitespace-pre-wrap">
-                {approval.request_snapshot.description || 'No description provided'}
+                {approval.request_snapshot.description ||
+                  "No description provided"}
               </p>
             </div>
           </div>
@@ -231,18 +262,22 @@ export default function ApprovalDecisionPage() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {isPending ? 'Make Decision' : 'Decision Notes'}
+            {isPending ? "Make Decision" : "Decision Notes"}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="notes">Notes (optional, max 500 characters)</Label>
+              <Label htmlFor="notes">
+                Notes (optional, max 500 characters)
+              </Label>
               <Textarea
                 id="notes"
                 placeholder="Add any notes about this decision..."
                 value={decisionNotes}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDecisionNotes(e.target.value.slice(0, 500))}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setDecisionNotes(e.target.value.slice(0, 500))
+                }
                 disabled={!isPending || submitting}
                 rows={4}
                 className="mt-2"
@@ -257,7 +292,7 @@ export default function ApprovalDecisionPage() {
           <CardFooter className="flex gap-3 justify-end">
             <Button
               variant="outline"
-              onClick={() => handleDecision('rejected')}
+              onClick={async () => handleDecision("rejected")}
               disabled={submitting}
               className="min-w-32"
             >
@@ -265,7 +300,7 @@ export default function ApprovalDecisionPage() {
               Reject
             </Button>
             <Button
-              onClick={() => handleDecision('approved')}
+              onClick={async () => handleDecision("approved")}
               disabled={submitting}
               className="min-w-32 bg-green-600 hover:bg-green-700"
             >

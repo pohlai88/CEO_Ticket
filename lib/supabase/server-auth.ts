@@ -1,7 +1,8 @@
 import 'server-only';
 
-import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+import { createServerClient } from '@supabase/ssr';
 
 /**
  * Server auth client for route handlers and server actions

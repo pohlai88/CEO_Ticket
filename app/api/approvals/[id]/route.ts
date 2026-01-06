@@ -1,8 +1,11 @@
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import "server-only";
-import { NextRequest, NextResponse } from "next/server";
-import { createServerAuthClient } from "@/lib/supabase/server-auth";
-import { writeAuditLog } from "@/lib/supabase/server";
+
 import { z } from "zod";
+
+import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
 
 // Validation schema for CEO decision
 const approvalDecisionSchema = z.object({
@@ -37,18 +40,24 @@ export async function PATCH(
   }
 
   // 2. Role authorization - CEO or Admin only
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("ceo_users")
-    .select("role")
-    .eq("user_id", user.id)
+    .select("org_id, role_code")
+    .eq("id", user.id)
     .single();
 
-  if (!profile || !["ceo", "admin"].includes(profile.role)) {
+  if (
+    profileError ||
+    !profile ||
+    !["CEO", "ADMIN"].includes(profile.role_code)
+  ) {
     return NextResponse.json(
       { error: "Forbidden - CEO/Admin only" },
       { status: 403 }
     );
   }
+
+  const orgId = profile.org_id;
 
   // 3. Input validation
   const body = await req.json();
@@ -68,18 +77,23 @@ export async function PATCH(
     .from("ceo_request_approvals")
     .select(
       `
-      approval_id,
+      id,
+      org_id,
       request_id,
+      request_version,
+      approval_round,
       decision,
       is_valid,
       request_snapshot,
       ceo_requests!inner (
+        id,
         status_code,
         title
       )
     `
     )
-    .eq("approval_id", approvalId)
+    .eq("id", approvalId)
+    .eq("org_id", orgId)
     .single();
 
   if (fetchError || !approval) {
@@ -105,15 +119,19 @@ export async function PATCH(
   }
 
   // 6. Make decision - update approval
+  const decidedAt = new Date().toISOString();
+
   const { error: updateApprovalError } = await supabase
     .from("ceo_request_approvals")
     .update({
       decision,
-      decision_notes,
-      decided_by: user.id,
-      decided_at: new Date().toISOString(),
+      notes: decision_notes,
+      approved_by: user.id,
+      decided_at: decidedAt,
+      updated_at: decidedAt,
     })
-    .eq("approval_id", approvalId);
+    .eq("id", approvalId)
+    .eq("org_id", orgId);
 
   if (updateApprovalError) {
     return NextResponse.json(
@@ -125,10 +143,19 @@ export async function PATCH(
   // 7. Update request status based on decision
   const newStatus = decision === "approved" ? "APPROVED" : "REJECTED";
 
+  const statusChangedAt = new Date().toISOString();
+
   const { error: updateRequestError } = await supabase
     .from("ceo_requests")
-    .update({ status_code: newStatus })
-    .eq("request_id", approval.request_id);
+    .update({
+      status_code: newStatus,
+      status_changed_at: statusChangedAt,
+      approved_at: decision === "approved" ? statusChangedAt : null,
+      last_activity_at: statusChangedAt,
+      updated_at: statusChangedAt,
+    })
+    .eq("id", approval.request_id)
+    .eq("org_id", orgId);
 
   if (updateRequestError) {
     return NextResponse.json(
@@ -139,26 +166,33 @@ export async function PATCH(
 
   // 8. Audit log - Decision is high-value action
   await writeAuditLog({
-    org_id: "", // TODO: Get from context
+    org_id: orgId,
     entity_type: "approval",
     entity_id: approvalId,
-    action: "decided",
+    action: decision === "approved" ? "approved" : "rejected",
     user_id: user.id,
+    actor_role_code: profile.role_code,
     old_values: { decision: "pending" },
     new_values: {
       decision,
-      decided_by: user.id,
-      decided_at: new Date().toISOString(),
+      approved_by: user.id,
+      decided_at: decidedAt,
+      approval_round: approval.approval_round,
     },
-    metadata: { reason: `CEO decision: ${decision}` },
+    metadata: {
+      request_id: approval.request_id,
+      request_version: approval.request_version,
+      ...(decision_notes ? { decision_notes } : {}),
+    },
   });
 
   await writeAuditLog({
-    org_id: "", // TODO: Get from context
+    org_id: orgId,
     entity_type: "request",
     entity_id: approval.request_id,
-    action: "status_changed",
+    action: "status_transitioned",
     user_id: user.id,
+    actor_role_code: profile.role_code,
     old_values: { status_code: "IN_REVIEW" },
     new_values: { status_code: newStatus },
     metadata: { reason: `Approval ${decision}` },
@@ -169,16 +203,18 @@ export async function PATCH(
     .from("ceo_request_approvals")
     .select(
       `
-      approval_id,
+      id,
       request_id,
       decision,
-      decision_notes,
-      decided_by,
+      notes,
+      approved_by,
       decided_at,
-      approval_round
+      approval_round,
+      request_version
     `
     )
-    .eq("approval_id", approvalId)
+    .eq("id", approvalId)
+    .eq("org_id", orgId)
     .single();
 
   return NextResponse.json({

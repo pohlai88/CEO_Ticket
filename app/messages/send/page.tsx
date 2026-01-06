@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase/client';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
+import { AlertCircle, ArrowLeft } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/lib/supabase/client";
 
 interface User {
   id: string;
@@ -15,43 +18,47 @@ interface User {
   full_name: string;
 }
 
-type MessageType = 'consultation' | 'direction' | 'clarification';
-type ContextType = 'request' | 'announcement' | 'general';
+type MessageType = "consultation" | "direction" | "clarification";
+type ContextType = "request" | "announcement" | "general";
 
 export default function SendMessagePage() {
   const router = useRouter();
-  const [userRole, setUserRole] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>("");
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Form state
-  const [messageType, setMessageType] = useState<MessageType>('consultation');
-  const [contextType, setContextType] = useState<ContextType>('general');
-  const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
-  const [selectedRecipients, setSelectedRecipients] = useState<Set<string>>(new Set());
+  const [messageType, setMessageType] = useState<MessageType>("consultation");
+  const [contextType, setContextType] = useState<ContextType>("general");
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+  const [selectedRecipients, setSelectedRecipients] = useState<Set<string>>(
+    new Set()
+  );
   const [ccUsers, setCcUsers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    loadUsers();
+    void loadUsers();
   }, []);
 
   async function loadUsers() {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
-        router.push('/auth/login');
+        router.push("/auth/login");
         return;
       }
 
       // Get user profile
       const { data: profile } = await supabase
-        .from('ceo_users')
-        .select('role_code')
-        .eq('id', user.id)
+        .from("ceo_users")
+        .select("role_code")
+        .eq("id", user.id)
         .single();
 
       if (profile) {
@@ -60,15 +67,15 @@ export default function SendMessagePage() {
 
       // Get all users in org
       const { data: users } = await supabase
-        .from('ceo_users')
-        .select('id, email, full_name')
-        .eq('is_active', true);
+        .from("ceo_users")
+        .select("id, email, full_name")
+        .eq("is_active", true);
 
       if (users) {
-        setAllUsers(users.filter(u => u.id !== user.id));
+        setAllUsers(users.filter((u) => u.id !== user.id));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -76,34 +83,34 @@ export default function SendMessagePage() {
 
   async function handleSend() {
     try {
-      setError('');
+      setError("");
       setSending(true);
 
       // Validation
       if (!subject.trim()) {
-        setError('Subject is required');
+        setError("Subject is required");
         return;
       }
 
       if (!body.trim()) {
-        setError('Message body is required');
+        setError("Message body is required");
         return;
       }
 
       if (selectedRecipients.size === 0) {
-        setError('At least one recipient is required');
+        setError("At least one recipient is required");
         return;
       }
 
-      if (contextType !== 'general' && !contextType) {
-        setError('Context type is required for non-general messages');
+      if (contextType !== "general" && !contextType) {
+        setError("Context type is required for non-general messages");
         return;
       }
 
       // Create message (draft)
-      const res = await fetch('/api/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message_type: messageType,
           context_type: contextType,
@@ -117,7 +124,7 @@ export default function SendMessagePage() {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to create message');
+        throw new Error(data.error || "Failed to create message");
       }
 
       const data = await res.json();
@@ -125,20 +132,20 @@ export default function SendMessagePage() {
 
       // Send message
       const sendRes = await fetch(`/api/messages/${messageId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'send' }),
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "send" }),
       });
 
       if (!sendRes.ok) {
         const sendData = await sendRes.json();
-        throw new Error(sendData.error || 'Failed to send message');
+        throw new Error(sendData.error || "Failed to send message");
       }
 
       // Success
-      router.push('/messages');
+      router.push("/messages");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setSending(false);
     }
@@ -166,7 +173,9 @@ export default function SendMessagePage() {
             Back
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">New Message</h1>
-          <p className="text-gray-600 mt-1">Send a message to managers or the CEO</p>
+          <p className="text-gray-600 mt-1">
+            Send a message to managers or the CEO
+          </p>
         </div>
 
         {error && (
@@ -181,65 +190,80 @@ export default function SendMessagePage() {
         <Card className="p-6 space-y-6">
           {/* Message Type */}
           <div>
-            <Label className="text-base font-semibold mb-3 block">Message Type</Label>
+            <Label className="text-base font-semibold mb-3 block">
+              Message Type
+            </Label>
             <div className="grid grid-cols-3 gap-3">
-              {(['consultation', 'direction', 'clarification'] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setMessageType(type)}
-                  className={`p-4 border-2 rounded-lg transition-all text-center ${
-                    messageType === type
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="font-medium capitalize text-sm">
-                    {type === 'consultation'
-                      ? '❓ Asking'
-                      : type === 'direction'
-                        ? '📋 Directing'
-                        : '💬 Clarifying'}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    {type === 'consultation'
-                      ? 'Need approval?'
-                      : type === 'direction'
-                        ? 'Instruction'
-                        : 'Clarify details'}
-                  </div>
-                </button>
-              ))}
+              {(["consultation", "direction", "clarification"] as const).map(
+                (type) => (
+                  <button
+                    key={type}
+                    onClick={() => setMessageType(type)}
+                    className={`p-4 border-2 rounded-lg transition-all text-center ${
+                      messageType === type
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="font-medium capitalize text-sm">
+                      {type === "consultation"
+                        ? "❓ Asking"
+                        : type === "direction"
+                        ? "📋 Directing"
+                        : "💬 Clarifying"}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {type === "consultation"
+                        ? "Need approval?"
+                        : type === "direction"
+                        ? "Instruction"
+                        : "Clarify details"}
+                    </div>
+                  </button>
+                )
+              )}
             </div>
           </div>
 
           {/* Context Type */}
-          {userRole !== 'MANAGER' && (
+          {userRole !== "MANAGER" && (
             <div>
-              <Label className="text-base font-semibold mb-3 block">Context (optional for CEO)</Label>
+              <Label className="text-base font-semibold mb-3 block">
+                Context (optional for CEO)
+              </Label>
               <div className="grid grid-cols-3 gap-3">
-                {(['general', 'request', 'announcement'] as const).map((type) => (
-                  <button
-                    key={type}
-                    onClick={() => setContextType(type)}
-                    className={`p-3 border-2 rounded-lg transition-all text-center ${
-                      contextType === type
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <div className="font-medium capitalize text-sm">{type}</div>
-                  </button>
-                ))}
+                {(["general", "request", "announcement"] as const).map(
+                  (type) => (
+                    <button
+                      key={type}
+                      onClick={() => setContextType(type)}
+                      className={`p-3 border-2 rounded-lg transition-all text-center ${
+                        contextType === type
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div className="font-medium capitalize text-sm">
+                        {type}
+                      </div>
+                    </button>
+                  )
+                )}
               </div>
-              {contextType === 'general' && userRole === 'MANAGER' && (
-                <p className="text-xs text-red-600 mt-2">⚠️ Only CEO can send general messages</p>
+              {contextType === "general" && userRole === "MANAGER" && (
+                <p className="text-xs text-red-600 mt-2">
+                  ⚠️ Only CEO can send general messages
+                </p>
               )}
             </div>
           )}
 
           {/* Subject */}
           <div>
-            <Label htmlFor="subject" className="text-base font-semibold mb-2 block">
+            <Label
+              htmlFor="subject"
+              className="text-base font-semibold mb-2 block"
+            >
               Subject
             </Label>
             <input
@@ -254,13 +278,18 @@ export default function SendMessagePage() {
 
           {/* Body */}
           <div>
-            <Label htmlFor="body" className="text-base font-semibold mb-2 block">
+            <Label
+              htmlFor="body"
+              className="text-base font-semibold mb-2 block"
+            >
               Message
             </Label>
             <Textarea
               id="body"
               value={body}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBody(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setBody(e.target.value)
+              }
               placeholder="Write your message here..."
               rows={6}
               className="font-sans"
@@ -293,7 +322,9 @@ export default function SendMessagePage() {
                     className="w-4 h-4"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-sm">{user.full_name || user.email}</div>
+                    <div className="font-medium text-sm">
+                      {user.full_name || user.email}
+                    </div>
                     <div className="text-xs text-gray-500">{user.email}</div>
                   </div>
                 </label>
@@ -327,7 +358,9 @@ export default function SendMessagePage() {
                     className="w-4 h-4"
                   />
                   <div className="flex-1">
-                    <div className="font-medium text-sm">{user.full_name || user.email}</div>
+                    <div className="font-medium text-sm">
+                      {user.full_name || user.email}
+                    </div>
                     <div className="text-xs text-gray-500">{user.email}</div>
                   </div>
                 </label>
@@ -344,12 +377,8 @@ export default function SendMessagePage() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={handleSend}
-              disabled={sending}
-              className="flex-1"
-            >
-              {sending ? 'Sending...' : 'Send Message'}
+            <Button onClick={handleSend} disabled={sending} className="flex-1">
+              {sending ? "Sending..." : "Send Message"}
             </Button>
           </div>
         </Card>

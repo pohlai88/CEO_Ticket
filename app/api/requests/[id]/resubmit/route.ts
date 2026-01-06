@@ -1,11 +1,13 @@
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import "server-only";
-import { NextRequest, NextResponse } from "next/server";
-import { createServerAuthClient } from "@/lib/supabase/server-auth";
-import { writeAuditLog } from "@/lib/supabase/server";
+
 import {
   canResubmit,
   createResubmissionApproval,
 } from "@/lib/server/approvals";
+import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
 
 /**
  * POST /api/requests/[id]/resubmit
@@ -38,11 +40,25 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("ceo_users")
+    .select("org_id, role_code")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile) {
+    return NextResponse.json(
+      { error: "User profile not found" },
+      { status: 403 }
+    );
+  }
+
   // 2. Fetch request with ownership check
   const { data: request, error: fetchError } = await supabase
     .from("ceo_requests")
-    .select("request_id, title, status_code, requested_by")
-    .eq("request_id", requestId)
+    .select("id, org_id, title, status_code, requester_id, request_version")
+    .eq("id", requestId)
+    .eq("org_id", profile.org_id)
     .single();
 
   if (fetchError || !request) {
@@ -50,15 +66,25 @@ export async function POST(
   }
 
   // 3. Authorization - Only requester can resubmit
-  if (request.requested_by !== user.id) {
+  if (request.requester_id !== user.id) {
     return NextResponse.json(
       { error: "Only requester can resubmit" },
       { status: 403 }
     );
   }
 
+  if (request.status_code !== "REJECTED") {
+    return NextResponse.json(
+      { error: "Only rejected requests can be resubmitted" },
+      { status: 400 }
+    );
+  }
+
   // 4. Check if resubmission is allowed
-  const resubmitCheck = await canResubmit(requestId);
+  const resubmitCheck = await canResubmit({
+    requestId,
+    orgId: profile.org_id,
+  });
 
   if (!resubmitCheck.allowed) {
     return NextResponse.json(
@@ -68,13 +94,18 @@ export async function POST(
   }
 
   // 5. Update request status to IN_REVIEW
+  const statusChangedAt = new Date().toISOString();
+
   const { data: updatedRequest, error: updateError } = await supabase
     .from("ceo_requests")
     .update({
       status_code: "IN_REVIEW",
-      updated_at: new Date().toISOString(),
+      status_changed_at: statusChangedAt,
+      last_activity_at: statusChangedAt,
+      updated_at: statusChangedAt,
     })
-    .eq("request_id", requestId)
+    .eq("id", requestId)
+    .eq("org_id", profile.org_id)
     .select()
     .single();
 
@@ -87,10 +118,13 @@ export async function POST(
 
   // 6. Create new approval round
   const approvalResult = await createResubmissionApproval({
+    orgId: profile.org_id,
     requestId,
+    requestVersion: updatedRequest.request_version,
     requestSnapshot: updatedRequest,
     submittedBy: user.id,
     approvalRound: resubmitCheck.nextRound || 1,
+    actorRoleCode: profile.role_code as "MANAGER" | "CEO" | "ADMIN",
   });
 
   if (!approvalResult.success) {
@@ -99,11 +133,12 @@ export async function POST(
 
   // 7. Audit log resubmission
   await writeAuditLog({
-    org_id: "", // TODO: Get from context
+    org_id: profile.org_id,
     entity_type: "request",
     entity_id: requestId,
     action: "resubmitted",
     user_id: user.id,
+    actor_role_code: profile.role_code as "MANAGER" | "CEO" | "ADMIN",
     old_values: { status_code: "REJECTED" },
     new_values: { status_code: "IN_REVIEW" },
     metadata: { approval_round: resubmitCheck.nextRound || 1 },

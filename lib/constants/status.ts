@@ -3,7 +3,7 @@
  * IMMUTABLE: Locked in code per REQUEST_CONSTITUTION.md
  */
 
-import { RequestStatus, PriorityCode } from '@/lib/types/database';
+import type { RequestStatus, PriorityCode } from '@/lib/types/database';
 
 // Status lifecycle transitions (what can transition to what)
 export const STATUS_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {

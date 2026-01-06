@@ -1,6 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import "server-only";
+
 import { acknowledgeAnnouncement } from "@/lib/server/announcements";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
 
 // POST /api/announcements/[id]/acknowledge - Acknowledge announcement (irreversible)
 export async function POST(
@@ -10,6 +13,7 @@ export async function POST(
   try {
     const { id: announcementId } = await params;
 
+    const supabase = await createServerAuthClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

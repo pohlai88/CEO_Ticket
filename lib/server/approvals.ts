@@ -1,6 +1,9 @@
-import "server-only";
-import { createServerAuthClient } from "@/lib/supabase/server-auth";
 import { writeAuditLog } from "@/lib/supabase/server";
+import { createServerAuthClient } from "@/lib/supabase/server-auth";
+import "server-only";
+
+type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+type RequestSnapshot = Record<string, Json>;
 
 /**
  * INTERNAL HELPER — Create approval record when request moves to IN_REVIEW
@@ -9,9 +12,13 @@ import { writeAuditLog } from "@/lib/supabase/server";
  * @returns approval_id on success
  */
 export async function createApprovalForRequest(params: {
+  orgId: string;
   requestId: string;
-  requestSnapshot: any; // Full request data at submission time
+  requestVersion: number;
+  requestSnapshot: RequestSnapshot;
   submittedBy: string;
+  approvalRound?: number;
+  actorRoleCode?: "MANAGER" | "CEO" | "ADMIN";
 }): Promise<
   { success: true; approvalId: string } | { success: false; error: string }
 > {
@@ -27,17 +34,20 @@ export async function createApprovalForRequest(params: {
   }
 
   // Create approval record
+  const approvalRound = params.approvalRound ?? 1;
+
   const { data: approval, error: insertError } = await supabase
-    .from("ceo_approvals")
+    .from("ceo_request_approvals")
     .insert({
+      org_id: params.orgId,
       request_id: params.requestId,
+      request_version: params.requestVersion,
       request_snapshot: params.requestSnapshot,
-      approval_round: 1, // First submission always round 1
+      approval_round: approvalRound,
       decision: "pending",
       is_valid: true,
-      submitted_by: params.submittedBy,
     })
-    .select("approval_id")
+    .select("id")
     .single();
 
   if (insertError || !approval) {
@@ -49,19 +59,22 @@ export async function createApprovalForRequest(params: {
 
   // Audit log
   await writeAuditLog({
-    org_id: "", // TODO: Get from request context
+    org_id: params.orgId,
     entity_type: "approval",
-    entity_id: approval.approval_id,
+    entity_id: approval.id,
     action: "created",
     user_id: user.id,
+    actor_role_code: params.actorRoleCode,
     new_values: {
       request_id: params.requestId,
-      approval_round: 1,
+      request_version: params.requestVersion,
+      approval_round: approvalRound,
       decision: "pending",
     },
+    metadata: { submitted_by: params.submittedBy },
   });
 
-  return { success: true, approvalId: approval.approval_id };
+  return { success: true, approvalId: approval.id };
 }
 
 /**
@@ -71,8 +84,10 @@ export async function createApprovalForRequest(params: {
  * Only invalidates if approval is still pending
  */
 export async function invalidateApproval(params: {
+  orgId: string;
   requestId: string;
   reason: string;
+  actorRoleCode?: "MANAGER" | "CEO" | "ADMIN";
 }): Promise<{ success: boolean }> {
   const supabase = await createServerAuthClient();
 
@@ -88,8 +103,9 @@ export async function invalidateApproval(params: {
   // Find pending approval for this request
   const { data: approval } = await supabase
     .from("ceo_request_approvals")
-    .select("approval_id, decision")
+    .select("id, decision")
     .eq("request_id", params.requestId)
+    .eq("org_id", params.orgId)
     .eq("decision", "pending")
     .eq("is_valid", true)
     .order("approval_round", { ascending: false })
@@ -104,8 +120,13 @@ export async function invalidateApproval(params: {
   // Invalidate it
   const { error: updateError } = await supabase
     .from("ceo_request_approvals")
-    .update({ is_valid: false })
-    .eq("approval_id", approval.approval_id);
+    .update({
+      is_valid: false,
+      invalidated_at: new Date().toISOString(),
+      invalidated_reason: params.reason,
+    })
+    .eq("id", approval.id)
+    .eq("org_id", params.orgId);
 
   if (updateError) {
     return { success: false };
@@ -113,11 +134,12 @@ export async function invalidateApproval(params: {
 
   // Audit log
   await writeAuditLog({
-    org_id: "", // TODO: Get from request context
+    org_id: params.orgId,
     entity_type: "approval",
-    entity_id: approval.approval_id,
+    entity_id: approval.id,
     action: "invalidated",
     user_id: user.id,
+    actor_role_code: params.actorRoleCode,
     old_values: { is_valid: true },
     new_values: { is_valid: false },
     metadata: { reason: params.reason },
@@ -134,7 +156,10 @@ export async function invalidateApproval(params: {
  * - Request must be REJECTED
  * - No pending approvals exist
  */
-export async function canResubmit(requestId: string): Promise<{
+export async function canResubmit(params: {
+  requestId: string;
+  orgId: string;
+}): Promise<{
   allowed: boolean;
   reason?: string;
   nextRound?: number;
@@ -145,7 +170,8 @@ export async function canResubmit(requestId: string): Promise<{
   const { data: request } = await supabase
     .from("ceo_requests")
     .select("status_code")
-    .eq("request_id", requestId)
+    .eq("id", params.requestId)
+    .eq("org_id", params.orgId)
     .single();
 
   if (!request) {
@@ -162,8 +188,9 @@ export async function canResubmit(requestId: string): Promise<{
   // Check for any pending approvals (shouldn't exist, but safety check)
   const { data: pendingApprovals } = await supabase
     .from("ceo_request_approvals")
-    .select("approval_id")
-    .eq("request_id", requestId)
+    .select("id")
+    .eq("request_id", params.requestId)
+    .eq("org_id", params.orgId)
     .eq("decision", "pending")
     .limit(1);
 
@@ -175,7 +202,8 @@ export async function canResubmit(requestId: string): Promise<{
   const { data: lastApproval } = await supabase
     .from("ceo_request_approvals")
     .select("approval_round")
-    .eq("request_id", requestId)
+    .eq("request_id", params.requestId)
+    .eq("org_id", params.orgId)
     .order("approval_round", { ascending: false })
     .limit(1)
     .single();
@@ -190,10 +218,13 @@ export async function canResubmit(requestId: string): Promise<{
  * Called from POST /api/requests/[id]/resubmit after validation
  */
 export async function createResubmissionApproval(params: {
+  orgId: string;
   requestId: string;
-  requestSnapshot: any;
+  requestVersion: number;
+  requestSnapshot: RequestSnapshot;
   submittedBy: string;
   approvalRound: number;
+  actorRoleCode?: "MANAGER" | "CEO" | "ADMIN";
 }): Promise<
   { success: true; approvalId: string } | { success: false; error: string }
 > {
@@ -212,14 +243,15 @@ export async function createResubmissionApproval(params: {
   const { data: approval, error: insertError } = await supabase
     .from("ceo_request_approvals")
     .insert({
+      org_id: params.orgId,
       request_id: params.requestId,
+      request_version: params.requestVersion,
       request_snapshot: params.requestSnapshot,
       approval_round: params.approvalRound,
       decision: "pending",
       is_valid: true,
-      submitted_by: params.submittedBy,
     })
-    .select("approval_id")
+    .select("id")
     .single();
 
   if (insertError || !approval) {
@@ -231,18 +263,23 @@ export async function createResubmissionApproval(params: {
 
   // Audit log
   await writeAuditLog({
-    org_id: "", // TODO: Get from request context
+    org_id: params.orgId,
     entity_type: "approval",
-    entity_id: approval.approval_id,
+    entity_id: approval.id,
     action: "resubmitted",
     user_id: user.id,
+    actor_role_code: params.actorRoleCode,
     new_values: {
       request_id: params.requestId,
+      request_version: params.requestVersion,
       approval_round: params.approvalRound,
       decision: "pending",
     },
-    metadata: { reason: "Resubmission after rejection" },
+    metadata: {
+      reason: "Resubmission after rejection",
+      submitted_by: params.submittedBy,
+    },
   });
 
-  return { success: true, approvalId: approval.approval_id };
+  return { success: true, approvalId: approval.id };
 }
