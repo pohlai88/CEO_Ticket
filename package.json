@@ -18,6 +18,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:report": "playwright show-report",
     "test:all": "npm run pretest && npm run test && npm run test:e2e",
+    "security:check": "npx tsx scripts/pretest-suite.ts",
+    "security:audit": "echo 'Run: psql $SESSION_DB_URL -f sql/full_security_audit.sql'",
     "validate": "npm run type-check && npm run lint && npm run validate:glossary",
     "validate:glossary": "node scripts/validate-glossary.js",
     "validate:exec": "npx tsx scripts/validate-exec-actions.ts",
