@@ -53,7 +53,7 @@ export function AuthShell({
   footer,
 }: AuthShellProps) {
   return (
-    <div className="relative min-h-screen bg-[var(--color-nx-canvas)] text-[var(--color-nx-text-main)] overflow-hidden">
+    <div className="relative min-h-screen bg-nx-canvas text-nx-text-main overflow-hidden">
       {/* ═══════════════════════════════════════════════════════════════════
           LAYER 1: Blueprint Grid (Architect Authority)
           Immutable. 48px grid. 4% opacity. No modifications allowed.
@@ -95,11 +95,11 @@ export function AuthShell({
           ═══════════════════════════════════════════════════════════════════ */}
       <header className="absolute top-0 left-0 w-full py-6 px-8 z-20">
         <Link href="/" className="inline-flex items-center gap-2 group">
-          <div className="h-8 w-8 rounded-lg bg-[var(--color-nx-success)]/10 border border-[var(--color-nx-success)]/20 flex items-center justify-center transition-colors group-hover:bg-[var(--color-nx-success)]/20">
-            <Command className="h-4 w-4 text-[var(--color-nx-success)]" />
+          <div className="h-8 w-8 rounded-lg bg-nx-success/10 border border-nx-success/20 flex items-center justify-center transition-colors group-hover:bg-nx-success/20">
+            <Command className="h-4 w-4 text-nx-success" />
           </div>
-          <span className="text-lg font-semibold tracking-tight text-[var(--color-nx-text-main)]">
-            Quantum<span className="text-[var(--color-nx-success)]">Nexus</span>
+          <span className="text-lg font-semibold tracking-tight text-nx-text-main">
+            Quantum<span className="text-nx-success">Nexus</span>
           </span>
         </Link>
       </header>
@@ -116,14 +116,14 @@ export function AuthShell({
           className="w-full max-w-md"
         >
           {/* Glassmorphic Container */}
-          <div className="rounded-2xl border border-[var(--color-nx-border)] bg-[var(--color-nx-surface)]/60 backdrop-blur-xl shadow-2xl overflow-hidden">
+          <div className="rounded-2xl border border-nx-border bg-nx-surface/60 backdrop-blur-xl shadow-2xl overflow-hidden">
             <div className="p-8">
               {/* Title Block */}
               <div className="mb-6">
-                <h1 className="text-xl font-semibold tracking-wide text-[var(--color-nx-text-main)]">
+                <h1 className="text-xl font-semibold tracking-wide text-nx-text-main">
                   {title}
                 </h1>
-                <p className="mt-2 text-sm text-[var(--color-nx-text-muted)]">
+                <p className="mt-2 text-sm text-nx-text-muted">
                   {subtitle}
                 </p>
               </div>
@@ -134,23 +134,23 @@ export function AuthShell({
 
             {/* Footer Slot (optional) */}
             {footer && (
-              <div className="bg-[var(--color-nx-surface)]/50 border-t border-[var(--color-nx-border)] px-8 py-4 text-center">
+              <div className="bg-nx-surface/50 border-t border-nx-border px-8 py-4 text-center">
                 {footer}
               </div>
             )}
           </div>
 
           {/* Legal Footer — Always present */}
-          <div className="mt-6 flex justify-center gap-6 text-xs text-[var(--color-nx-text-faint)]">
+          <div className="mt-6 flex justify-center gap-6 text-xs text-nx-text-faint">
             <Link
               href="#"
-              className="hover:text-[var(--color-nx-text-muted)] transition-colors"
+              className="hover:text-nx-text-muted transition-colors"
             >
               Terms of Service
             </Link>
             <Link
               href="#"
-              className="hover:text-[var(--color-nx-text-muted)] transition-colors"
+              className="hover:text-nx-text-muted transition-colors"
             >
               Privacy Protocol
             </Link>

@@ -198,11 +198,11 @@ export default function SignupPage() {
       title={STEP_CONFIG[step].title}
       subtitle={STEP_CONFIG[step].subtitle}
       footer={
-        <p className="text-xs text-[var(--color-nx-text-muted)]">
+        <p className="text-xs text-nx-text-muted">
           Already initialized?{" "}
           <Link
             href="/auth/login"
-            className="text-[var(--color-nx-success)] font-medium hover:text-[var(--color-nx-success-text)] transition-colors"
+            className="text-nx-success font-medium hover:text-nx-success-text transition-colors"
           >
             Authenticate →
           </Link>
@@ -220,10 +220,10 @@ export default function SignupPage() {
               <div
                 className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-mono transition-all ${
                   s < step
-                    ? "bg-[var(--color-nx-success)] text-nx-text-inverse"
+                    ? "bg-nx-success text-nx-text-inverse"
                     : s === step
-                    ? "bg-[var(--color-nx-success)]/20 border border-[var(--color-nx-success)] text-[var(--color-nx-success)]"
-                    : "bg-[var(--color-nx-surface-well)] text-[var(--color-nx-text-muted)]"
+                    ? "bg-nx-success/20 border border-nx-success text-nx-success"
+                    : "bg-(--color-nx-surface-well) text-nx-text-muted"
                 }`}
               >
                 {s < step ? <Check className="h-4 w-4" /> : s}
@@ -232,8 +232,8 @@ export default function SignupPage() {
                 <div
                   className={`w-8 h-0.5 transition-colors ${
                     s < step
-                      ? "bg-[var(--color-nx-success)]"
-                      : "bg-[var(--color-nx-surface-well)]"
+                      ? "bg-nx-success"
+                      : "bg-(--color-nx-surface-well)"
                   }`}
                 />
               )}
@@ -246,13 +246,13 @@ export default function SignupPage() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-lg border border-[var(--color-nx-danger)]/50 bg-[var(--color-nx-danger-bg)] p-4"
+            className="mb-6 rounded-lg border border-nx-danger/50 bg-nx-danger-bg p-4"
           >
             <div className="flex gap-3">
-              <AlertTriangle className="h-5 w-5 text-[var(--color-nx-danger-text)] shrink-0" />
-              <div className="text-sm text-[var(--color-nx-danger-text)]">
+              <AlertTriangle className="h-5 w-5 text-nx-danger-text shrink-0" />
+              <div className="text-sm text-nx-danger-text">
                 <p className="font-medium">Genesis Error</p>
-                <p className="mt-1 text-[var(--color-nx-danger-text)]/80">
+                <p className="mt-1 text-nx-danger-text/80">
                   {genesisError}
                 </p>
               </div>
@@ -276,7 +276,7 @@ export default function SignupPage() {
               <div className="mb-6">
                 <label
                   htmlFor="designation"
-                  className="block text-xs font-mono text-[var(--color-nx-text-muted)] tracking-wider mb-2"
+                  className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
                 >
                   DESIGNATION
                 </label>
@@ -289,9 +289,9 @@ export default function SignupPage() {
                   value={designation}
                   onChange={(e) => handleDesignationChange(e.target.value)}
                   placeholder="Commander Name"
-                  className="w-full rounded-lg bg-[var(--color-nx-canvas)] border border-[var(--color-nx-border)] px-4 py-3 font-mono text-sm text-[var(--color-nx-text-main)] placeholder:text-[var(--color-nx-text-faint)] focus:outline-none focus:ring-1 focus:ring-[var(--color-nx-success)] focus:border-[var(--color-nx-success)] transition-all"
+                  className="w-full rounded-lg bg-nx-canvas border border-(--color-nx-border) px-4 py-3 font-mono text-sm text-(--color-nx-text-main) placeholder:text-nx-text-faint focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success transition-all"
                 />
-                <p className="mt-2 text-xs text-[var(--color-nx-text-faint)]">
+                <p className="mt-2 text-xs text-nx-text-faint">
                   Your authority designation within the system.
                 </p>
               </div>
@@ -300,7 +300,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={advanceStep}
                 disabled={!isStepComplete()}
-                className="w-full rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)] flex items-center justify-center gap-2"
+                className="w-full rounded-lg bg-nx-success hover:bg-nx-success-text py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-nx-success flex items-center justify-center gap-2"
               >
                 PROCEED
                 <ArrowRight className="h-4 w-4" />
@@ -322,7 +322,7 @@ export default function SignupPage() {
               <div className="mb-6">
                 <label
                   htmlFor="identity"
-                  className="block text-xs font-mono text-[var(--color-nx-text-muted)] tracking-wider mb-2"
+                  className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
                 >
                   IDENTITY
                 </label>
@@ -335,9 +335,9 @@ export default function SignupPage() {
                   value={identity}
                   onChange={(e) => handleIdentityChange(e.target.value)}
                   placeholder="commander@organization.com"
-                  className="w-full rounded-lg bg-[var(--color-nx-canvas)] border border-[var(--color-nx-border)] px-4 py-3 font-mono text-sm text-[var(--color-nx-text-main)] placeholder:text-[var(--color-nx-text-faint)] focus:outline-none focus:ring-1 focus:ring-[var(--color-nx-success)] focus:border-[var(--color-nx-success)] transition-all"
+                  className="w-full rounded-lg bg-nx-canvas border border-(--color-nx-border) px-4 py-3 font-mono text-sm text-(--color-nx-text-main) placeholder:text-nx-text-faint focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success transition-all"
                 />
-                <p className="mt-2 text-xs text-[var(--color-nx-text-faint)]">
+                <p className="mt-2 text-xs text-nx-text-faint">
                   Primary communication channel for authority verification.
                 </p>
               </div>
@@ -346,7 +346,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={retreatStep}
-                  className="flex-1 rounded-lg border border-[var(--color-nx-border-strong)] bg-[var(--color-nx-surface)] hover:bg-[var(--color-nx-surface-well)] py-3.5 text-sm font-semibold tracking-wide text-[var(--color-nx-text-sub)] transition-all"
+                  className="flex-1 rounded-lg border border-(--color-nx-border-strong) bg-(--color-nx-surface) hover:bg-(--color-nx-surface-well) py-3.5 text-sm font-semibold tracking-wide text-nx-text-sub transition-all"
                 >
                   BACK
                 </button>
@@ -354,7 +354,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={advanceStep}
                   disabled={!isStepComplete()}
-                  className="flex-1 rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)] flex items-center justify-center gap-2"
+                  className="flex-1 rounded-lg bg-nx-success hover:bg-nx-success-text py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-nx-success flex items-center justify-center gap-2"
                 >
                   PROCEED
                   <ArrowRight className="h-4 w-4" />
@@ -377,7 +377,7 @@ export default function SignupPage() {
               <div className="mb-6">
                 <label
                   htmlFor="credential"
-                  className="block text-xs font-mono text-[var(--color-nx-text-muted)] tracking-wider mb-2"
+                  className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
                 >
                   CREDENTIAL
                 </label>
@@ -391,12 +391,12 @@ export default function SignupPage() {
                     value={credential}
                     onChange={(e) => handleCredentialChange(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-lg bg-[var(--color-nx-canvas)] border border-[var(--color-nx-border)] px-4 py-3 pr-12 font-mono text-sm text-[var(--color-nx-text-main)] tracking-widest placeholder:text-[var(--color-nx-text-faint)] placeholder:tracking-widest focus:outline-none focus:ring-1 focus:ring-[var(--color-nx-success)] focus:border-[var(--color-nx-success)] transition-all"
+                    className="w-full rounded-lg bg-nx-canvas border border-(--color-nx-border) px-4 py-3 pr-12 font-mono text-sm text-(--color-nx-text-main) tracking-widest placeholder:text-nx-text-faint placeholder:tracking-widest focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowCredential(!showCredential)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-nx-text-muted)] hover:text-[var(--color-nx-text-sub)] transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-nx-text-muted hover:text-nx-text-sub transition-colors"
                     aria-label={
                       showCredential ? "Hide credential" : "Show credential"
                     }
@@ -408,24 +408,24 @@ export default function SignupPage() {
                     )}
                   </button>
                 </div>
-                <p className="mt-2 text-xs text-[var(--color-nx-text-faint)]">
+                <p className="mt-2 text-xs text-nx-text-faint">
                   Minimum 6 characters. This secures your command authority.
                 </p>
               </div>
 
               {/* Terms Agreement */}
-              <p className="text-xs text-[var(--color-nx-text-muted)] mb-6">
+              <p className="text-xs text-nx-text-muted mb-6">
                 By initializing, you accept the{" "}
                 <Link
                   href="#"
-                  className="text-[var(--color-nx-success)] hover:text-[var(--color-nx-success-text)] transition-colors"
+                  className="text-nx-success hover:text-nx-success-text transition-colors"
                 >
                   Terms of Service
                 </Link>{" "}
                 and{" "}
                 <Link
                   href="#"
-                  className="text-[var(--color-nx-success)] hover:text-[var(--color-nx-success-text)] transition-colors"
+                  className="text-nx-success hover:text-nx-success-text transition-colors"
                 >
                   Privacy Protocol
                 </Link>
@@ -437,7 +437,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={retreatStep}
                   disabled={provisioning}
-                  className="flex-1 rounded-lg border border-[var(--color-nx-border-strong)] bg-[var(--color-nx-surface)] hover:bg-[var(--color-nx-surface-well)] py-3.5 text-sm font-semibold tracking-wide text-[var(--color-nx-text-sub)] transition-all disabled:opacity-50"
+                  className="flex-1 rounded-lg border border-(--color-nx-border-strong) bg-(--color-nx-surface) hover:bg-(--color-nx-surface-well) py-3.5 text-sm font-semibold tracking-wide text-nx-text-sub transition-all disabled:opacity-50"
                 >
                   BACK
                 </button>
@@ -445,7 +445,7 @@ export default function SignupPage() {
                   type="submit"
                   disabled={!isStepComplete() || provisioning}
                   whileTap={{ scale: 0.98 }}
-                  className="flex-1 rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)]"
+                  className="flex-1 rounded-lg bg-nx-success hover:bg-nx-success-text py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-nx-success"
                 >
                   {provisioning ? (
                     <span className="flex items-center justify-center gap-2">

@@ -33,18 +33,18 @@ export function ClearanceBar({
 
   // Determine color based on level
   const getBarColor = () => {
-    if (clampedLevel === 100) return "bg-[var(--color-nx-success)]";
-    if (clampedLevel >= 50) return "bg-[var(--color-nx-warning)]";
-    return "bg-[var(--color-nx-danger)]";
+    if (clampedLevel === 100) return "bg-nx-success";
+    if (clampedLevel >= 50) return "bg-nx-warning";
+    return "bg-nx-danger";
   };
 
   return (
     <div className="mb-6">
-      <div className="flex justify-between text-xs text-[var(--color-nx-text-muted)] font-mono">
+      <div className="flex justify-between text-xs text-nx-text-muted font-mono">
         <span>{label}</span>
         <span>{clampedLevel}%</span>
       </div>
-      <div className="mt-2 h-1.5 w-full rounded-full bg-[var(--color-nx-surface-well)] overflow-hidden">
+      <div className="mt-2 h-1.5 w-full rounded-full bg-nx-surface-well overflow-hidden">
         <motion.div
           className={`h-full transition-colors duration-300 ${getBarColor()}`}
           initial={{ width: 0 }}

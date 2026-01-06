@@ -108,11 +108,11 @@ export default function LoginPage() {
       title="Security Clearance"
       subtitle="Authenticate to access the command bridge."
       footer={
-        <p className="text-xs text-[var(--color-nx-text-muted)]">
+        <p className="text-xs text-nx-text-muted">
           No organization?{" "}
           <Link
             href="/auth/signup"
-            className="text-[var(--color-nx-success)] font-medium hover:text-[var(--color-nx-success-text)] transition-colors"
+            className="text-nx-success font-medium hover:text-nx-success-text transition-colors"
           >
             Initialize Command Node →
           </Link>
@@ -128,13 +128,13 @@ export default function LoginPage() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-lg border border-[var(--color-nx-danger)]/50 bg-[var(--color-nx-danger-bg)] p-4"
+            className="mb-6 rounded-lg border border-nx-danger/50 bg-nx-danger-bg p-4"
           >
             <div className="flex gap-3">
-              <AlertTriangle className="h-5 w-5 text-[var(--color-nx-danger-text)] shrink-0" />
-              <div className="text-sm text-[var(--color-nx-danger-text)]">
+              <AlertTriangle className="h-5 w-5 text-nx-danger-text shrink-0" />
+              <div className="text-sm text-nx-danger-text">
                 <p className="font-medium">Clearance Denied</p>
-                <p className="mt-1 text-[var(--color-nx-danger-text)]/80">
+                <p className="mt-1 text-nx-danger-text/80">
                   {clearanceError}
                 </p>
               </div>
@@ -146,7 +146,7 @@ export default function LoginPage() {
         <div className="mb-4">
           <label
             htmlFor="identity"
-            className="block text-xs font-mono text-[var(--color-nx-text-muted)] tracking-wider mb-2"
+            className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
           >
             IDENTITY
           </label>
@@ -159,7 +159,7 @@ export default function LoginPage() {
             value={identity}
             onChange={(e) => setIdentity(e.target.value)}
             placeholder="executive@organization.com"
-            className="w-full rounded-lg bg-[var(--color-nx-canvas)] border border-[var(--color-nx-border)] px-4 py-3 font-mono text-sm text-[var(--color-nx-text-main)] placeholder:text-[var(--color-nx-text-faint)] focus:outline-none focus:ring-1 focus:ring-[var(--color-nx-success)] focus:border-[var(--color-nx-success)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            className="w-full rounded-lg bg-nx-canvas border border-nx-border px-4 py-3 font-mono text-sm text-nx-text-main placeholder:text-nx-text-faint focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           />
         </div>
 
@@ -167,7 +167,7 @@ export default function LoginPage() {
         <div className="mb-6">
           <label
             htmlFor="credential"
-            className="block text-xs font-mono text-[var(--color-nx-text-muted)] tracking-wider mb-2"
+            className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
           >
             CREDENTIAL
           </label>
@@ -181,13 +181,13 @@ export default function LoginPage() {
               value={credential}
               onChange={(e) => setCredential(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-lg bg-[var(--color-nx-canvas)] border border-[var(--color-nx-border)] px-4 py-3 pr-12 font-mono text-sm text-[var(--color-nx-text-main)] tracking-widest placeholder:text-[var(--color-nx-text-faint)] placeholder:tracking-widest focus:outline-none focus:ring-1 focus:ring-[var(--color-nx-success)] focus:border-[var(--color-nx-success)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full rounded-lg bg-nx-canvas border border-nx-border px-4 py-3 pr-12 font-mono text-sm text-nx-text-main tracking-widest placeholder:text-nx-text-faint placeholder:tracking-widest focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             />
             <button
               type="button"
               onClick={() => setShowCredential(!showCredential)}
               disabled={verifying}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-nx-text-muted)] hover:text-[var(--color-nx-text-sub)] transition-colors disabled:opacity-50"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-nx-text-muted hover:text-nx-text-sub transition-colors disabled:opacity-50"
               aria-label={
                 showCredential ? "Hide credential" : "Show credential"
               }
@@ -206,7 +206,7 @@ export default function LoginPage() {
           type="submit"
           disabled={clearanceLevel < 100 || verifying}
           whileTap={{ scale: 0.98 }}
-          className="w-full rounded-lg bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-nx-success)]"
+          className="w-full rounded-lg bg-nx-success hover:bg-nx-success-text py-3.5 text-sm font-semibold tracking-wide text-nx-text-inverse transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-nx-success"
         >
           {verifying ? (
             <span className="flex items-center justify-center gap-2">

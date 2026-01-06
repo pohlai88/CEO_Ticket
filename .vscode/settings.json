@@ -51,17 +51,27 @@
     "**/package-lock.json": true
   },
 
-  // Tailwind CSS — UI_GUARD IntelliSense Alignment
-  "tailwindCSS.experimental.configFile": ".ui_preview/Nexus_tailwind.config.ts",
+  // Tailwind CSS v4 — UI_GUARD IntelliSense Alignment
+  // ═══════════════════════════════════════════════════════════════════════
+  // Tailwind v4 is CSS-FIRST: tokens are defined in @theme blocks in CSS.
+  // IntelliSense reads from globals.css which imports nexus_input_v2.css.
+  // No configFile needed — v4 auto-discovers from CSS imports.
+  // ═══════════════════════════════════════════════════════════════════════
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"],
-    ["className\\s*=\\s*\"([^\"]*)\"", "([^\\s]+)"]
+    ["className\\s*=\\s*[\"'`]([^\"'`]*)[\"'`]", "([^\\s]+)"]
   ],
   "tailwindCSS.includeLanguages": {
     "typescript": "javascript",
     "typescriptreact": "javascript"
   },
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    ".ui_preview/**"
+  ],
 
   // Next.js
   "files.associations": {

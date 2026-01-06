@@ -50,7 +50,7 @@ export default async function Home() {
 
   // Unauthenticated - show Command Bridge entry
   return (
-    <div className="relative min-h-screen bg-[var(--color-nx-canvas)] text-[var(--color-nx-text-main)] overflow-hidden">
+    <div className="relative min-h-screen bg-nx-canvas text-(--color-nx-text-main) overflow-hidden">
       {/* ═══════════════════════════════════════════════════════════════════
           LAYER 1: Blueprint Grid (Architect Authority)
           ═══════════════════════════════════════════════════════════════════ */}
@@ -86,18 +86,18 @@ export default async function Home() {
           ═══════════════════════════════════════════════════════════════════ */}
       <header className="absolute top-0 left-0 w-full py-6 px-8 z-20 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-[var(--color-nx-success)]/10 border border-[var(--color-nx-success)]/20 flex items-center justify-center">
-            <Command className="h-4 w-4 text-[var(--color-nx-success)]" />
+          <div className="h-8 w-8 rounded-lg bg-nx-success/10 border border-nx-success/20 flex items-center justify-center">
+            <Command className="h-4 w-4 text-nx-success" />
           </div>
-          <span className="text-lg font-semibold tracking-tight text-[var(--color-nx-text-main)]">
-            Quantum<span className="text-[var(--color-nx-success)]">Nexus</span>
+          <span className="text-lg font-semibold tracking-tight text-(--color-nx-text-main)">
+            Quantum<span className="text-nx-success">Nexus</span>
           </span>
         </div>
 
         {/* Secondary entry for returning operators */}
         <Link
           href="/auth/login"
-          className="text-sm text-[var(--color-nx-text-muted)] hover:text-[var(--color-nx-text-sub)] transition-colors"
+          className="text-sm text-nx-text-muted hover:text-nx-text-sub transition-colors"
         >
           Authenticate →
         </Link>
@@ -110,21 +110,21 @@ export default async function Home() {
         <div className="text-center max-w-2xl">
           {/* Authority Mark */}
           <div className="mb-8 flex justify-center">
-            <div className="h-20 w-20 rounded-2xl bg-[var(--color-nx-success)]/10 border border-[var(--color-nx-success)]/20 flex items-center justify-center">
-              <Command className="h-10 w-10 text-[var(--color-nx-success)]" />
+            <div className="h-20 w-20 rounded-2xl bg-nx-success/10 border border-nx-success/20 flex items-center justify-center">
+              <Command className="h-10 w-10 text-nx-success" />
             </div>
           </div>
 
           {/* Title Block */}
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-[var(--color-nx-text-main)] mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-(--color-nx-text-main) mb-4">
             Command Bridge
           </h1>
 
-          <p className="text-lg md:text-xl text-[var(--color-nx-text-muted)] mb-2">
+          <p className="text-lg md:text-xl text-nx-text-muted mb-2">
             Executive Decision Fabric
           </p>
 
-          <p className="text-sm text-[var(--color-nx-text-faint)] max-w-md mx-auto mb-12">
+          <p className="text-sm text-nx-text-faint max-w-md mx-auto mb-12">
             Zero-latency authority routing. Request orchestration.
             Organizational command and control.
           </p>
@@ -132,18 +132,18 @@ export default async function Home() {
           {/* Primary CTA — ONE DOMINANT ACTION */}
           <Link
             href="/auth/login"
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-[var(--color-nx-success)] hover:bg-[var(--color-nx-success-text)] text-nx-text-inverse font-semibold tracking-wide transition-all shadow-lg shadow-[var(--color-nx-success)]/20 hover:shadow-[var(--color-nx-success)]/30 group"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-nx-success hover:bg-nx-success-text text-nx-text-inverse font-semibold tracking-wide transition-all shadow-lg shadow-(--color-nx-success)/20 hover:shadow-(--color-nx-success)/30 group"
           >
             ENTER COMMAND BRIDGE
             <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
           </Link>
 
           {/* Secondary path — minimal, de-emphasized */}
-          <p className="mt-6 text-xs text-[var(--color-nx-text-faint)]">
+          <p className="mt-6 text-xs text-nx-text-faint">
             New organization?{" "}
             <Link
               href="/auth/signup"
-              className="text-[var(--color-nx-success)]/70 hover:text-[var(--color-nx-success-text)] transition-colors"
+              className="text-nx-success/70 hover:text-nx-success-text transition-colors"
             >
               Initialize Command Node
             </Link>
@@ -155,20 +155,20 @@ export default async function Home() {
           LAYER 6: Footer
           ═══════════════════════════════════════════════════════════════════ */}
       <footer className="absolute bottom-0 left-0 w-full py-6 px-8 z-20">
-        <div className="flex justify-center gap-8 text-xs text-[var(--color-nx-text-faint)]">
+        <div className="flex justify-center gap-8 text-xs text-nx-text-faint">
           <Link
             href="#"
-            className="hover:text-[var(--color-nx-text-muted)] transition-colors"
+            className="hover:text-nx-text-muted transition-colors"
           >
             Terms of Service
           </Link>
           <Link
             href="#"
-            className="hover:text-[var(--color-nx-text-muted)] transition-colors"
+            className="hover:text-nx-text-muted transition-colors"
           >
             Privacy Protocol
           </Link>
-          <span className="text-[var(--color-nx-text-faint)]/50">
+          <span className="text-nx-text-faint/50">
             © 2026 QuantumNexus
           </span>
         </div>

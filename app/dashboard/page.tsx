@@ -6,6 +6,7 @@ import {
   ImportantAnnouncementBanner,
   UrgentAnnouncementBanner,
 } from "@/components/announcements/AnnouncementBanners";
+import { AppShell } from "@/components/app";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { Button } from "@/components/ui/button";
 import { getDashboardData } from "@/lib/server/dashboard";
@@ -15,38 +16,31 @@ export default async function DashboardPage() {
     await getDashboardData();
 
   return (
-    <div className="min-h-screen bg-nx-canvas">
-      {/* Announcement Banners */}
-      <UrgentAnnouncementBanner />
-      <ImportantAnnouncementBanner />
-
-      <nav className="bg-nx-surface shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-nx-text-main">
-                CEO Request System
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/announcements" className="relative">
-                <Button variant="ghost" size="sm">
-                  <Bell className="h-5 w-5" />
-                  {unreadAnnouncementCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-nx-danger text-nx-text-inverse text-xs flex items-center justify-center">
-                      {unreadAnnouncementCount}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-              <span className="text-sm text-nx-text-sub">{user.email}</span>
-              <LogoutButton />
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      <main className="max-w-7xl mx-auto py-12 sm:px-6 lg:px-8">
+    <AppShell
+      userEmail={user.email ?? undefined}
+      banners={
+        <>
+          <UrgentAnnouncementBanner />
+          <ImportantAnnouncementBanner />
+        </>
+      }
+      navActions={
+        <>
+          <Link href="/announcements" className="relative">
+            <Button variant="ghost" size="sm">
+              <Bell className="h-5 w-5" />
+              {unreadAnnouncementCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-nx-danger text-nx-text-inverse text-xs flex items-center justify-center">
+                  {unreadAnnouncementCount}
+                </span>
+              )}
+            </Button>
+          </Link>
+          <LogoutButton />
+        </>
+      }
+    >
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           {/* Quick Actions */}
           <Link href="/requests/new">
@@ -56,7 +50,9 @@ export default async function DashboardPage() {
                   <Plus className="h-6 w-6 text-nx-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-nx-text-main">New Request</h3>
+                  <h3 className="font-semibold text-nx-text-main">
+                    New Request
+                  </h3>
                   <p className="text-sm text-nx-text-sub">
                     Submit a request to CEO
                   </p>
@@ -72,7 +68,9 @@ export default async function DashboardPage() {
                   <FileText className="h-6 w-6 text-nx-success" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-nx-text-main">My Requests</h3>
+                  <h3 className="font-semibold text-nx-text-main">
+                    My Requests
+                  </h3>
                   <p className="text-sm text-nx-text-sub">
                     View all your requests
                   </p>
@@ -88,7 +86,9 @@ export default async function DashboardPage() {
                   <Bell className="h-6 w-6 text-nx-info" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-nx-text-main">Announcements</h3>
+                  <h3 className="font-semibold text-nx-text-main">
+                    Announcements
+                  </h3>
                   <p className="text-sm text-nx-text-sub">
                     {unreadAnnouncementCount > 0
                       ? `${unreadAnnouncementCount} unread`
@@ -101,14 +101,16 @@ export default async function DashboardPage() {
         </div>
 
         <div className="bg-nx-surface rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-nx-text-main mb-4">Welcome</h2>
+          <h2 className="text-lg font-semibold text-nx-text-main mb-4">
+            Welcome
+          </h2>
           <div className="space-y-2 text-nx-text-sub">
             <p>Organization: {org?.name || "Not set"}</p>
             <p>Email: {user.email}</p>
             <p>Role: {userRole}</p>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }
