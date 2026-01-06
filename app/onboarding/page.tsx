@@ -2,24 +2,76 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { z } from "zod";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  Loader2,
+  Megaphone,
+  Sparkles,
+  Users,
+} from "lucide-react";
 
+import { AuthShell } from "@/components/auth";
 import { supabase } from "@/lib/supabase/client";
 
-const OnboardingSchema = z.object({
-  orgName: z.string().min(1, "Organization name is required"),
-  managerEmails: z.string().optional(),
-  announcement: z.string().optional(),
-});
+/**
+ * ════════════════════════════════════════════════════════════════════════════
+ * ONBOARDING PAGE — Command Center Initialization
+ * ════════════════════════════════════════════════════════════════════════════
+ *
+ * POST-GENESIS FLOW:
+ *   Step 1: NAME YOUR COMMAND CENTER → Organization name
+ *   Step 2: ASSEMBLE YOUR TEAM       → Invite managers (optional)
+ *   Step 3: FIRST BROADCAST          → Welcome announcement (optional)
+ *
+ * PRINCIPLE: "I DO NOT NEED TO KNOW WHAT'S NEXT — THE SYSTEM SHOWS ME"
+ *   - Progress is always visible
+ *   - Current action is highlighted
+ *   - Next action is previewed
+ *   - Back navigation is always available
+ *   - Skip options are clearly marked
+ */
 
-type OnboardingData = z.infer<typeof OnboardingSchema>;
+type OnboardingStep = 1 | 2 | 3;
+
+const STEP_CONFIG = {
+  1: {
+    icon: Building2,
+    title: "Name Your Command Center",
+    subtitle: "This is how your organization will be identified in the system.",
+    hint: "You can change this later in settings.",
+  },
+  2: {
+    icon: Users,
+    title: "Assemble Your Team",
+    subtitle: "Invite managers to help you handle requests.",
+    hint: "Skip this step if you're working solo — you can invite later.",
+  },
+  3: {
+    icon: Megaphone,
+    title: "First Broadcast",
+    subtitle: "Send a welcome message to your team.",
+    hint: "Skip to go straight to your dashboard.",
+  },
+} as const;
+
+interface OnboardingData {
+  orgName: string;
+  managerEmails: string;
+  announcement: string;
+}
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [screen, setScreen] = useState<"org" | "announcement">("org");
+  const [step, setStep] = useState<OnboardingStep>(1);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState<OnboardingData>({
     orgName: "",
@@ -29,249 +81,447 @@ export default function OnboardingPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [orgId, setOrgId] = useState<string | null>(null);
 
-  // Check auth on mount (wait for session to propagate after signup)
+  // Calculate progress percentage
+  const progress = ((step - 1) / 2) * 100;
+
+  // Check auth and load org on mount
   useEffect(() => {
     void (async () => {
-      // First check session (more reliable after signup)
+      setInitializing(true);
+
+      // Check session
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
-        // If no session, wait 1s and check again (session might be propagating)
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) {
-          router.push("/auth/login");
+        router.push("/auth/login");
+        return;
+      }
+
+      const user = session.session.user;
+      setUserId(user.id);
+
+      // Load existing org data
+      const { data: userRecord } = await supabase
+        .from("ceo_users")
+        .select("org_id, full_name, ceo_organizations(name)")
+        .eq("id", user.id)
+        .single();
+
+      if (userRecord?.org_id) {
+        setOrgId(userRecord.org_id);
+        // Pre-fill org name if it exists
+        const orgName =
+          (userRecord.ceo_organizations as { name?: string } | null)?.name ||
+          "";
+        if (orgName && !orgName.includes("'s Organization")) {
+          // Org already configured, skip to dashboard
+          router.push("/dashboard");
           return;
         }
-        setUserId(user.id);
-      } else {
-        setUserId(session.session.user.id);
+        // Pre-fill with user's name for better UX
+        setFormData((prev) => ({
+          ...prev,
+          orgName: userRecord.full_name
+            ? `${userRecord.full_name}'s Organization`
+            : "",
+        }));
       }
+
+      setInitializing(false);
     })();
   }, [router]);
 
-  const handleScreenOne = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      setError("");
-      setLoading(true);
+  // Step 1: Save organization name
+  const handleStepOne = useCallback(async () => {
+    setError("");
 
-      try {
-        const validation = OnboardingSchema.pick({ orgName: true }).safeParse({
-          orgName: formData.orgName,
-        });
+    if (!formData.orgName.trim()) {
+      setError("Please enter your organization name.");
+      return;
+    }
 
-        if (!validation.success) {
-          setError(validation.error.errors[0]?.message || "Invalid input");
-          setLoading(false);
-          return;
-        }
+    setLoading(true);
 
-        // Update org name
-        if (!userId) throw new Error("No user context");
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (!user) throw new Error("Not authenticated");
-
-        // Get org_id from ceo_users table
-        const { data: userRecord } = await supabase
-          .from("ceo_users")
-          .select("org_id")
-          .eq("id", user.id)
-          .single();
-
-        if (!userRecord?.org_id) {
-          setError("Organization not found. Please try signing up again.");
-          setLoading(false);
-          return;
-        }
-
-        setOrgId(userRecord.org_id);
-
-        // Update org name via server action (in next step)
-        // For now, just move to screen 2
-        setScreen("announcement");
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-        setLoading(false);
+    try {
+      if (!orgId) {
+        throw new Error("Organization not initialized. Please refresh.");
       }
-    },
-    [formData.orgName, userId, router]
-  );
 
-  const handleScreenTwo = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+      // Update org name
+      const { error: updateError } = await supabase
+        .from("ceo_organizations")
+        .update({ name: formData.orgName.trim() })
+        .eq("id", orgId);
+
+      if (updateError) throw updateError;
+
+      setStep(2);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setLoading(false);
+    }
+  }, [formData.orgName, orgId]);
+
+  // Step 2: Invite managers (optional)
+  const handleStepTwo = useCallback(
+    async (skip = false) => {
       setError("");
       setLoading(true);
 
       try {
-        if (!userId || !orgId) {
-          throw new Error("Missing org context");
-        }
+        if (!skip && formData.managerEmails?.trim()) {
+          // Parse emails
+          const emails = formData.managerEmails
+            .split(/[\n,;]/)
+            .map((e) => e.trim())
+            .filter((e) => e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
 
-        // Parse manager emails
-        const emailsText = formData.managerEmails || "";
-        const emails = emailsText
-          .split(/[\n,;]/)
-          .map((e) => e.trim())
-          .filter((e) => e && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e));
+          if (emails.length > 0) {
+            // Send invites via API
+            const response = await fetch("/api/admin/invite", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ emails }),
+            });
 
-        // Send invites via API route
-        if (emails.length > 0) {
-          const { error: inviteError } = await fetch("/api/admin/invite", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ emails }),
-          }).then(async (r) => r.json());
-
-          if (inviteError) {
-            throw new Error(inviteError);
+            const result = await response.json();
+            if (result.error) {
+              throw new Error(result.error);
+            }
           }
         }
 
-        // Create announcement if provided
-        if (formData.announcement) {
+        setStep(3);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to send invites");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [formData.managerEmails]
+  );
+
+  // Step 3: Create announcement (optional) and finish
+  const handleStepThree = useCallback(
+    async (skip = false) => {
+      setError("");
+      setLoading(true);
+
+      try {
+        if (!skip && formData.announcement?.trim() && orgId && userId) {
           const { error: announcementError } = await supabase
             .from("ceo_announcements")
             .insert({
               org_id: orgId,
               type: "info",
               title: "Welcome to CEO Request System",
-              message: formData.announcement,
+              message: formData.announcement.trim(),
               published_by: userId,
               published_at: new Date().toISOString(),
             });
 
-          if (announcementError) {
-            throw announcementError;
-          }
+          if (announcementError) throw announcementError;
         }
 
-        // Redirect to dashboard
+        // All done — navigate to dashboard
         router.push("/dashboard");
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
+        setError(
+          err instanceof Error ? err.message : "Failed to create announcement"
+        );
         setLoading(false);
       }
     },
-    [formData.managerEmails, formData.announcement, userId, orgId, router]
+    [formData.announcement, orgId, userId, router]
   );
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-nx-canvas py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-nx-text-main">
-            {screen === "org"
-              ? "Set Up Your Organization"
-              : "Optional Announcement"}
-          </h2>
-          <p className="mt-2 text-center text-sm text-nx-text-sub">
-            {screen === "org" ? "Screen 1 of 2" : "Screen 2 of 2"}
+  const goBack = () => {
+    setError("");
+    if (step === 2) setStep(1);
+    if (step === 3) setStep(2);
+  };
+
+  // Loading state
+  if (initializing) {
+    return (
+      <AuthShell
+        title="Initializing"
+        subtitle="Preparing your command center..."
+      >
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-nx-success" />
+          <p className="mt-4 text-sm text-nx-text-muted">
+            Loading your organization...
           </p>
         </div>
+      </AuthShell>
+    );
+  }
 
-        {error && (
-          <div className="rounded-md bg-nx-danger-bg p-4">
-            <p className="text-sm font-medium text-nx-danger-text">{error}</p>
-          </div>
-        )}
+  const currentConfig = STEP_CONFIG[step];
+  const StepIcon = currentConfig.icon;
 
-        {screen === "org" ? (
-          <form className="mt-8 space-y-6" onSubmit={handleScreenOne}>
-            <div>
-              <label
-                htmlFor="orgName"
-                className="block text-sm font-medium text-nx-text-sub"
-              >
-                Organization Name
-              </label>
-              <input
-                id="orgName"
-                type="text"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-nx-border-strong rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-nx-ring focus:border-nx-primary sm:text-sm"
-                placeholder="e.g., Acme Corp"
-                value={formData.orgName}
-                onChange={(e) =>
-                  setFormData({ ...formData, orgName: e.target.value })
-                }
-              />
-            </div>
+  return (
+    <AuthShell
+      title="Command Center Setup"
+      subtitle={`Step ${step} of 3`}
+      footer={
+        <p className="text-xs text-nx-text-muted">
+          Need help?{" "}
+          <Link
+            href="#"
+            className="text-nx-success font-medium hover:text-nx-success-text transition-colors"
+          >
+            View Setup Guide
+          </Link>
+        </p>
+      }
+    >
+      {/* Progress Bar */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-mono text-nx-text-muted">
+            SETUP PROGRESS
+          </span>
+          <span className="text-xs font-mono text-nx-success">
+            {Math.round(progress)}%
+          </span>
+        </div>
+        <div className="h-1 bg-nx-border rounded-full overflow-hidden">
+          <motion.div
+            className="h-full bg-nx-success"
+            initial={{ width: 0 }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
 
-            <div>
-              <label
-                htmlFor="managerEmails"
-                className="block text-sm font-medium text-nx-text-sub"
-              >
-                Invite Managers (optional)
-              </label>
-              <textarea
-                id="managerEmails"
-                rows={4}
-                className="mt-1 block w-full px-3 py-2 border border-nx-border-strong rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-nx-ring focus:border-nx-primary sm:text-sm"
-                placeholder="Enter email addresses separated by commas or new lines"
-                value={formData.managerEmails}
-                onChange={(e) =>
-                  setFormData({ ...formData, managerEmails: e.target.value })
-                }
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-nx-text-inverse bg-nx-primary hover:bg-nx-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nx-ring disabled:opacity-50"
+        {/* Step Indicators */}
+        <div className="flex justify-between mt-4">
+          {[1, 2, 3].map((s) => (
+            <div
+              key={s}
+              className={`flex items-center gap-2 ${
+                s === step
+                  ? "text-nx-success"
+                  : s < step
+                  ? "text-nx-success/60"
+                  : "text-nx-text-muted"
+              }`}
             >
-              {loading ? "Processing..." : "Next"}
-            </button>
-          </form>
-        ) : (
-          <form className="mt-8 space-y-6" onSubmit={handleScreenTwo}>
-            <div>
-              <label
-                htmlFor="announcement"
-                className="block text-sm font-medium text-nx-text-sub"
+              <div
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono ${
+                  s < step
+                    ? "bg-nx-success text-nx-canvas"
+                    : s === step
+                    ? "bg-nx-success/20 border border-nx-success text-nx-success"
+                    : "bg-nx-border text-nx-text-muted"
+                }`}
               >
-                Welcome Announcement (optional)
-              </label>
-              <textarea
-                id="announcement"
-                rows={4}
-                className="mt-1 block w-full px-3 py-2 border border-nx-border-strong rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-nx-ring focus:border-nx-primary sm:text-sm"
-                placeholder="Enter a welcome message for your team"
-                value={formData.announcement}
-                onChange={(e) =>
-                  setFormData({ ...formData, announcement: e.target.value })
-                }
-              />
+                {s < step ? <Check className="h-3 w-3" /> : s}
+              </div>
+              <span className="text-xs hidden sm:inline">
+                {s === 1 ? "Name" : s === 2 ? "Team" : "Broadcast"}
+              </span>
             </div>
+          ))}
+        </div>
+      </div>
 
-            <div className="flex space-x-4">
+      {/* Error Display */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 rounded-lg border border-nx-danger/50 bg-nx-danger-bg p-4"
+        >
+          <p className="text-sm text-nx-danger-text">{error}</p>
+        </motion.div>
+      )}
+
+      {/* Step Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* Step Header */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-3 rounded-lg bg-nx-success/10">
+              <StepIcon className="h-6 w-6 text-nx-success" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-nx-text-main">
+                {currentConfig.title}
+              </h3>
+              <p className="text-sm text-nx-text-sub">
+                {currentConfig.subtitle}
+              </p>
+            </div>
+          </div>
+
+          {/* Step 1: Organization Name */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="orgName"
+                  className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
+                >
+                  ORGANIZATION NAME
+                </label>
+                <input
+                  id="orgName"
+                  type="text"
+                  required
+                  autoFocus
+                  disabled={loading}
+                  value={formData.orgName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, orgName: e.target.value })
+                  }
+                  placeholder="Acme Corporation"
+                  className="w-full rounded-lg bg-nx-canvas border border-nx-border px-4 py-3 font-mono text-sm text-nx-text-main placeholder:text-nx-text-faint focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success disabled:opacity-50 transition-all"
+                />
+                <p className="mt-2 text-xs text-nx-text-muted">
+                  {currentConfig.hint}
+                </p>
+              </div>
+
               <button
                 type="button"
-                onClick={() => setScreen("org")}
-                disabled={loading}
-                className="flex-1 flex justify-center py-2 px-4 border border-nx-border-strong rounded-md shadow-sm text-sm font-medium text-nx-text-sub bg-nx-surface hover:bg-nx-canvas focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nx-ring disabled:opacity-50"
+                onClick={handleStepOne}
+                disabled={loading || !formData.orgName.trim()}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-nx-success text-nx-canvas font-medium hover:bg-nx-success/90 focus:outline-none focus:ring-2 focus:ring-nx-success focus:ring-offset-2 focus:ring-offset-nx-canvas disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                Back
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-nx-text-inverse bg-nx-primary hover:bg-nx-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nx-ring disabled:opacity-50"
-              >
-                {loading ? "Processing..." : "Finish"}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    Continue
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             </div>
-          </form>
-        )}
-      </div>
-    </div>
+          )}
+
+          {/* Step 2: Invite Managers */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="managerEmails"
+                  className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
+                >
+                  MANAGER EMAILS
+                </label>
+                <textarea
+                  id="managerEmails"
+                  rows={4}
+                  disabled={loading}
+                  value={formData.managerEmails}
+                  onChange={(e) =>
+                    setFormData({ ...formData, managerEmails: e.target.value })
+                  }
+                  placeholder="manager1@company.com&#10;manager2@company.com"
+                  className="w-full rounded-lg bg-nx-canvas border border-nx-border px-4 py-3 font-mono text-sm text-nx-text-main placeholder:text-nx-text-faint focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success disabled:opacity-50 transition-all resize-none"
+                />
+                <p className="mt-2 text-xs text-nx-text-muted">
+                  {currentConfig.hint}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-nx-border text-nx-text-sub font-medium hover:bg-nx-surface focus:outline-none focus:ring-2 focus:ring-nx-border focus:ring-offset-2 focus:ring-offset-nx-canvas disabled:opacity-50 transition-all"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepTwo(false)}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-nx-success text-nx-canvas font-medium hover:bg-nx-success/90 focus:outline-none focus:ring-2 focus:ring-nx-success focus:ring-offset-2 focus:ring-offset-nx-canvas disabled:opacity-50 transition-all"
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      {formData.managerEmails?.trim() ? "Send Invites" : "Skip"}
+                      <ArrowRight className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Welcome Announcement */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="announcement"
+                  className="block text-xs font-mono text-nx-text-muted tracking-wider mb-2"
+                >
+                  WELCOME MESSAGE
+                </label>
+                <textarea
+                  id="announcement"
+                  rows={4}
+                  disabled={loading}
+                  value={formData.announcement}
+                  onChange={(e) =>
+                    setFormData({ ...formData, announcement: e.target.value })
+                  }
+                  placeholder="Welcome to our new CEO Request System! Submit your requests and track their progress in real-time."
+                  className="w-full rounded-lg bg-nx-canvas border border-nx-border px-4 py-3 font-mono text-sm text-nx-text-main placeholder:text-nx-text-faint focus:outline-none focus:ring-1 focus:ring-nx-success focus:border-nx-success disabled:opacity-50 transition-all resize-none"
+                />
+                <p className="mt-2 text-xs text-nx-text-muted">
+                  {currentConfig.hint}
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={goBack}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border border-nx-border text-nx-text-sub font-medium hover:bg-nx-surface focus:outline-none focus:ring-2 focus:ring-nx-border focus:ring-offset-2 focus:ring-offset-nx-canvas disabled:opacity-50 transition-all"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleStepThree(false)}
+                  disabled={loading}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg bg-nx-success text-nx-canvas font-medium hover:bg-nx-success/90 focus:outline-none focus:ring-2 focus:ring-nx-success focus:ring-offset-2 focus:ring-offset-nx-canvas disabled:opacity-50 transition-all"
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      {formData.announcement?.trim()
+                        ? "Broadcast & Launch"
+                        : "Launch Dashboard"}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </AuthShell>
   );
 }
