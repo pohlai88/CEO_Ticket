@@ -163,22 +163,22 @@ export default function OnboardingPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-nx-canvas py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-nx-text-main">
             {screen === "org"
               ? "Set Up Your Organization"
               : "Optional Announcement"}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-nx-text-sub">
             {screen === "org" ? "Screen 1 of 2" : "Screen 2 of 2"}
           </p>
         </div>
 
         {error && (
-          <div className="rounded-md bg-red-50 p-4">
-            <p className="text-sm font-medium text-red-800">{error}</p>
+          <div className="rounded-md bg-nx-danger-bg p-4">
+            <p className="text-sm font-medium text-nx-danger-text">{error}</p>
           </div>
         )}
 
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
             <div>
               <label
                 htmlFor="orgName"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-nx-text-sub"
               >
                 Organization Name
               </label>
@@ -195,7 +195,7 @@ export default function OnboardingPage() {
                 id="orgName"
                 type="text"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-nx-border-strong rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-nx-ring focus:border-nx-primary sm:text-sm"
                 placeholder="e.g., Acme Corp"
                 value={formData.orgName}
                 onChange={(e) =>
@@ -207,14 +207,14 @@ export default function OnboardingPage() {
             <div>
               <label
                 htmlFor="managerEmails"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-nx-text-sub"
               >
                 Invite Managers (optional)
               </label>
               <textarea
                 id="managerEmails"
                 rows={4}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-nx-border-strong rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-nx-ring focus:border-nx-primary sm:text-sm"
                 placeholder="Enter email addresses separated by commas or new lines"
                 value={formData.managerEmails}
                 onChange={(e) =>
@@ -226,7 +226,7 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-nx-text-inverse bg-nx-primary hover:bg-nx-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nx-ring disabled:opacity-50"
             >
               {loading ? "Processing..." : "Next"}
             </button>
@@ -236,14 +236,14 @@ export default function OnboardingPage() {
             <div>
               <label
                 htmlFor="announcement"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-nx-text-sub"
               >
                 Welcome Announcement (optional)
               </label>
               <textarea
                 id="announcement"
                 rows={4}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-nx-border-strong rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-nx-ring focus:border-nx-primary sm:text-sm"
                 placeholder="Enter a welcome message for your team"
                 value={formData.announcement}
                 onChange={(e) =>
@@ -257,14 +257,14 @@ export default function OnboardingPage() {
                 type="button"
                 onClick={() => setScreen("org")}
                 disabled={loading}
-                className="flex-1 flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="flex-1 flex justify-center py-2 px-4 border border-nx-border-strong rounded-md shadow-sm text-sm font-medium text-nx-text-sub bg-nx-surface hover:bg-nx-canvas focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nx-ring disabled:opacity-50"
               >
                 Back
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="flex-1 flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-nx-text-inverse bg-nx-primary hover:bg-nx-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nx-ring disabled:opacity-50"
               >
                 {loading ? "Processing..." : "Finish"}
               </button>

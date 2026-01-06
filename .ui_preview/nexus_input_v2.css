@@ -1,0 +1,854 @@
+/* ============================================================================
+   NEXUS UI_GUARD v2.0.0 — UNIFIED DESIGN CONSTITUTION
+   ============================================================================
+   
+   This file consolidates:
+   - NEXUS UI_GUARD v1.0.0 (10-pillar foundation)
+   - RFC-DM-001: Canonical Dark Mode Doctrine
+   - Authority Design System (auth page tokens)
+   - shadcn/ui compatibility layer
+   
+   Governance Stack:
+   - PRD_GUARD:  Constitutional compliance for business logic
+   - UI_GUARD:   Constitutional enforcement for design tokens
+   - E2E_GUARD:  Three-layer verification (UI → API → DB)
+   
+   @version 2.0.0
+   @license NEXUS Constitutional
+   ============================================================================ */
+
+@import "tailwindcss";
+
+/* ============================================================================
+   PILLAR 1 — COLOR PRIMITIVES (OKLCH P3 WIDE GAMUT)
+   ============================================================================
+   
+   These are MODE-AGNOSTIC palette tokens.
+   NEVER reference directly in components — use semantic tokens only.
+   
+   Color Science:
+   - OKLCH: Perceptually uniform color space
+   - P3: Display-P3 wide gamut (130% sRGB coverage)
+   - Lightness scale: 50 (lightest) → 950 (darkest)
+   ============================================================================ */
+@theme {
+  /* === TITANIUM — Neutral backbone (warm undertone) === */
+  --nx-titanium-50: oklch(0.98 0.005 265);
+  --nx-titanium-100: oklch(0.94 0.008 265);
+  --nx-titanium-200: oklch(0.88 0.012 265);
+  --nx-titanium-300: oklch(0.78 0.016 265);
+  --nx-titanium-400: oklch(0.62 0.018 265);
+  --nx-titanium-500: oklch(0.5 0.018 265);
+  --nx-titanium-600: oklch(0.42 0.016 265);
+  --nx-titanium-700: oklch(0.32 0.014 265);
+  --nx-titanium-800: oklch(0.24 0.012 265);
+  --nx-titanium-900: oklch(0.18 0.01 265);
+  --nx-titanium-950: oklch(0.12 0.008 265);
+
+  /* === INDIGO — Primary brand accent === */
+  --nx-indigo-50: oklch(0.96 0.03 270);
+  --nx-indigo-100: oklch(0.92 0.05 270);
+  --nx-indigo-200: oklch(0.85 0.09 270);
+  --nx-indigo-300: oklch(0.75 0.14 270);
+  --nx-indigo-400: oklch(0.65 0.18 270);
+  --nx-indigo-500: oklch(0.55 0.2 270);
+  --nx-indigo-600: oklch(0.48 0.2 270);
+  --nx-indigo-700: oklch(0.42 0.18 270);
+  --nx-indigo-800: oklch(0.35 0.15 270);
+  --nx-indigo-900: oklch(0.28 0.12 270);
+  --nx-indigo-950: oklch(0.2 0.08 270);
+
+  /* === EMERALD — Success / Authority accent === */
+  --nx-emerald-50: oklch(0.96 0.04 162);
+  --nx-emerald-100: oklch(0.92 0.06 162);
+  --nx-emerald-200: oklch(0.85 0.1 162);
+  --nx-emerald-300: oklch(0.75 0.14 162);
+  --nx-emerald-400: oklch(0.68 0.16 162);
+  --nx-emerald-500: oklch(0.6 0.18 162);
+  --nx-emerald-600: oklch(0.52 0.16 162);
+  --nx-emerald-700: oklch(0.44 0.14 162);
+  --nx-emerald-800: oklch(0.36 0.12 162);
+  --nx-emerald-900: oklch(0.28 0.08 162);
+  --nx-emerald-950: oklch(0.2 0.06 162);
+
+  /* === AMBER — Warning / Caution accent === */
+  --nx-amber-50: oklch(0.97 0.04 85);
+  --nx-amber-100: oklch(0.94 0.08 85);
+  --nx-amber-200: oklch(0.88 0.12 85);
+  --nx-amber-300: oklch(0.82 0.16 80);
+  --nx-amber-400: oklch(0.75 0.18 75);
+  --nx-amber-500: oklch(0.68 0.18 68);
+  --nx-amber-600: oklch(0.6 0.16 60);
+  --nx-amber-700: oklch(0.5 0.14 55);
+  --nx-amber-800: oklch(0.42 0.12 50);
+  --nx-amber-900: oklch(0.34 0.08 48);
+  --nx-amber-950: oklch(0.24 0.06 45);
+
+  /* === CYAN — Info / Link accent === */
+  --nx-cyan-50: oklch(0.97 0.03 200);
+  --nx-cyan-100: oklch(0.94 0.06 200);
+  --nx-cyan-200: oklch(0.88 0.1 200);
+  --nx-cyan-300: oklch(0.8 0.12 200);
+  --nx-cyan-400: oklch(0.72 0.14 200);
+  --nx-cyan-500: oklch(0.62 0.14 200);
+  --nx-cyan-600: oklch(0.52 0.12 200);
+  --nx-cyan-700: oklch(0.44 0.1 200);
+  --nx-cyan-800: oklch(0.36 0.08 200);
+  --nx-cyan-900: oklch(0.28 0.06 200);
+  --nx-cyan-950: oklch(0.2 0.04 200);
+
+  /* === RED — Danger / Destructive accent === */
+  --nx-red-50: oklch(0.97 0.02 25);
+  --nx-red-100: oklch(0.94 0.05 25);
+  --nx-red-200: oklch(0.88 0.1 25);
+  --nx-red-300: oklch(0.78 0.14 25);
+  --nx-red-400: oklch(0.68 0.18 25);
+  --nx-red-500: oklch(0.58 0.2 25);
+  --nx-red-600: oklch(0.5 0.18 25);
+  --nx-red-700: oklch(0.42 0.16 25);
+  --nx-red-800: oklch(0.34 0.12 25);
+  --nx-red-900: oklch(0.26 0.08 25);
+  --nx-red-950: oklch(0.18 0.06 25);
+}
+
+/* ============================================================================
+   PILLAR 2 — SEMANTIC TOKENS (LIGHT MODE DEFAULT)
+   ============================================================================
+   
+   Semantic tokens express INTENT, not color.
+   Components MUST use these — never palette primitives.
+   
+   Token Categories:
+   - Surface: Canvas, card, well, raised, overlay
+   - Text: Main, sub, muted, faint, inverse
+   - Border: Default, strong, divider
+   - Status: Success, warning, danger, info
+   - Brand: Primary, secondary, accent
+   ============================================================================ */
+@theme {
+  /* === SURFACES — Background hierarchy === */
+  --color-nx-canvas: var(--nx-titanium-50); /* Page background */
+  --color-nx-surface: white; /* Card/modal base */
+  --color-nx-surface-well: var(--nx-titanium-100); /* Inset/recessed */
+  --color-nx-raised: white; /* Elevated panels */
+  --color-nx-overlay: white; /* Popover/dropdown */
+  --color-nx-selected: var(--nx-indigo-100); /* Selection highlight */
+
+  /* === TEXT HIERARCHY === */
+  --color-nx-text-main: var(--nx-titanium-900); /* Headings (H1-H3) */
+  --color-nx-text-sub: var(--nx-titanium-600); /* Body text */
+  --color-nx-text-muted: var(--nx-titanium-500); /* Caption/secondary */
+  --color-nx-text-faint: var(--nx-titanium-400); /* Placeholder */
+  --color-nx-text-disabled: var(--nx-titanium-300); /* Disabled state */
+  --color-nx-text-inverse: white; /* Text on dark bg */
+
+  /* === BORDERS & DIVIDERS === */
+  --color-nx-border: var(--nx-titanium-200);
+  --color-nx-border-strong: var(--nx-titanium-300);
+  --color-nx-divider: var(--nx-titanium-200);
+
+  /* === BRAND PRIMARY (Indigo) === */
+  --color-nx-primary: var(--nx-indigo-600);
+  --color-nx-primary-hover: var(--nx-indigo-700);
+  --color-nx-primary-foreground: white;
+  --color-nx-primary-light: var(--nx-indigo-100);
+
+  /* === BRAND SECONDARY (Titanium) === */
+  --color-nx-secondary: var(--nx-titanium-200);
+  --color-nx-secondary-hover: var(--nx-titanium-300);
+  --color-nx-secondary-foreground: var(--nx-titanium-900);
+
+  /* === FOCUS & INTERACTION === */
+  --color-nx-ring: var(--nx-indigo-500);
+  --color-nx-ghost-hover: var(--nx-titanium-100);
+  --color-nx-link: var(--nx-cyan-600);
+  --color-nx-link-hover: var(--nx-cyan-700);
+
+  /* === STATUS COLORS === */
+  --color-nx-success: var(--nx-emerald-600);
+  --color-nx-success-bg: var(--nx-emerald-100);
+  --color-nx-success-text: var(--nx-emerald-700);
+
+  --color-nx-warning: var(--nx-amber-600);
+  --color-nx-warning-bg: var(--nx-amber-100);
+  --color-nx-warning-text: var(--nx-amber-700);
+
+  --color-nx-danger: var(--nx-red-600);
+  --color-nx-danger-bg: var(--nx-red-100);
+  --color-nx-danger-text: var(--nx-red-700);
+
+  --color-nx-info: var(--nx-cyan-600);
+  --color-nx-info-bg: var(--nx-cyan-100);
+  --color-nx-info-text: var(--nx-cyan-700);
+
+  /* === SCRIM — Modal/dialog backdrop === */
+  --color-nx-scrim: oklch(0.92 0.01 265 / 0.5);
+}
+
+/* ============================================================================
+   RFC-DM-001: CANONICAL DARK MODE DOCTRINE
+   ============================================================================
+   
+   Status: FINAL — MANDATORY
+   Trigger: .dark class (CSS cascade)
+   
+   PRINCIPLES (NORMATIVE):
+   P1 — Semantics Over Palettes: UI elements MUST consume semantic tokens only
+   P2 — Palette Immutability: Palette tokens MUST NOT change between modes
+   P3 — Dark Mode Is Re-Semanticization: Redefine intent, not invert colors
+   P4 — No Absolute Black: Pure black (#000) MUST NOT be used for surfaces
+   P5 — Accessibility First: All semantic pairs MUST meet WCAG 2.1 AA
+   
+   Typography Hierarchy Contract:
+   ┌──────────────┬─────────────────────────┬───────┬───────┐
+   │ Role         │ Semantic Token          │ Light │ Dark  │
+   ├──────────────┼─────────────────────────┼───────┼───────┤
+   │ Heading      │ --color-nx-text-main    │ 900   │ 50    │
+   │ Body         │ --color-nx-text-sub     │ 600   │ 300   │
+   │ Caption      │ --color-nx-text-muted   │ 500   │ 400   │
+   │ Faint        │ --color-nx-text-faint   │ 400   │ 500   │
+   │ Disabled     │ --color-nx-text-disabled│ 300   │ 700   │
+   └──────────────┴─────────────────────────┴───────┴───────┘
+   ============================================================================ */
+
+/* Enable class-based dark mode toggle */
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+  /* ═══════════════════════════════════════════════════════════════════════
+     SURFACES — Never pure black (P4 compliance)
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-canvas: var(--nx-titanium-950); /* Deep, not black */
+  --color-nx-surface: var(--nx-titanium-900); /* Card/modal base */
+  --color-nx-surface-well: var(--nx-titanium-800); /* Inset/recessed */
+  --color-nx-raised: var(--nx-titanium-800); /* Elevated panels */
+  --color-nx-overlay: var(--nx-titanium-900); /* Popover/dropdown */
+  --color-nx-selected: var(--nx-titanium-700); /* Selection highlight */
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     TEXT HIERARCHY — Re-expressed intent, not inverted palette (P3)
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-text-main: var(--nx-titanium-50); /* Headings */
+  --color-nx-text-sub: var(--nx-titanium-300); /* Body text */
+  --color-nx-text-muted: var(--nx-titanium-400); /* Caption */
+  --color-nx-text-faint: var(--nx-titanium-500); /* Placeholder */
+  --color-nx-text-disabled: var(--nx-titanium-700); /* Disabled */
+  --color-nx-text-inverse: var(--nx-titanium-900); /* Text on light bg */
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     BORDERS & DIVIDERS — Subtle separation
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-border: var(--nx-titanium-700);
+  --color-nx-border-strong: var(--nx-titanium-600);
+  --color-nx-divider: var(--nx-titanium-700);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     BRAND PRIMARY — Brighter for accessibility
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-primary: var(--nx-indigo-400);
+  --color-nx-primary-hover: var(--nx-indigo-300);
+  --color-nx-primary-foreground: var(--nx-titanium-950);
+  --color-nx-primary-light: var(--nx-indigo-900);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     BRAND SECONDARY
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-secondary: var(--nx-titanium-700);
+  --color-nx-secondary-hover: var(--nx-titanium-600);
+  --color-nx-secondary-foreground: var(--nx-titanium-50);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     FOCUS & INTERACTION
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-ring: var(--nx-indigo-400);
+  --color-nx-ghost-hover: var(--nx-titanium-800);
+  --color-nx-link: var(--nx-cyan-400);
+  --color-nx-link-hover: var(--nx-cyan-300);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     STATUS COLORS — Dark-friendly backgrounds (reduced luminance)
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-success: var(--nx-emerald-500);
+  --color-nx-success-bg: oklch(0.22 0.06 162); /* Dark emerald tint */
+  --color-nx-success-text: var(--nx-emerald-400);
+
+  --color-nx-warning: var(--nx-amber-500);
+  --color-nx-warning-bg: oklch(0.25 0.08 68); /* Dark amber tint */
+  --color-nx-warning-text: var(--nx-amber-400);
+
+  --color-nx-danger: var(--nx-red-500);
+  --color-nx-danger-bg: oklch(0.22 0.08 25); /* Dark red tint */
+  --color-nx-danger-text: var(--nx-red-400);
+
+  --color-nx-info: var(--nx-cyan-500);
+  --color-nx-info-bg: oklch(0.22 0.06 200); /* Dark cyan tint */
+  --color-nx-info-text: var(--nx-cyan-400);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     SCRIM — Modal/dialog backdrop
+     ═══════════════════════════════════════════════════════════════════════ */
+  --color-nx-scrim: oklch(0.08 0.01 275 / 0.8);
+}
+
+/* ============================================================================
+   AUTHORITY DESIGN SYSTEM — Auth Page Tokens
+   ============================================================================
+   
+   These tokens power the "Login as Law" authority aesthetic.
+   Used by AuthShell, login, signup, and onboarding pages.
+   
+   Always dark mode enforced (security clearance aesthetic).
+   ============================================================================ */
+@theme {
+  /* === AUTHORITY SURFACES === */
+  --color-nx-authority-canvas: var(--nx-titanium-950);
+  --color-nx-authority-surface: oklch(0.15 0.008 265 / 0.6); /* Glassmorphic */
+  --color-nx-authority-grid: oklch(0.3 0.02 162 / 0.04); /* Blueprint grid */
+
+  /* === AUTHORITY ACCENTS === */
+  --color-nx-authority-accent: var(--nx-emerald-500);
+  --color-nx-authority-accent-glow: oklch(0.6 0.18 162 / 0.3);
+  --color-nx-authority-scan: oklch(0.6 0.18 162 / 0.08); /* Scan line */
+
+  /* === CLEARANCE BAR STATES === */
+  --color-nx-clearance-low: var(--nx-red-500);
+  --color-nx-clearance-mid: var(--nx-amber-500);
+  --color-nx-clearance-high: var(--nx-emerald-500);
+}
+
+/* ============================================================================
+   PILLAR 3 — TYPOGRAPHY SCALE
+   ============================================================================
+   
+   Type scale based on 1.200 (Minor Third) ratio.
+   All sizes in rem for accessibility.
+   ============================================================================ */
+@theme {
+  /* === FONT FAMILIES === */
+  --nx-font-display: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --nx-font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --nx-font-mono: ui-monospace, "Cascadia Code", "Fira Code", monospace;
+
+  /* === TYPE SCALE (1.200 Minor Third) === */
+  --nx-display-size: 2.074rem; /* 33.18px — Hero headlines */
+  --nx-title-size: 1.728rem; /* 27.65px — Page titles */
+  --nx-section-size: 1.44rem; /* 23.04px — Section headers */
+  --nx-subsection-size: 1.2rem; /* 19.2px — Subsection headers */
+  --nx-body-size: 1rem; /* 16px — Body text */
+  --nx-caption-size: 0.833rem; /* 13.33px — Captions, labels */
+  --nx-micro-size: 0.694rem; /* 11.1px — Badges, tags */
+
+  /* === LINE HEIGHTS === */
+  --nx-display-line: 1.15;
+  --nx-title-line: 1.25;
+  --nx-section-line: 1.3;
+  --nx-body-line: 1.6;
+  --nx-caption-line: 1.4;
+
+  /* === FONT WEIGHTS === */
+  --nx-weight-normal: 400;
+  --nx-weight-medium: 500;
+  --nx-weight-semibold: 600;
+  --nx-weight-bold: 700;
+
+  /* === LETTER SPACING === */
+  --nx-tracking-tight: -0.02em;
+  --nx-tracking-normal: 0;
+  --nx-tracking-wide: 0.05em;
+  --nx-tracking-wider: 0.1em;
+}
+
+/* ============================================================================
+   PILLAR 4 — SPACING SCALE (8px Base Grid)
+   ============================================================================ */
+@theme {
+  --nx-space-px: 1px;
+  --nx-space-0: 0;
+  --nx-space-0\.5: 0.125rem; /* 2px */
+  --nx-space-1: 0.25rem; /* 4px */
+  --nx-space-2: 0.5rem; /* 8px — Base unit */
+  --nx-space-3: 0.75rem; /* 12px */
+  --nx-space-4: 1rem; /* 16px */
+  --nx-space-5: 1.25rem; /* 20px */
+  --nx-space-6: 1.5rem; /* 24px */
+  --nx-space-8: 2rem; /* 32px */
+  --nx-space-10: 2.5rem; /* 40px */
+  --nx-space-12: 3rem; /* 48px */
+  --nx-space-16: 4rem; /* 64px */
+  --nx-space-20: 5rem; /* 80px */
+  --nx-space-24: 6rem; /* 96px */
+}
+
+/* ============================================================================
+   PILLAR 5 — SIZING (Max Widths & Aspect Ratios)
+   ============================================================================ */
+@theme {
+  /* === CONTAINER WIDTHS === */
+  --nx-max-prose: 65ch; /* Optimal reading width */
+  --nx-max-xs: 20rem; /* 320px */
+  --nx-max-sm: 24rem; /* 384px */
+  --nx-max-md: 28rem; /* 448px */
+  --nx-max-lg: 32rem; /* 512px */
+  --nx-max-xl: 36rem; /* 576px */
+  --nx-max-2xl: 42rem; /* 672px */
+  --nx-max-3xl: 48rem; /* 768px */
+  --nx-max-4xl: 56rem; /* 896px */
+  --nx-max-5xl: 64rem; /* 1024px */
+  --nx-max-6xl: 72rem; /* 1152px */
+  --nx-max-7xl: 80rem; /* 1280px */
+  --nx-max-full: 100%;
+
+  /* === ASPECT RATIOS === */
+  --nx-aspect-square: 1 / 1;
+  --nx-aspect-video: 16 / 9;
+  --nx-aspect-portrait: 3 / 4;
+}
+
+/* ============================================================================
+   PILLAR 6 — SHAPE (Border Radius & Borders)
+   ============================================================================ */
+@theme {
+  /* === BORDER RADIUS === */
+  --nx-radius-none: 0;
+  --nx-radius-sm: 0.25rem; /* 4px */
+  --nx-radius-md: 0.5rem; /* 8px */
+  --nx-radius-lg: 0.75rem; /* 12px */
+  --nx-radius-xl: 1rem; /* 16px */
+  --nx-radius-2xl: 1.5rem; /* 24px */
+  --nx-radius-full: 9999px;
+
+  /* === BORDER WIDTHS === */
+  --nx-border-0: 0;
+  --nx-border-1: 1px;
+  --nx-border-2: 2px;
+  --nx-border-4: 4px;
+}
+
+/* ============================================================================
+   PILLAR 7 — ELEVATION (Shadows)
+   ============================================================================ */
+@theme {
+  /* === SHADOW SCALE === */
+  --nx-shadow-0: none;
+  --nx-shadow-1: 0 1px 2px 0 oklch(0.1 0.02 265 / 0.05);
+  --nx-shadow-2: 0 1px 3px 0 oklch(0.1 0.02 265 / 0.1),
+    0 1px 2px -1px oklch(0.1 0.02 265 / 0.1);
+  --nx-shadow-3: 0 4px 6px -1px oklch(0.1 0.02 265 / 0.1),
+    0 2px 4px -2px oklch(0.1 0.02 265 / 0.1);
+  --nx-shadow-4: 0 10px 15px -3px oklch(0.1 0.02 265 / 0.1),
+    0 4px 6px -4px oklch(0.1 0.02 265 / 0.1);
+  --nx-shadow-5: 0 20px 25px -5px oklch(0.1 0.02 265 / 0.1),
+    0 8px 10px -6px oklch(0.1 0.02 265 / 0.1);
+  --nx-shadow-6: 0 25px 50px -12px oklch(0.1 0.02 265 / 0.25);
+
+  /* === AUTHORITY GLOW === */
+  --nx-shadow-authority: 0 0 40px oklch(0.6 0.18 162 / 0.15);
+}
+
+/* ============================================================================
+   PILLAR 8 — MOTION (Animation & Transitions)
+   ============================================================================ */
+@theme {
+  /* === DURATIONS === */
+  --nx-dur-instant: 50ms;
+  --nx-dur-fast: 100ms;
+  --nx-dur-normal: 200ms;
+  --nx-dur-slow: 300ms;
+  --nx-dur-slower: 500ms;
+  --nx-dur-deliberate: 420ms; /* Authority gravitas delay */
+
+  /* === EASING CURVES === */
+  --nx-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --nx-ease-decel: cubic-bezier(0, 0, 0, 1);
+  --nx-ease-accel: cubic-bezier(0.3, 0, 1, 1);
+  --nx-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================================
+   PILLAR 9 — BREAKPOINTS (Responsive)
+   ============================================================================ */
+@theme {
+  --nx-bp-sm: 40rem; /* 640px — Mobile landscape */
+  --nx-bp-md: 48rem; /* 768px — Tablet portrait */
+  --nx-bp-lg: 64rem; /* 1024px — Tablet landscape */
+  --nx-bp-xl: 80rem; /* 1280px — Desktop */
+  --nx-bp-2xl: 96rem; /* 1536px — Wide desktop */
+}
+
+/* ============================================================================
+   PILLAR 10 — Z-INDEX SCALE
+   ============================================================================ */
+@theme {
+  --nx-z-base: 0;
+  --nx-z-raised: 10;
+  --nx-z-dropdown: 100;
+  --nx-z-sticky: 200;
+  --nx-z-fixed: 300;
+  --nx-z-overlay: 400;
+  --nx-z-modal: 500;
+  --nx-z-popover: 600;
+  --nx-z-tooltip: 700;
+  --nx-z-toast: 800;
+  --nx-z-max: 9999;
+}
+
+/* ============================================================================
+   SHADCN/UI COMPATIBILITY LAYER
+   ============================================================================
+   
+   Maps shadcn/ui variable names to NX constitutional tokens.
+   Enables drop-in shadcn component usage.
+   ============================================================================ */
+:root {
+  /* Surface mappings */
+  --background: var(--color-nx-canvas);
+  --foreground: var(--color-nx-text-main);
+  --card: var(--color-nx-surface);
+  --card-foreground: var(--color-nx-text-main);
+  --popover: var(--color-nx-overlay);
+  --popover-foreground: var(--color-nx-text-main);
+  --muted: var(--color-nx-surface-well);
+  --muted-foreground: var(--color-nx-text-muted);
+
+  /* Brand mappings */
+  --primary: var(--color-nx-primary);
+  --primary-foreground: var(--color-nx-primary-foreground);
+  --secondary: var(--color-nx-secondary);
+  --secondary-foreground: var(--color-nx-secondary-foreground);
+  --accent: var(--color-nx-success);
+  --accent-foreground: var(--color-nx-text-inverse);
+  --destructive: var(--color-nx-danger);
+  --destructive-foreground: var(--color-nx-text-inverse);
+
+  /* Form mappings */
+  --border: var(--color-nx-border);
+  --input: var(--color-nx-surface);
+  --ring: var(--color-nx-ring);
+
+  /* Radius (shadcn default) */
+  --radius: var(--nx-radius-md);
+}
+
+/* ============================================================================
+   BASE LAYER — HTML/Body Reset
+   ============================================================================ */
+@layer base {
+  html {
+    font-family: var(--nx-font-body);
+    font-size: 100%;
+    line-height: var(--nx-body-line);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light dark;
+  }
+
+  body {
+    background-color: var(--color-nx-canvas);
+    color: var(--color-nx-text-main);
+    min-height: 100vh;
+  }
+
+  /* === FOCUS-VISIBLE GLOBAL === */
+  :focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  /* === SELECTION === */
+  ::selection {
+    background-color: var(--color-nx-selected);
+    color: var(--color-nx-text-main);
+  }
+}
+
+/* ============================================================================
+   COMPONENT LAYER — Reusable Patterns
+   ============================================================================ */
+@layer components {
+  /* === SHELL — Dashboard container === */
+  .shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--color-nx-canvas);
+  }
+
+  /* === CARD — Elevated surface === */
+  .card {
+    background: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow-2);
+  }
+
+  .card-header {
+    padding: var(--nx-space-6);
+    border-bottom: var(--nx-border-1) solid var(--color-nx-border);
+  }
+
+  .card-body {
+    padding: var(--nx-space-6);
+  }
+
+  /* === BUTTON — Primary action === */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nx-space-2);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    background: var(--color-nx-primary);
+    color: var(--color-nx-primary-foreground);
+    font-size: var(--nx-body-size);
+    font-weight: var(--nx-weight-medium);
+    border-radius: var(--nx-radius-md);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    background: var(--color-nx-primary-hover);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* === BUTTON — Secondary action === */
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nx-space-2);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    background: var(--color-nx-secondary);
+    color: var(--color-nx-secondary-foreground);
+    font-size: var(--nx-body-size);
+    font-weight: var(--nx-weight-medium);
+    border-radius: var(--nx-radius-md);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+    cursor: pointer;
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-nx-secondary-hover);
+  }
+
+  /* === BUTTON — Ghost === */
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--nx-space-2);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    background: transparent;
+    color: var(--color-nx-text-main);
+    font-size: var(--nx-body-size);
+    font-weight: var(--nx-weight-medium);
+    border-radius: var(--nx-radius-md);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+    cursor: pointer;
+  }
+
+  .btn-ghost:hover {
+    background: var(--color-nx-ghost-hover);
+  }
+
+  /* === INPUT — Form field === */
+  .input {
+    width: 100%;
+    padding: var(--nx-space-2) var(--nx-space-3);
+    background: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-md);
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-main);
+    transition: border-color var(--nx-dur-fast) var(--nx-ease-standard),
+      box-shadow var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .input::placeholder {
+    color: var(--color-nx-text-faint);
+  }
+
+  .input:hover {
+    border-color: var(--color-nx-border-strong);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-nx-ring);
+    box-shadow: 0 0 0 3px var(--color-nx-primary-light);
+  }
+
+  .input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* === LABEL — Form label === */
+  .label {
+    display: block;
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-main);
+    margin-bottom: var(--nx-space-2);
+  }
+
+  /* === BADGE — Status indicator === */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--nx-radius-full);
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-medium);
+    line-height: 1;
+  }
+
+  .badge-success {
+    background: var(--color-nx-success-bg);
+    color: var(--color-nx-success-text);
+  }
+
+  .badge-warning {
+    background: var(--color-nx-warning-bg);
+    color: var(--color-nx-warning-text);
+  }
+
+  .badge-danger {
+    background: var(--color-nx-danger-bg);
+    color: var(--color-nx-danger-text);
+  }
+
+  .badge-info {
+    background: var(--color-nx-info-bg);
+    color: var(--color-nx-info-text);
+  }
+
+  /* === KPI CARD === */
+  .kpi-card {
+    background: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-lg);
+    padding: var(--nx-space-6);
+    box-shadow: var(--nx-shadow-2);
+    transition: box-shadow var(--nx-dur-fast) var(--nx-ease-standard),
+      transform var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .kpi-card:hover {
+    box-shadow: var(--nx-shadow-3);
+    transform: translateY(-1px);
+  }
+
+  .kpi-card-label {
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--nx-tracking-wide);
+    margin-bottom: var(--nx-space-2);
+  }
+
+  .kpi-card-value {
+    font-size: var(--nx-display-size);
+    font-weight: var(--nx-weight-bold);
+    color: var(--color-nx-text-main);
+    line-height: 1;
+  }
+
+  /* === TABLE — Professional data table === */
+  .table-professional {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table-professional thead th {
+    padding: var(--nx-space-3) var(--nx-space-4);
+    text-align: left;
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--nx-tracking-wide);
+    border-bottom: var(--nx-border-2) solid var(--color-nx-border);
+    background: var(--color-nx-canvas);
+  }
+
+  .table-professional tbody td {
+    padding: var(--nx-space-4);
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-main);
+    border-bottom: var(--nx-border-1) solid var(--color-nx-border);
+  }
+
+  .table-professional tbody tr:hover {
+    background: var(--color-nx-surface-well);
+  }
+}
+
+/* ============================================================================
+   UTILITY LAYER — Interactive States & Responsive
+   ============================================================================ */
+@layer utilities {
+  /* === HOVER STATES === */
+  .hover-lift:hover {
+    box-shadow: var(--nx-shadow-3);
+    transform: translateY(-1px);
+  }
+
+  .hover-highlight:hover {
+    background: var(--color-nx-surface-well);
+    border-color: var(--color-nx-border-strong);
+  }
+
+  /* === FOCUS STATES === */
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  /* === ACTIVE STATES === */
+  .active-compress:active {
+    transform: scale(0.95);
+  }
+
+  /* === DISABLED STATES === */
+  .disabled-muted:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* === RESPONSIVE LAYOUTS === */
+  .layout-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-4);
+  }
+
+  .layout-grid-responsive {
+    display: grid;
+    gap: var(--nx-space-6);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .layout-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-4);
+    max-width: var(--nx-max-md);
+  }
+
+  /* === INTERACTIVE COMBINED === */
+  .interactive {
+    transition: all var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+}

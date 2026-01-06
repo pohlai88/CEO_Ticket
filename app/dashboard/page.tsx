@@ -15,16 +15,16 @@ export default async function DashboardPage() {
     await getDashboardData();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-nx-canvas">
       {/* Announcement Banners */}
       <UrgentAnnouncementBanner />
       <ImportantAnnouncementBanner />
 
-      <nav className="bg-white shadow">
+      <nav className="bg-nx-surface shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-nx-text-main">
                 CEO Request System
               </h1>
             </div>
@@ -33,13 +33,13 @@ export default async function DashboardPage() {
                 <Button variant="ghost" size="sm">
                   <Bell className="h-5 w-5" />
                   {unreadAnnouncementCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-nx-danger text-nx-text-inverse text-xs flex items-center justify-center">
                       {unreadAnnouncementCount}
                     </span>
                   )}
                 </Button>
               </Link>
-              <span className="text-sm text-gray-600">{user.email}</span>
+              <span className="text-sm text-nx-text-sub">{user.email}</span>
               <LogoutButton />
             </div>
           </div>
@@ -50,14 +50,14 @@ export default async function DashboardPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
           {/* Quick Actions */}
           <Link href="/requests/new">
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="bg-nx-surface rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <Plus className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-nx-primary-light rounded-lg">
+                  <Plus className="h-6 w-6 text-nx-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">New Request</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-nx-text-main">New Request</h3>
+                  <p className="text-sm text-nx-text-sub">
                     Submit a request to CEO
                   </p>
                 </div>
@@ -66,14 +66,14 @@ export default async function DashboardPage() {
           </Link>
 
           <Link href="/requests">
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="bg-nx-surface rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-green-100 rounded-lg">
-                  <FileText className="h-6 w-6 text-green-600" />
+                <div className="p-3 bg-nx-success-bg rounded-lg">
+                  <FileText className="h-6 w-6 text-nx-success" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">My Requests</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-nx-text-main">My Requests</h3>
+                  <p className="text-sm text-nx-text-sub">
                     View all your requests
                   </p>
                 </div>
@@ -82,14 +82,14 @@ export default async function DashboardPage() {
           </Link>
 
           <Link href="/announcements">
-            <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
+            <div className="bg-nx-surface rounded-lg shadow p-6 hover:shadow-lg transition-shadow cursor-pointer">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-purple-100 rounded-lg">
-                  <Bell className="h-6 w-6 text-purple-600" />
+                <div className="p-3 bg-nx-info-bg rounded-lg">
+                  <Bell className="h-6 w-6 text-nx-info" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Announcements</h3>
-                  <p className="text-sm text-gray-600">
+                  <h3 className="font-semibold text-nx-text-main">Announcements</h3>
+                  <p className="text-sm text-nx-text-sub">
                     {unreadAnnouncementCount > 0
                       ? `${unreadAnnouncementCount} unread`
                       : "View all updates"}
@@ -100,9 +100,9 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Welcome</h2>
-          <div className="space-y-2 text-gray-600">
+        <div className="bg-nx-surface rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-nx-text-main mb-4">Welcome</h2>
+          <div className="space-y-2 text-nx-text-sub">
             <p>Organization: {org?.name || "Not set"}</p>
             <p>Email: {user.email}</p>
             <p>Role: {userRole}</p>

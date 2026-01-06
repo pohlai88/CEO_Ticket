@@ -1,0 +1,159 @@
+/* =============================================================================
+  NEXUS-KERNEL NEXT.JS DASHBOARD — GLOBAL STYLES
+  
+  Design System: Quantum Obsidian (P3 Wide Gamut Authority Theme)
+  
+  Architecture (Single Source → Single Output):
+    1. Source:  D:\NEXUS-KERNEL\ui\input.css (1,214 lines - design constitution)
+    2. Build:   Tailwind compiles input.css → style.css
+    3. Output:  D:\NEXUS-KERNEL\ui\style.css (2,742 lines - pre-compiled classes)
+    4. Import:  globals.css imports style.css
+    5. Entry:   layout.tsx imports globals.css
+  
+  Benefits:
+    ✅ Single source of truth (input.css)
+    ✅ Zero design drift (all derived from input.css)
+    ✅ Full IDE autocomplete (2,742 pre-generated classes)
+    ✅ No JIT compilation uncertainty
+    ✅ Perfect IntelliSense (IDE knows exact class list)
+    ✅ No duplication (globals.css just imports style.css)
+============================================================================= */
+
+/* Import compiled Quantum Obsidian design system */
+@import "../../style.css";
+
+/* =============================================================================
+  DASHBOARD UTILITY CLASSES
+  Exposes Quantum Obsidian design tokens as reusable Tailwind-compatible utilities
+============================================================================= */
+
+/* Typography Scale Utilities */
+.text-display {
+  font-size: var(--type-display-size);
+  line-height: var(--type-display-line);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-main);
+}
+
+.text-title {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-main);
+}
+
+.text-section {
+  font-size: var(--type-section-size);
+  line-height: var(--type-section-line);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-main);
+}
+
+.text-body {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-main);
+}
+
+.text-caption {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-sub);
+}
+
+.text-micro {
+  font-size: var(--type-micro-size);
+  line-height: var(--type-micro-line);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+}
+
+/* Spacing Utilities (using design tokens) */
+.space-page {
+  padding: var(--space-page);
+}
+
+.space-section {
+  padding: var(--space-section);
+}
+
+.space-stack {
+  margin-bottom: var(--space-stack);
+}
+
+.space-stack-loose {
+  margin-bottom: var(--space-stack-loose);
+}
+
+.gap-section {
+  gap: var(--space-section);
+}
+
+.gap-stack {
+  gap: var(--space-stack);
+}
+
+/* Card Elevation System */
+.card-elevated {
+  background: var(--color-raised);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-1);
+  border-radius: var(--radius-lg);
+}
+
+.card-surface {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+/* Status Badges */
+.badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success);
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid var(--color-warning);
+}
+
+.badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+  border: 1px solid var(--color-danger);
+}
+
+.badge-info {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  border: 1px solid var(--color-info);
+}
+
+/* Interactive States */
+.interactive {
+  transition: all var(--dur-fast) var(--ease-standard);
+}
+
+.interactive:hover {
+  background: var(--color-ghost-hover);
+}
+
+/* Grid Layouts */
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .grid-dashboard {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

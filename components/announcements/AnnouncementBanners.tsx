@@ -83,7 +83,7 @@ export function UrgentAnnouncementBanner() {
   if (!urgentAnnouncement) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-red-600 text-white shadow-lg">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-nx-danger text-nx-text-inverse shadow-lg">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-start gap-4">
           {/* Icon */}
@@ -93,7 +93,7 @@ export function UrgentAnnouncementBanner() {
           <div className="flex-1 min-w-0">
             <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
               {urgentAnnouncement.title}
-              <span className="text-xs bg-red-800 px-2 py-1 rounded">
+              <span className="text-xs bg-nx-danger px-2 py-1 rounded">
                 URGENT
               </span>
             </h3>
@@ -108,7 +108,7 @@ export function UrgentAnnouncementBanner() {
                   size="sm"
                   onClick={handleAcknowledge}
                   disabled={acknowledging}
-                  className="bg-white text-red-600 hover:bg-gray-100"
+                  className="bg-nx-surface text-nx-danger hover:bg-nx-surface-well"
                 >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
                   {acknowledging ? "Acknowledging..." : "Acknowledge & Dismiss"}
@@ -118,7 +118,7 @@ export function UrgentAnnouncementBanner() {
                 size="sm"
                 variant="outline"
                 onClick={handleViewAll}
-                className="border-white text-white hover:bg-red-700"
+                className="border-white text-nx-text-inverse hover:bg-nx-danger-hover"
               >
                 View Full Message
               </Button>
@@ -171,17 +171,17 @@ export function ImportantAnnouncementBanner() {
   if (visibleAnnouncements.length === 0) return null;
 
   return (
-    <div className="bg-yellow-50 border-b-2 border-yellow-400">
+    <div className="bg-nx-warning-bg border-b-2 border-yellow-400">
       {visibleAnnouncements.map((announcement) => (
         <div key={announcement.id} className="container mx-auto px-4 py-3">
           <div className="flex items-start gap-4">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+            <AlertCircle className="h-5 w-5 text-nx-warning mt-0.5 flex-shrink-0" />
 
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-sm mb-1 text-yellow-900">
                 {announcement.title}
               </h4>
-              <p className="text-sm text-yellow-800 line-clamp-1">
+              <p className="text-sm text-nx-warning-text line-clamp-1">
                 {announcement.content}
               </p>
             </div>
@@ -197,9 +197,9 @@ export function ImportantAnnouncementBanner() {
               </Button>
               <button
                 onClick={() => handleDismiss(announcement.id)}
-                className="p-1 hover:bg-yellow-100 rounded"
+                className="p-1 hover:bg-nx-warning-bg rounded"
               >
-                <X className="h-4 w-4 text-yellow-600" />
+                <X className="h-4 w-4 text-nx-warning" />
               </button>
             </div>
           </div>

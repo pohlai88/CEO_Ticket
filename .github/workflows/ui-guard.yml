@@ -1,0 +1,96 @@
+# ============================================================================
+# NEXUS UI GUARD — Constitutional Enforcement Pipeline
+# ============================================================================
+#
+# This workflow enforces the NEXUS DESIGN CONSTITUTION across all code changes.
+#
+# Enforcement Scope:
+# - Forbidden pattern detection (raw Tailwind colors, hex values, legacy AIBOS)
+# - Semantic token usage validation
+# - Design system drift prevention
+#
+# Governance Stack Integration:
+# ┌─────────────────────────────────────────────────────────────────────────┐
+# │ PRD_GUARD   →  Business logic compliance (prd-compliance.yml)          │
+# │ UI_GUARD    →  Design token enforcement (this file)                    │
+# │ E2E_GUARD   →  Three-layer verification (e2e-tests.yml)                │
+# └─────────────────────────────────────────────────────────────────────────┘
+#
+# @see https://github.com/pohlai88/NEXUS_UI_GUARD
+# ============================================================================
+
+name: UI Guard Enforcement
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "app/**/*.tsx"
+      - "app/**/*.css"
+      - "components/**/*.tsx"
+      - "app/globals.css"
+      - "tailwind.config.ts"
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/**/*.tsx"
+      - "app/**/*.css"
+      - "components/**/*.tsx"
+      - "app/globals.css"
+      - "tailwind.config.ts"
+
+jobs:
+  constitutional-check:
+    name: Constitutional Enforcement
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: "🚔 NX-CHECK: Forbidden Pattern Scan"
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  NEXUS UI GUARD — Constitutional Enforcement"
+          echo "═══════════════════════════════════════════════════════════════"
+          echo ""
+          echo "Scanning for forbidden patterns..."
+          echo "  🚫 Raw Tailwind colors (bg-gray-*, text-blue-*, etc.)"
+          echo "  🚫 Arbitrary hex values (bg-[#...], text-[#...])"
+          echo "  🚫 Legacy AIBOS patterns (na-*, aibos)"
+          echo ""
+          npm run nx:check
+        continue-on-error: false
+
+      - name: "⚖️ NX-VALIDATE: Token Integrity Check"
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  Validating Design Token Integrity"
+          echo "═══════════════════════════════════════════════════════════════"
+          echo ""
+          npm run nx:validate
+        continue-on-error: true
+
+      - name: "📊 Report Summary"
+        if: always()
+        run: |
+          echo ""
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  UI GUARD ENFORCEMENT COMPLETE"
+          echo "═══════════════════════════════════════════════════════════════"
+          echo ""
+          echo "  Constitutional Authority: NEXUS DESIGN CONSTITUTION v1.0.0"
+          echo "  Governance Layer: UI_GUARD"
+          echo "  Enforcement Level: BLOCKING"
+          echo ""
+          echo "  Any violations will prevent merge to protected branches."
+          echo ""

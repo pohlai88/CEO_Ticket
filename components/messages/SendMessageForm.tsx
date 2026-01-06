@@ -103,7 +103,7 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-nx-canvas">
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -115,17 +115,17 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
             <ArrowLeft className="h-4 w-4" />
             Back
           </Button>
-          <h1 className="text-3xl font-bold text-gray-900">New Message</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-nx-text-main">New Message</h1>
+          <p className="text-nx-text-sub mt-1">
             Send a message to managers or the CEO
           </p>
         </div>
 
         {error && (
-          <Card className="bg-red-50 border-red-200 p-4 mb-6">
+          <Card className="bg-nx-danger-bg border-nx-danger p-4 mb-6">
             <div className="flex gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-800">{error}</p>
+              <AlertCircle className="h-5 w-5 text-nx-danger shrink-0 mt-0.5" />
+              <p className="text-sm text-nx-danger-text">{error}</p>
             </div>
           </Card>
         )}
@@ -144,8 +144,8 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
                     onClick={() => setMessageType(type)}
                     className={`p-4 border-2 rounded-lg transition-all text-center ${
                       messageType === type
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-nx-primary bg-nx-primary-light"
+                        : "border-nx-border hover:border-nx-border-strong"
                     }`}
                   >
                     <div className="font-medium capitalize text-sm">
@@ -155,7 +155,7 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
                         ? "📋 Directing"
                         : "💬 Clarifying"}
                     </div>
-                    <div className="text-xs text-gray-600 mt-1">
+                    <div className="text-xs text-nx-text-sub mt-1">
                       {type === "consultation"
                         ? "Need approval?"
                         : type === "direction"
@@ -182,8 +182,8 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
                       onClick={() => setContextType(type)}
                       className={`p-3 border-2 rounded-lg transition-all text-center ${
                         contextType === type
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-nx-primary bg-nx-primary-light"
+                          : "border-nx-border hover:border-nx-border-strong"
                       }`}
                     >
                       <div className="font-medium capitalize text-sm">
@@ -194,7 +194,7 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
                 )}
               </div>
               {contextType === "general" && userRole === "MANAGER" && (
-                <p className="text-xs text-red-600 mt-2">
+                <p className="text-xs text-nx-danger mt-2">
                   ⚠️ Only CEO can send general messages
                 </p>
               )}
@@ -215,7 +215,7 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Brief subject line"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-nx-border-strong rounded-lg focus:outline-none focus:ring-2 focus:ring-nx-ring"
             />
           </div>
 
@@ -244,11 +244,11 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
             <Label className="text-base font-semibold mb-3 block">
               Recipients ({selectedRecipients.size})
             </Label>
-            <div className="border border-gray-300 rounded-lg max-h-48 overflow-y-auto">
+            <div className="border border-nx-border-strong rounded-lg max-h-48 overflow-y-auto">
               {users.map((user) => (
                 <label
                   key={user.id}
-                  className="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-200 last:border-b-0 cursor-pointer"
+                  className="flex items-center gap-3 p-3 hover:bg-nx-canvas border-b border-nx-border last:border-b-0 cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -268,7 +268,9 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
                     <div className="font-medium text-sm">
                       {user.full_name || user.email}
                     </div>
-                    <div className="text-xs text-gray-500">{user.email}</div>
+                    <div className="text-xs text-nx-text-muted">
+                      {user.email}
+                    </div>
                   </div>
                 </label>
               ))}
@@ -280,11 +282,11 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
             <Label className="text-base font-semibold mb-3 block">
               CC ({ccUsers.size})
             </Label>
-            <div className="border border-gray-300 rounded-lg max-h-32 overflow-y-auto">
+            <div className="border border-nx-border-strong rounded-lg max-h-32 overflow-y-auto">
               {users.map((user) => (
                 <label
                   key={`cc-${user.id}`}
-                  className="flex items-center gap-3 p-3 hover:bg-gray-50 border-b border-gray-200 last:border-b-0 cursor-pointer"
+                  className="flex items-center gap-3 p-3 hover:bg-nx-canvas border-b border-nx-border last:border-b-0 cursor-pointer"
                 >
                   <input
                     type="checkbox"
@@ -304,7 +306,9 @@ export function SendMessageForm({ users, userRole }: SendMessageFormProps) {
                     <div className="font-medium text-sm">
                       {user.full_name || user.email}
                     </div>
-                    <div className="text-xs text-gray-500">{user.email}</div>
+                    <div className="text-xs text-nx-text-muted">
+                      {user.email}
+                    </div>
                   </div>
                 </label>
               ))}

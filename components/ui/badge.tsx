@@ -1,10 +1,10 @@
 // Placeholder badge component
 export function Badge({ children, variant = 'default', className = '', ...props }: any) {
   const variants: Record<string, string> = {
-    default: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-gray-100 text-gray-800',
-    destructive: 'bg-red-100 text-red-800',
-    outline: 'border border-gray-300 bg-white',
+    default: 'bg-nx-primary-light text-nx-primary',
+    secondary: 'bg-nx-surface-well text-nx-text-main',
+    destructive: 'bg-nx-danger-bg text-nx-danger-text',
+    outline: 'border border-nx-border-strong bg-nx-surface',
   };
 
   return (

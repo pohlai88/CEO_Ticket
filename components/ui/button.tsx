@@ -2,10 +2,10 @@
 export function Button({ children, variant = 'default', className = '', ...props }: any) {
   const baseClasses = 'px-4 py-2 rounded-md font-medium transition-colors';
   const variants: Record<string, string> = {
-    default: 'bg-blue-600 text-white hover:bg-blue-700',
-    outline: 'border border-gray-300 hover:bg-gray-100',
-    ghost: 'hover:bg-gray-100',
-    destructive: 'bg-red-600 text-white hover:bg-red-700',
+    default: 'bg-nx-primary text-nx-text-inverse hover:bg-nx-primary-hover',
+    outline: 'border border-nx-border-strong hover:bg-nx-surface-well',
+    ghost: 'hover:bg-nx-surface-well',
+    destructive: 'bg-nx-danger text-nx-text-inverse hover:bg-nx-danger-hover',
   };
 
   return (

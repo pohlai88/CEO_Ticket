@@ -19,13 +19,13 @@ export default async function MessagesPage({
   const { messages, userMap } = await getMessages({ status: statusFilter });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-nx-canvas">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
-            <p className="text-gray-600 mt-1">Executive communication inbox</p>
+            <h1 className="text-3xl font-bold text-nx-text-main">Messages</h1>
+            <p className="text-nx-text-sub mt-1">Executive communication inbox</p>
           </div>
           <Link href="/messages/send">
             <Button className="gap-2">

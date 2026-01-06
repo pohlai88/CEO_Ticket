@@ -87,12 +87,12 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
 
       {/* Success/Error Messages */}
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 rounded">
+        <div className="mb-4 p-3 bg-nx-success-bg border border-nx-success text-nx-success-text rounded">
           {success}
         </div>
       )}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded">
+        <div className="mb-4 p-3 bg-nx-danger-bg border border-nx-danger text-nx-danger-text rounded">
           {error}
         </div>
       )}
@@ -117,14 +117,14 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     max_attachment_mb: parseInt(e.target.value),
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               >
                 <option value="5">5 MB</option>
                 <option value="10">10 MB</option>
                 <option value="20">20 MB</option>
                 <option value="50">50 MB</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 Maximum file size for request attachments
               </p>
             </div>
@@ -150,14 +150,14 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     auto_cancel_drafts_days: parseInt(e.target.value),
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               >
                 <option value="14">14 days</option>
                 <option value="30">30 days</option>
                 <option value="60">60 days</option>
                 <option value="90">90 days</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 Automatically cancel draft requests older than this period
               </p>
             </div>
@@ -173,13 +173,13 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     restore_window_days: parseInt(e.target.value),
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               >
                 <option value="7">7 days</option>
                 <option value="14">14 days</option>
                 <option value="30">30 days</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 Time window to restore soft-deleted requests
               </p>
             </div>
@@ -197,14 +197,14 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     audit_retention_days: parseInt(e.target.value),
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               >
                 <option value="90">90 days</option>
                 <option value="180">180 days</option>
                 <option value="365">1 year</option>
                 <option value="2557">7 years (compliance)</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 How long to retain audit logs
               </p>
             </div>
@@ -228,7 +228,7 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     default_priority_code: e.target.value,
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               >
                 <option value="P1">P1 - Critical</option>
                 <option value="P2">P2 - High</option>
@@ -236,7 +236,7 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                 <option value="P4">P4 - Low</option>
                 <option value="P5">P5 - Very Low</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 Default priority for new requests
               </p>
             </div>
@@ -291,9 +291,9 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     max_mentions_per_comment: parseInt(e.target.value) || 5,
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 Maximum number of users that can be @mentioned in one comment
               </p>
             </div>
@@ -311,14 +311,14 @@ export function AdminConfigForm({ initialConfig }: AdminConfigFormProps) {
                     mention_scope_default: e.target.value,
                   })
                 }
-                className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-md"
+                className="mt-2 w-full px-3 py-2 border border-nx-border-strong rounded-md"
               >
                 <option value="requester_watchers">
                   Requester + Watchers Only
                 </option>
                 <option value="org_wide">Organization-Wide</option>
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-nx-text-muted mt-1">
                 Who can be mentioned in comments
               </p>
             </div>

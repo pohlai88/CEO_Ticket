@@ -96,7 +96,7 @@ export function ApprovalDecisionForm({
         <Button
           onClick={() => handleDecision("approved")}
           disabled={submitting}
-          className="min-w-32 bg-green-600 hover:bg-green-700"
+          className="min-w-32 bg-nx-success hover:bg-nx-success-hover"
         >
           <CheckCircle2 className="mr-2 h-4 w-4" />
           Approve

@@ -85,9 +85,9 @@ export default async function ApprovalDetailPage({
 
       {/* Status Alerts */}
       {isInvalidated && (
-        <Card className="border-amber-500 bg-amber-50 dark:bg-amber-900/20">
+        <Card className="border-nx-warning bg-nx-warning-bg dark:bg-nx-warning-bg">
           <CardContent className="py-4">
-            <p className="text-amber-700 dark:text-amber-300 font-medium">
+            <p className="text-nx-warning-text dark:text-amber-300 font-medium">
               ⚠️ This approval has been invalidated due to version drift. The
               request may have been modified.
             </p>
@@ -96,9 +96,9 @@ export default async function ApprovalDetailPage({
       )}
 
       {approval.decision !== "pending" && (
-        <Card className="border-blue-500 bg-blue-50 dark:bg-blue-900/20">
+        <Card className="border-nx-primary bg-nx-primary-light dark:bg-nx-primary-light">
           <CardContent className="py-4">
-            <p className="text-blue-700 dark:text-blue-300 font-medium">
+            <p className="text-nx-primary dark:text-nx-primary font-medium">
               ℹ️ This request has already been {approval.decision}
               {approval.decided_at
                 ? ` on ${formatDate(approval.decided_at)}`

@@ -92,11 +92,11 @@ export default function CreateAnnouncementPage() {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-2 px-3 py-2 border border-nx-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-nx-ring"
                 placeholder="Announcement title..."
                 maxLength={200}
               />
-              <p className="text-xs text-gray-500 mt-1">{formData.title.length}/200 characters</p>
+              <p className="text-xs text-nx-text-muted mt-1">{formData.title.length}/200 characters</p>
             </div>
 
             {/* Content */}
@@ -117,7 +117,7 @@ export default function CreateAnnouncementPage() {
             <div>
               <Label>Type *</Label>
               <div className="mt-2 space-y-2">
-                <label className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
+                <label className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-nx-canvas">
                   <input
                     type="radio"
                     name="announcement_type"
@@ -128,11 +128,11 @@ export default function CreateAnnouncementPage() {
                   />
                   <div>
                     <div className="font-medium">Info</div>
-                    <div className="text-sm text-gray-500">Passive bulletin - appears in feed only</div>
+                    <div className="text-sm text-nx-text-muted">Passive bulletin - appears in feed only</div>
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
+                <label className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-nx-canvas">
                   <input
                     type="radio"
                     name="announcement_type"
@@ -143,11 +143,11 @@ export default function CreateAnnouncementPage() {
                   />
                   <div>
                     <div className="font-medium">Important</div>
-                    <div className="text-sm text-gray-500">Sticky banner - stays visible until dismissed</div>
+                    <div className="text-sm text-nx-text-muted">Sticky banner - stays visible until dismissed</div>
                   </div>
                 </label>
 
-                <label className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-gray-50">
+                <label className="flex items-center gap-3 p-3 border rounded-md cursor-pointer hover:bg-nx-canvas">
                   <input
                     type="radio"
                     name="announcement_type"
@@ -157,8 +157,8 @@ export default function CreateAnnouncementPage() {
                     className="w-4 h-4"
                   />
                   <div>
-                    <div className="font-medium text-red-600">Urgent</div>
-                    <div className="text-sm text-gray-500">Requires acknowledgment - blocks other actions</div>
+                    <div className="font-medium text-nx-danger">Urgent</div>
+                    <div className="text-sm text-nx-text-muted">Requires acknowledgment - blocks other actions</div>
                   </div>
                 </label>
               </div>
@@ -171,7 +171,7 @@ export default function CreateAnnouncementPage() {
                 id="target_scope"
                 value={formData.target_scope}
                 onChange={(e) => setFormData({ ...formData, target_scope: e.target.value as TargetScope })}
-                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-2 px-3 py-2 border border-nx-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-nx-ring"
               >
                 <option value="all">All Managers</option>
                 <option value="team">Specific Team (Not Implemented)</option>
@@ -201,9 +201,9 @@ export default function CreateAnnouncementPage() {
                 type="datetime-local"
                 value={formData.sticky_until}
                 onChange={(e) => setFormData({ ...formData, sticky_until: e.target.value })}
-                className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full mt-2 px-3 py-2 border border-nx-border-strong rounded-md focus:outline-none focus:ring-2 focus:ring-nx-ring"
               />
-              <p className="text-xs text-gray-500 mt-1">If set, announcement will remain sticky until this date</p>
+              <p className="text-xs text-nx-text-muted mt-1">If set, announcement will remain sticky until this date</p>
             </div>
           </CardContent>
 

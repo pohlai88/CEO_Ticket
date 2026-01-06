@@ -95,7 +95,7 @@ export function ApprovalsList({
                 {approval.decision === "pending" ? (
                   <Badge variant="secondary">Pending Decision</Badge>
                 ) : approval.decision === "approved" ? (
-                  <Badge variant="default" className="bg-green-600">
+                  <Badge variant="default" className="bg-nx-success">
                     Approved
                   </Badge>
                 ) : (

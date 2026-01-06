@@ -1,0 +1,1176 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+/* =============================================================================
+   NEXUS DESIGN CONSTITUTION v1.0.0
+   QUANTUM OBSIDIAN — SOVEREIGN P3 AUTHORITY THEME
+   Tailwind v4 | P3 WIDE GAMUT | ZERO-DRIFT SYSTEM | NPM-READY
+   
+   ⚠️ CONSTITUTIONAL FILE — Generated sections are AUTO-GENERATED
+   DO NOT EDIT content between NX:*:START and NX:*:END markers
+   Source of truth: ui/canonical.ts
+============================================================================= */
+
+/* =============================================================================
+   PILLAR 1 — COLOR PRIMITIVES (IMMUTABLE INK)
+   Generated from NX_COLOR_PRIMITIVES in canonical.ts
+============================================================================= */
+@layer base {
+  :root {
+  /* NX:COLOR_PRIMITIVES:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-8d8ed64fde28 */
+  --nx-amber-50: oklch(0.98 0.035 90);
+  --nx-amber-500: oklch(0.77 0.220 68);
+  --nx-amber-700: oklch(0.55 0.160 66);
+  --nx-cyan-50: oklch(0.98 0.015 200);
+  --nx-cyan-400: oklch(0.79 0.160 205);
+  --nx-cyan-500: oklch(0.75 0.180 200);
+  --nx-cyan-600: oklch(0.62 0.150 200);
+  --nx-cyan-800: oklch(0.45 0.100 200);
+  --nx-emerald-50: oklch(0.96 0.025 165);
+  --nx-emerald-500: oklch(0.65 0.200 162);
+  --nx-emerald-700: oklch(0.50 0.170 163);
+  --nx-indigo-50: oklch(0.97 0.015 275);
+  --nx-indigo-100: oklch(0.93 0.030 275);
+  --nx-indigo-200: oklch(0.87 0.060 275);
+  --nx-indigo-300: oklch(0.79 0.110 275);
+  --nx-indigo-400: oklch(0.68 0.180 275);
+  --nx-indigo-500: oklch(0.55 0.250 275);
+  --nx-indigo-600: oklch(0.48 0.280 275);
+  --nx-indigo-700: oklch(0.42 0.240 275);
+  --nx-indigo-800: oklch(0.35 0.180 275);
+  --nx-indigo-900: oklch(0.28 0.120 275);
+  --nx-red-50: oklch(0.97 0.020 20);
+  --nx-red-500: oklch(0.64 0.280 25);
+  --nx-red-700: oklch(0.51 0.240 27);
+  --nx-titanium-50: oklch(0.99 0.002 275);
+  --nx-titanium-100: oklch(0.965 0.004 275);
+  --nx-titanium-200: oklch(0.92 0.008 275);
+  --nx-titanium-300: oklch(0.84 0.012 275);
+  --nx-titanium-400: oklch(0.68 0.020 275);
+  --nx-titanium-500: oklch(0.55 0.025 275);
+  --nx-titanium-600: oklch(0.43 0.022 275);
+  --nx-titanium-700: oklch(0.34 0.018 275);
+  --nx-titanium-800: oklch(0.26 0.014 275);
+  --nx-titanium-900: oklch(0.20 0.012 275);
+  --nx-titanium-950: oklch(0.12 0.015 275);
+  /* NX:COLOR_PRIMITIVES:END */
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     P3 GAMUT DETECTION — Graceful Degradation for Older Displays
+     Modern displays (iPhone 12+, M1+ Macs) get full P3 vibrancy
+     Older sRGB displays get reduced chroma but maintain color consistency
+  ═══════════════════════════════════════════════════════════════════════ */
+  @media (color-gamut: sRGB) {
+    :root {
+      /* sRGB fallbacks - reduced chroma for older displays */
+      --nx-indigo-600: oklch(0.48 0.200 275);
+      --nx-indigo-500: oklch(0.55 0.180 275);
+      --nx-cyan-500: oklch(0.75 0.140 200);
+      --nx-emerald-500: oklch(0.65 0.160 162);
+      --nx-amber-500: oklch(0.77 0.180 68);
+      --nx-red-500: oklch(0.64 0.230 25);
+    }
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  a {
+    color: var(--color-nx-link);
+    text-decoration: none;
+    transition: color var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+  a:hover {
+    color: var(--color-nx-link-hover);
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  ul, ol {
+    padding-left: var(--nx-space-4);
+  }
+}
+
+/* =============================================================================
+   PILLAR 2 — SEMANTIC TOKENS
+   Generated from NX_SEMANTICS in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:SEMANTICS:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-0ccd4e7665d8 */
+  --color-nx-border: var(--nx-titanium-200);
+  --color-nx-border-strong: var(--nx-titanium-300);
+  --color-nx-canvas: var(--nx-titanium-50);
+  --color-nx-danger: var(--nx-red-500);
+  --color-nx-danger-bg: var(--nx-red-50);
+  --color-nx-danger-text: var(--nx-red-700);
+  --color-nx-divider: var(--nx-titanium-200);
+  --color-nx-ghost: transparent;
+  --color-nx-ghost-hover: var(--nx-titanium-100);
+  --color-nx-info: var(--nx-cyan-500);
+  --color-nx-info-bg: var(--nx-cyan-50);
+  --color-nx-info-text: var(--nx-cyan-600);
+  --color-nx-link: var(--nx-cyan-500);
+  --color-nx-link-hover: var(--nx-cyan-600);
+  --color-nx-overlay: #ffffff;
+  --color-nx-primary: var(--nx-indigo-600);
+  --color-nx-primary-foreground: #ffffff;
+  --color-nx-primary-hover: var(--nx-indigo-700);
+  --color-nx-primary-light: var(--nx-indigo-50);
+  --color-nx-raised: #ffffff;
+  --color-nx-ring: var(--nx-indigo-600);
+  --color-nx-scrim: oklch(0.12 0.015 275 / 0.45);
+  --color-nx-secondary: var(--nx-titanium-700);
+  --color-nx-secondary-foreground: #ffffff;
+  --color-nx-secondary-hover: var(--nx-titanium-800);
+  --color-nx-selected: var(--nx-titanium-100);
+  --color-nx-success: var(--nx-emerald-500);
+  --color-nx-success-bg: var(--nx-emerald-50);
+  --color-nx-success-text: var(--nx-emerald-700);
+  --color-nx-surface: #ffffff;
+  --color-nx-surface-well: var(--nx-titanium-100);
+  --color-nx-text-faint: var(--nx-titanium-400);
+  --color-nx-text-inverse: #ffffff;
+  --color-nx-text-main: var(--nx-titanium-900);
+  --color-nx-text-muted: var(--nx-titanium-500);
+  --color-nx-text-sub: var(--nx-titanium-600);
+  --color-nx-warning: var(--nx-amber-500);
+  --color-nx-warning-bg: var(--nx-amber-50);
+  --color-nx-warning-text: var(--nx-amber-700);
+  /* NX:SEMANTICS:END */
+}
+
+/* =============================================================================
+   PILLAR 3 — TYPOGRAPHY SCALE
+   Generated from NX_TYPOGRAPHY in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:TYPOGRAPHY:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-d04a48e9c5be */
+  --nx-body-line: 1.5rem;
+  --nx-body-size: 0.875rem;
+  --nx-caption-line: 1.25rem;
+  --nx-caption-size: 0.75rem;
+  --nx-display-line: 2.75rem;
+  --nx-display-size: 2.25rem;
+  --nx-font-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+  --nx-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --nx-micro-line: 1rem;
+  --nx-micro-size: 0.6875rem;
+  --nx-section-line: 1.75rem;
+  --nx-section-size: 1.125rem;
+  --nx-title-line: 2rem;
+  --nx-title-size: 1.5rem;
+  --nx-tracking-normal: 0;
+  --nx-tracking-tight: -0.015em;
+  --nx-tracking-wide: 0.025em;
+  --nx-weight-bold: 700;
+  --nx-weight-medium: 500;
+  --nx-weight-regular: 400;
+  --nx-weight-semibold: 600;
+  /* NX:TYPOGRAPHY:END */
+}
+
+/* =============================================================================
+   PILLAR 4 — SPACING RHYTHM
+   Generated from NX_SPACING in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:SPACING:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-3ece0fad8431 */
+  --nx-space-0: 0;
+  --nx-space-1: 0.25rem;
+  --nx-space-2: 0.5rem;
+  --nx-space-3: 0.75rem;
+  --nx-space-4: 1rem;
+  --nx-space-5: 1.25rem;
+  --nx-space-6: 1.5rem;
+  --nx-space-8: 2rem;
+  --nx-space-10: 2.5rem;
+  --nx-space-12: 3rem;
+  --nx-space-16: 4rem;
+  /* NX:SPACING:END */
+
+  /* NX:SPACING_SEMANTIC:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-495794cb6efb */
+  --nx-space-inline: var(--nx-space-3);
+  --nx-space-inline-loose: var(--nx-space-4);
+  --nx-space-inline-tight: var(--nx-space-2);
+  --nx-space-page: var(--nx-space-12);
+  --nx-space-section: var(--nx-space-8);
+  --nx-space-stack: var(--nx-space-4);
+  --nx-space-stack-loose: var(--nx-space-6);
+  --nx-space-stack-tight: var(--nx-space-3);
+  /* NX:SPACING_SEMANTIC:END */
+}
+
+/* =============================================================================
+   PILLAR 5 — SIZING CONTRACTS
+   Generated from NX_SIZING in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:SIZING:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-f1ea98119fa2 */
+  --nx-container-max: 80rem;
+  --nx-content-max: 72rem;
+  --nx-content-pad: 1.5rem;
+  --nx-drawer-w: 24rem;
+  --nx-header-h: 4.25rem;
+  --nx-sidebar-w: 17.5rem;
+  --nx-sidebar-w-collapsed: 4.25rem;
+  /* NX:SIZING:END */
+}
+
+/* =============================================================================
+   PILLAR 6 — SHAPE SYSTEM
+   Generated from NX_RADIUS and NX_BORDER in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:RADIUS:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-22ba5d642888 */
+  --nx-radius-control: var(--nx-radius-sm);
+  --nx-radius-lg: 1.25rem;
+  --nx-radius-md: 1rem;
+  --nx-radius-sm: 0.75rem;
+  --nx-radius-xs: 0.5rem;
+  /* NX:RADIUS:END */
+
+  /* NX:BORDER:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-db3f827c22d4 */
+  --nx-border-1: 1px;
+  --nx-border-2: 2px;
+  /* NX:BORDER:END */
+}
+
+/* =============================================================================
+   PILLAR 7 — ELEVATION SYSTEM
+   Generated from NX_SHADOW and NX_ZINDEX in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:SHADOW:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-1c1e5cc0aff2 */
+  --nx-shadow-0: none;
+  --nx-shadow-1: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --nx-shadow-2: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --nx-shadow-3: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --nx-shadow-4: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --nx-shadow-5: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  /* NX:SHADOW:END */
+
+  /* NX:ZINDEX:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-b39e4e352415 */
+  --nx-z-base: 0;
+  --nx-z-debug: 90;
+  --nx-z-dropdown: 30;
+  --nx-z-modal: 70;
+  --nx-z-overlay: 20;
+  --nx-z-popover: 40;
+  --nx-z-scrim: 60;
+  --nx-z-sticky: 10;
+  --nx-z-toast: 80;
+  --nx-z-tooltip: 50;
+  /* NX:ZINDEX:END */
+}
+
+/* =============================================================================
+   PILLAR 8 — MOTION SYSTEM
+   Generated from NX_MOTION in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:MOTION:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-6db3c33eabbe */
+  --nx-dur-base: 220ms;
+  --nx-dur-fast: 140ms;
+  --nx-dur-slow: 360ms;
+  --nx-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --nx-ease-standard: cubic-bezier(0.2, 0.9, 0.2, 1);
+  --nx-lift-1: 2px;
+  --nx-lift-2: 4px;
+  --nx-slide-1: 8px;
+  --nx-slide-2: 16px;
+  /* NX:MOTION:END */
+}
+
+/* =============================================================================
+   PILLAR 9 — BREAKPOINTS
+   Generated from NX_BREAKPOINTS in canonical.ts
+============================================================================= */
+@theme {
+  /* NX:BREAKPOINTS:START */
+  /* AUTO-GENERATED FROM ui/canonical.ts — DO NOT EDIT */
+  /* HASH: sha256-fe6f81ae16de */
+  --nx-bp-2xl: 96rem;
+  --nx-bp-lg: 64rem;
+  --nx-bp-md: 48rem;
+  --nx-bp-sm: 40rem;
+  --nx-bp-xl: 80rem;
+  /* NX:BREAKPOINTS:END */
+}
+
+/* =============================================================================
+   PILLAR 10 — COMPONENT & UTILITY LAYER
+   ⚠️ HAND-CRAFTED — These patterns are NOT auto-generated
+   Edit freely below this line
+============================================================================= */
+@layer utilities {
+  /* Accessibility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .focusable:not(:focus):not(:active) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Shell */
+  .shell {
+    min-height: 100vh;
+    background-color: var(--color-nx-canvas);
+    color: var(--color-nx-text-main);
+    font-family: var(--nx-font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Typography Roles */
+  .title {
+    font-size: var(--nx-title-size);
+    line-height: var(--nx-title-line);
+    font-weight: var(--nx-weight-semibold);
+    letter-spacing: var(--nx-tracking-tight);
+    color: var(--color-nx-text-main);
+  }
+
+  .section {
+    font-size: var(--nx-section-size);
+    line-height: var(--nx-section-line);
+    font-weight: var(--nx-weight-semibold);
+    letter-spacing: var(--nx-tracking-tight);
+    color: var(--color-nx-text-main);
+  }
+
+  .caption {
+    font-size: var(--nx-caption-size);
+    line-height: var(--nx-caption-line);
+    font-weight: var(--nx-weight-medium);
+    color: var(--color-nx-text-sub);
+  }
+
+  /* Elevation */
+  .shadow-0, .elev-0 { box-shadow: var(--nx-shadow-0); }
+  .shadow-1, .elev-1 { box-shadow: var(--nx-shadow-1); }
+  .shadow-2, .elev-2 { box-shadow: var(--nx-shadow-2); }
+  .shadow-3, .elev-3 { box-shadow: var(--nx-shadow-3); }
+
+  /* Cards */
+  .card {
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow-1);
+    padding: var(--nx-space-6);
+  }
+
+  .card-raised {
+    background-color: var(--color-nx-raised);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow-2);
+    padding: var(--nx-space-6);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    background-color: var(--color-nx-primary);
+    color: var(--color-nx-primary-foreground);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    border-radius: var(--nx-radius-control);
+    font-weight: var(--nx-weight-medium);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--color-nx-primary-hover);
+  }
+
+  .btn-primary:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  .btn-secondary {
+    background-color: var(--color-nx-secondary);
+    color: var(--color-nx-secondary-foreground);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    border-radius: var(--nx-radius-control);
+    font-weight: var(--nx-weight-medium);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--color-nx-secondary-hover);
+  }
+
+  .btn-secondary:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  /* Input */
+  .input {
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-control);
+    padding: var(--nx-space-2) var(--nx-space-4);
+    color: var(--color-nx-text-main);
+    font-size: var(--nx-body-size);
+    line-height: var(--nx-body-line);
+    transition: border-color var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .input::placeholder {
+    color: var(--color-nx-text-muted);
+  }
+
+  .input:focus-visible {
+    outline: none;
+    border-color: var(--color-nx-ring);
+    box-shadow: 0 0 0 3px var(--color-nx-primary-light);
+  }
+
+  .input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* KPI METRIC CARD — Executive Summary Stats */
+  .kpi-card {
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    border-radius: var(--nx-radius-lg);
+    box-shadow: var(--nx-shadow-1);
+    padding: var(--nx-space-6);
+    transition: all var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .kpi-card:hover {
+    box-shadow: var(--nx-shadow-2);
+    transform: translateY(-1px);
+  }
+
+  .kpi-card-label {
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--nx-tracking-wide);
+    margin-bottom: var(--nx-space-2);
+  }
+
+  .kpi-card-value {
+    font-size: var(--nx-display-size);
+    font-weight: var(--nx-weight-bold);
+    color: var(--color-nx-text-main);
+    line-height: 1;
+    margin-bottom: var(--nx-space-2);
+  }
+
+  .kpi-card-trend {
+    font-size: var(--nx-caption-size);
+    color: var(--color-nx-text-sub);
+    display: flex;
+    align-items: center;
+    gap: var(--nx-space-2);
+  }
+
+  /* STATUS BADGES — Professional Indicators */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-medium);
+    line-height: 1;
+  }
+
+  .badge-success {
+    background-color: var(--color-nx-success-bg);
+    color: var(--color-nx-success-text);
+  }
+
+  .badge-warning {
+    background-color: var(--color-nx-warning-bg);
+    color: var(--color-nx-warning-text);
+  }
+
+  .badge-danger {
+    background-color: var(--color-nx-danger-bg);
+    color: var(--color-nx-danger-text);
+  }
+
+  .badge-info {
+    background-color: var(--color-nx-info-bg);
+    color: var(--color-nx-info-text);
+  }
+
+  .badge-neutral {
+    background-color: var(--color-nx-surface-well);
+    color: var(--color-nx-text-sub);
+  }
+
+  /* PROFESSIONAL TABLE STYLES */
+  .table-professional {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table-professional thead th {
+    padding: var(--nx-space-3) var(--nx-space-4);
+    text-align: left;
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--nx-tracking-wide);
+    border-bottom: var(--nx-border-2) solid var(--color-nx-border);
+    background-color: var(--color-nx-canvas);
+  }
+
+  .table-professional tbody td {
+    padding: var(--nx-space-4);
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-main);
+    border-bottom: var(--nx-border-1) solid var(--color-nx-border);
+  }
+
+  .table-professional tbody tr:hover {
+    background-color: var(--color-nx-surface-well);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .table-professional tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  /* SECTION HEADER — McKinsey Style */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--nx-space-4);
+    margin-bottom: var(--nx-space-6);
+    border-bottom: var(--nx-border-2) solid var(--color-nx-border);
+  }
+
+  .section-header-title {
+    font-size: var(--nx-title-size);
+    font-weight: var(--nx-weight-bold);
+    color: var(--color-nx-text-main);
+    letter-spacing: var(--nx-tracking-tight);
+  }
+
+  .section-header-description {
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-sub);
+    margin-top: var(--nx-space-1);
+  }
+
+  /* EXECUTIVE ALERT BOX */
+  .alert-executive {
+    background-color: var(--color-nx-primary-light);
+    border-left: 4px solid var(--color-nx-primary);
+    border-radius: var(--nx-radius-md);
+    padding: var(--nx-space-4) var(--nx-space-6);
+    margin: var(--nx-space-6) 0;
+  }
+
+  .alert-executive-title {
+    font-size: var(--nx-section-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-primary);
+    margin-bottom: var(--nx-space-2);
+  }
+
+  .alert-executive-content {
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-main);
+    line-height: var(--nx-body-line);
+  }
+
+  /* METRIC GRID — KPI Dashboard Layout */
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--nx-space-6);
+    margin: var(--nx-space-6) 0;
+  }
+
+  /* PROFESSIONAL PAGE HEADER */
+  .page-header {
+    background-color: var(--color-nx-surface);
+    border-bottom: var(--nx-border-1) solid var(--color-nx-border);
+    padding: var(--nx-space-6);
+    position: sticky;
+    top: 0;
+    z-index: var(--nx-z-sticky);
+    box-shadow: var(--nx-shadow-1);
+  }
+
+  .page-header-accent {
+    height: 4px;
+    background: linear-gradient(90deg, var(--color-nx-primary) 0%, var(--color-nx-primary) 100%);
+    margin-bottom: var(--nx-space-4);
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE CONSISTENCY PATTERNS
+   Mobile-first layout progression for predictable scaling
+============================================================================= */
+@layer utilities {
+  /* MOBILE-FIRST BASE (applies to all screens) */
+  .layout-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-4);
+  }
+
+  .layout-grid-responsive {
+    display: grid;
+    gap: var(--nx-space-6);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .layout-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-4);
+    max-width: 28rem;
+  }
+
+  /* BREAKPOINT-BASED RESPONSIVE PATTERNS */
+  .layout-split-tablet {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nx-space-4);
+  }
+
+  @media (min-width: 40rem) {
+    .layout-split-tablet {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .layout-split-desktop {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nx-space-4);
+  }
+
+  @media (min-width: 64rem) {
+    .layout-split-desktop {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--nx-space-6);
+    }
+  }
+
+  .layout-hero-wide {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nx-space-6);
+    padding: var(--nx-space-6);
+  }
+
+  @media (min-width: 80rem) {
+    .layout-hero-wide {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: var(--nx-space-8);
+      padding: var(--nx-space-8);
+    }
+  }
+
+  /* SPACING PROGRESSION (increases with screen size) */
+  .spacing-responsive {
+    padding: var(--nx-space-3);
+  }
+
+  @media (min-width: 64rem) {
+    .spacing-responsive {
+      padding: var(--nx-space-4);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .spacing-responsive {
+      padding: var(--nx-space-6);
+    }
+  }
+
+  .gap-responsive {
+    gap: var(--nx-space-2);
+  }
+
+  @media (min-width: 64rem) {
+    .gap-responsive {
+      gap: var(--nx-space-4);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .gap-responsive {
+      gap: var(--nx-space-6);
+    }
+  }
+
+  .margin-responsive {
+    margin: var(--nx-space-2);
+  }
+
+  @media (min-width: 64rem) {
+    .margin-responsive {
+      margin: var(--nx-space-4);
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .margin-responsive {
+      margin: var(--nx-space-6);
+    }
+  }
+}
+
+/* =============================================================================
+   STATE CONSISTENCY PATTERNS
+   Standardized hover, focus, active, disabled states
+============================================================================= */
+@layer utilities {
+  /* INTERACTIVE FOUNDATION */
+  .interactive {
+    transition: all var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .interactive-surface {
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+    transition: all var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .interactive-elevated {
+    background-color: var(--color-nx-raised);
+    box-shadow: var(--nx-shadow-1);
+    transition: all var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  /* HOVER STATE — Lift + shadow increase */
+  .hover-lift:hover {
+    box-shadow: var(--nx-shadow-2);
+    transform: translateY(-1px);
+  }
+
+  .hover-highlight:hover {
+    background-color: var(--color-nx-surface-well);
+    border-color: var(--color-nx-border-strong);
+  }
+
+  .hover-color-shift:hover {
+    background-color: var(--color-nx-primary-hover);
+    color: var(--color-nx-primary-foreground);
+  }
+
+  /* FOCUS STATE — Ring + outline */
+  .focus-ring:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  .focus-ring-primary:focus-visible {
+    box-shadow: 0 0 0 3px var(--color-nx-primary-light);
+  }
+
+  /* ACTIVE STATE — Compress */
+  .active-compress:active {
+    transform: scale(0.95);
+    box-shadow: var(--nx-shadow-1);
+  }
+
+  .active-color:active {
+    background-color: var(--color-nx-primary-hover);
+  }
+
+  /* DISABLED STATE — Muted */
+  .disabled-muted:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* COMBINED PATTERNS FOR COMMON ELEMENTS */
+  .btn-interactive {
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+  }
+
+  .btn-interactive:hover {
+    box-shadow: var(--nx-shadow-2);
+    transform: translateY(-1px);
+  }
+
+  .btn-interactive:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  .btn-interactive:active {
+    transform: scale(0.95);
+    box-shadow: var(--nx-shadow-1);
+  }
+
+  .btn-interactive:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Card pattern: Hover lift only */
+  .card-interactive {
+    background-color: var(--color-nx-raised);
+    box-shadow: var(--nx-shadow-1);
+  }
+
+  .card-interactive:hover {
+    box-shadow: var(--nx-shadow-2);
+    transform: translateY(-1px);
+  }
+
+  .card-interactive:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+
+  /* Input pattern: Focus ring + highlight */
+  .input-interactive {
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+  }
+
+  .input-interactive:hover {
+    background-color: var(--color-nx-surface-well);
+    border-color: var(--color-nx-border-strong);
+  }
+
+  .input-interactive:focus-visible {
+    outline: none;
+    border-color: var(--color-nx-ring);
+    box-shadow: 0 0 0 3px var(--color-nx-primary-light);
+  }
+
+  .input-interactive:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Link pattern: Color shift */
+  .link-interactive {
+    color: var(--color-nx-link);
+    transition: color var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .link-interactive:hover {
+    color: var(--color-nx-link-hover);
+  }
+
+  .link-interactive:focus-visible {
+    outline: 2px solid var(--color-nx-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* =============================================================================
+   COMPONENT PATTERN LIBRARY
+   Reusable, consistent patterns for common layouts and components
+============================================================================= */
+@layer components {
+  /* PATTERN 1: Professional Button Group */
+  .button-group {
+    display: flex;
+    gap: var(--nx-space-3);
+    align-items: center;
+  }
+
+  .button-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-3);
+  }
+
+  /* PATTERN 2: Professional Form Field */
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-2);
+    margin-bottom: var(--nx-space-4);
+  }
+
+  .form-field-label {
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-main);
+  }
+
+  .form-field-hint {
+    font-size: var(--nx-micro-size);
+    color: var(--color-nx-text-muted);
+  }
+
+  .form-field-error {
+    font-size: var(--nx-micro-size);
+    color: var(--color-nx-danger);
+  }
+
+  /* PATTERN 3: Professional Form Layout */
+  .form-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-4);
+    max-width: 28rem;
+  }
+
+  /* PATTERN 4: Professional Data Table Header */
+  .table-header-cell {
+    padding: var(--nx-space-4);
+    text-align: left;
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--nx-tracking-wide);
+  }
+
+  /* PATTERN 5: Professional Data Table Row */
+  .table-row {
+    border-bottom: var(--nx-border-1) solid var(--color-nx-border);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .table-row:hover {
+    background-color: var(--color-nx-surface-well);
+  }
+
+  .table-data-cell {
+    padding: var(--nx-space-4);
+    color: var(--color-nx-text-main);
+  }
+
+  /* PATTERN 6: Responsive Grid (Most Common) */
+  .grid-responsive {
+    display: grid;
+    gap: var(--nx-space-6);
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  /* Variations */
+  .grid-2-col {
+    display: grid;
+    gap: var(--nx-space-6);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 64rem) {
+    .grid-2-col {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .grid-3-col {
+    display: grid;
+    gap: var(--nx-space-6);
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 48rem) {
+    .grid-3-col {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .grid-3-col {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+
+  /* PATTERN 7: Professional Section Header */
+  .section-header-layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-4);
+    padding-bottom: var(--nx-space-6);
+    margin-bottom: var(--nx-space-8);
+    border-bottom: var(--nx-border-2) solid var(--color-nx-border);
+  }
+
+  @media (min-width: 48rem) {
+    .section-header-layout {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  /* PATTERN 8: Professional List */
+  .professional-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-3);
+  }
+
+  .professional-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nx-space-3);
+    padding: var(--nx-space-3);
+    border-radius: var(--nx-radius-md);
+    transition: background-color var(--nx-dur-fast) var(--nx-ease-standard);
+  }
+
+  .professional-list-item:hover {
+    background-color: var(--color-nx-surface-well);
+  }
+
+  .professional-list-item-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  .professional-list-item-content {
+    flex: 1;
+  }
+
+  /* PATTERN 9: Professional Badge Container */
+  .badge-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--nx-space-2);
+  }
+
+  /* PATTERN 10: Professional Stat Box */
+  .stat-box {
+    padding: var(--nx-space-4);
+    border-radius: var(--nx-radius-md);
+    background-color: var(--color-nx-surface);
+    border: var(--nx-border-1) solid var(--color-nx-border);
+  }
+
+  .stat-box-label {
+    font-size: var(--nx-caption-size);
+    font-weight: var(--nx-weight-semibold);
+    color: var(--color-nx-text-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--nx-tracking-wide);
+    margin-bottom: var(--nx-space-1);
+  }
+
+  .stat-box-value {
+    font-size: var(--nx-display-size);
+    font-weight: var(--nx-weight-bold);
+    color: var(--color-nx-text-main);
+  }
+
+  .stat-box-description {
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-sub);
+    margin-top: var(--nx-space-2);
+  }
+
+  /* THE OBSIDIAN INSIGHT LIST — Executive Grade */
+  .insight-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--nx-space-6);
+    margin-top: var(--nx-space-6);
+  }
+
+  .insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--nx-space-4);
+    padding-bottom: var(--nx-space-6);
+    border-bottom: 1px solid var(--color-nx-border);
+  }
+
+  /* The "Shard" Marker - Diamond shape */
+  .insight-marker {
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    background: linear-gradient(135deg, var(--color-nx-primary) 0%, var(--color-nx-link) 100%);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px var(--color-nx-primary-light);
+    flex-shrink: 0;
+  }
+
+  .insight-content {
+    flex: 1;
+    font-size: var(--nx-body-size);
+    color: var(--color-nx-text-sub);
+    line-height: 1.6;
+  }
+
+  /* The "Lead" - Bold first sentence for scanning */
+  .insight-lead {
+    display: block;
+    font-weight: 700;
+    color: var(--color-nx-text-main);
+    margin-bottom: var(--nx-space-2);
+    font-size: var(--nx-section-size);
+  }
+
+  /* Remove border from last item */
+  .insight-item:last-child {
+    border-bottom: none;
+  }
+}
