@@ -1,446 +1,290 @@
-# Developer Quick Reference Guide
+# Developer Reference Guide
 
-**Project:** CEO Request Management System  
-**Version:** 1.0  
-**Last Updated:** January 2025
-
----
-
-## 1. Table Names (Ad-Hoc Isolation)
-
-**ALL tables use `ceo_` prefix for shared instance isolation.**
-
-```
-Tenancy:         ceo_organizations, ceo_users, ceo_config
-Categories:      ceo_categories
-Requests:        ceo_requests, ceo_request_approvals, ceo_request_watchers,
-                 ceo_request_comments, ceo_request_attachments
-Announcements:   ceo_announcements, ceo_announcement_reads
-Messages:        ceo_executive_messages, ceo_executive_message_reads
-Operations:      ceo_audit_logs, ceo_notification_log, ceo_ref_reason_codes
-```
+**Project:** CEO Request Ticketing System  
+**Version:** 2.2.0 (RCF)  
+**Last Updated:** January 2026
 
 ---
 
-## 2. API Route Pattern (Template)
+## 1. Project Structure
+
+```
+├── app/                          # Next.js 16 App Router
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Homepage (auth redirect)
+│   ├── admin/config/             # CEO config page
+│   ├── announcements/            # Announcements list + create
+│   ├── api/                      # API routes (15 endpoints)
+│   ├── approvals/                # CEO approval queue
+│   ├── auth/                     # Login + Signup
+│   ├── dashboard/                # User dashboard
+│   ├── messages/                 # Executive messaging
+│   ├── onboarding/               # New org setup wizard
+│   └── requests/                 # Request CRUD
+│
+├── components/                   # React components
+│   ├── admin/                    # AdminConfigForm
+│   ├── announcements/            # Banners, List
+│   ├── approvals/                # Decision, Filters, List
+│   ├── auth/                     # LogoutButton
+│   ├── messages/                 # List, Tabs, SendForm
+│   ├── requests/                 # Actions, Filters, Table
+│   └── ui/                       # badge, button, card, label, textarea
+│
+├── lib/                          # Utilities & helpers
+│   ├── auth/bootstrap.ts         # First-login org creation
+│   ├── constants/
+│   │   ├── status.ts             # FSM, status metadata, transitions
+│   │   └── material-changes.ts   # Material change detection
+│   ├── sanitize/index.ts         # Content sanitization
+│   ├── server/                   # Server-only functions
+│   │   ├── admin-config.ts
+│   │   ├── announcements.ts
+│   │   ├── approvals.ts
+│   │   ├── approvals-data.ts
+│   │   ├── dashboard.ts
+│   │   ├── executive-messages.ts
+│   │   ├── messages.ts
+│   │   └── requests.ts
+│   ├── supabase/
+│   │   ├── client.ts             # Browser client
+│   │   ├── server.ts             # Service role client + writeAuditLog
+│   │   └── server-auth.ts        # Server auth client
+│   ├── types/database.ts         # TypeScript types
+│   ├── validations/request.ts    # Zod schemas
+│   ├── glossary.schema.ts        # Glossary validation
+│   └── state-machine.ts          # Legacy (use status.ts)
+│
+├── db/schema.sql                 # 16 tables with ceo_ prefix
+├── docs/                         # Documentation
+└── scripts/                      # Build scripts
+```
+
+---
+
+## 2. Database Tables (16 Total)
+
+All tables use `ceo_` prefix for shared instance isolation.
+
+| Table | Purpose |
+|-------|---------|
+| `ceo_organizations` | Tenant container |
+| `ceo_users` | User profiles with role_code |
+| `ceo_config` | Per-org configuration |
+| `ceo_categories` | Request categories |
+| `ceo_requests` | Core request entity |
+| `ceo_request_approvals` | Approval decisions |
+| `ceo_request_watchers` | Request subscribers |
+| `ceo_request_comments` | Request discussion |
+| `ceo_request_attachments` | File attachments |
+| `ceo_announcements` | CEO broadcasts |
+| `ceo_announcement_reads` | Read/ACK tracking |
+| `ceo_executive_messages` | 2-way messages |
+| `ceo_executive_message_reads` | Message tracking |
+| `ceo_audit_logs` | Immutable audit trail |
+| `ceo_notification_log` | Email/notification log |
+| `ceo_ref_reason_codes` | Reference data |
+
+---
+
+## 3. API Endpoints (15 Routes)
+
+| Endpoint | Methods | Purpose |
+|----------|---------|---------|
+| `/api/auth/bootstrap` | POST | First-login org creation |
+| `/api/admin/config` | GET, PATCH | CEO configuration |
+| `/api/admin/invite` | POST | Send manager invites |
+| `/api/requests` | GET, POST | List/create requests |
+| `/api/requests/[id]` | GET, PATCH, DELETE | Request CRUD |
+| `/api/requests/[id]/resubmit` | POST | Resubmit after rejection |
+| `/api/requests/[id]/comments` | POST | Add comments |
+| `/api/requests/[id]/attachments` | POST, DELETE | File handling |
+| `/api/requests/[id]/watchers` | POST, DELETE | Watcher management |
+| `/api/approvals` | GET | CEO approval queue |
+| `/api/approvals/[id]` | PATCH | Approve/reject decision |
+| `/api/announcements` | GET, POST | Announcements CRUD |
+| `/api/announcements/[id]/acknowledge` | POST | ACK tracking |
+| `/api/messages` | GET, POST | Executive messages |
+| `/api/messages/[id]` | GET, PATCH | Message actions |
+
+---
+
+## 4. Status Lifecycle (FSM)
+
+```
+DRAFT → SUBMITTED → IN_REVIEW → APPROVED → CLOSED
+                 ↓            ↓
+              CANCELLED    REJECTED → (resubmit) → SUBMITTED
+```
+
+### Status Codes
+
+| Code | Label | Terminal |
+|------|-------|----------|
+| `DRAFT` | Draft | No |
+| `SUBMITTED` | Submitted | No |
+| `IN_REVIEW` | In Review | No |
+| `APPROVED` | Approved | No |
+| `REJECTED` | Rejected | No |
+| `CANCELLED` | Cancelled | Yes |
+| `CLOSED` | Closed | Yes |
+
+### Valid Transitions
 
 ```typescript
-// app/api/requests/route.ts
-import 'server-only';  // ← MUST be first
+// From lib/constants/status.ts
+export const FSM_TRANSITIONS: Record<RequestStatus, RequestStatus[]> = {
+  DRAFT: ['SUBMITTED', 'CANCELLED'],
+  SUBMITTED: ['IN_REVIEW', 'CANCELLED'],
+  IN_REVIEW: ['APPROVED', 'REJECTED', 'CANCELLED'],
+  APPROVED: ['CLOSED'],
+  REJECTED: ['SUBMITTED'],  // Resubmit
+  CANCELLED: [],
+  CLOSED: [],
+};
+```
 
-import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import { auth } from '@/lib/auth';
-import { supabase } from '@/lib/supabase/server';
-import { writeAuditLog } from '@/lib/server/audit';
+---
 
-// Define schema
-const createRequestSchema = z.object({
-  title: z.string().min(1, 'Title required'),
-  description: z.string().optional(),
-  category_id: z.string().uuid().optional(),
-  priority_code: z.enum(['P1', 'P2', 'P3', 'P4', 'P5'])
-});
+## 5. Material Change Detection
 
-// GET: List requests
-export async function GET(request: NextRequest) {
-  // 1. Authenticate
-  const { data: { user: authUser }, error: authError } = await auth.getUser();
-  if (authError || !authUser?.id) {
-    return NextResponse.json(
-      { success: false, error: 'UNAUTHORIZED' },
-      { status: 401 }
-    );
+Changes to these fields invalidate pending approvals:
+
+```typescript
+// From lib/constants/status.ts
+export const MATERIAL_CHANGE_FIELDS = ['title', 'description', 'priority_code'] as const;
+```
+
+Usage:
+```typescript
+import { isMaterialChange } from '@/lib/constants/status';
+
+if (isMaterialChange(existingRequest, newData)) {
+  await invalidateApproval({ requestId, reason: 'Material change detected' });
+}
+```
+
+---
+
+## 6. Authentication Pattern
+
+```typescript
+// Server-side auth (API routes)
+import { createServerAuthClient } from '@/lib/supabase/server-auth';
+
+export async function GET() {
+  const supabase = await createServerAuthClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  // 2. Get org context
-  const { data: userData, error: userError } = await supabase
+  
+  // Get user profile with org_id
+  const { data: profile } = await supabase
     .from('ceo_users')
-    .select('org_id')
-    .eq('id', authUser.id)
+    .select('org_id, role_code')
+    .eq('id', user.id)
     .single();
-
-  if (userError || !userData) {
-    return NextResponse.json(
-      { success: false, error: 'USER_NOT_FOUND' },
-      { status: 404 }
-    );
-  }
-
-  const orgId = userData.org_id;
-
-  // 3. Query with RLS isolation
-  const { data: requests, error: queryError } = await supabase
-    .from('ceo_requests')
-    .select('*')
-    .eq('org_id', orgId)
-    .order('created_at', { ascending: false });
-
-  if (queryError) {
-    console.error('GET /api/requests error:', {
-      error: queryError,
-      orgId,
-      userId: authUser.id
-    });
-    return NextResponse.json(
-      { success: false, error: 'QUERY_FAILED' },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json({ success: true, data: requests });
-}
-
-// POST: Create request
-export async function POST(request: NextRequest) {
-  // 1. Authenticate
-  const { data: { user: authUser }, error: authError } = await auth.getUser();
-  if (authError || !authUser?.id) {
-    return NextResponse.json(
-      { success: false, error: 'UNAUTHORIZED' },
-      { status: 401 }
-    );
-  }
-
-  // 2. Get org context
-  const { data: userData, error: userError } = await supabase
-    .from('ceo_users')
-    .select('org_id')
-    .eq('id', authUser.id)
-    .single();
-
-  if (userError || !userData) {
-    return NextResponse.json(
-      { success: false, error: 'USER_NOT_FOUND' },
-      { status: 404 }
-    );
-  }
-
-  const orgId = userData.org_id;
-
-  // 3. Validate input
-  const body = await request.json();
-  const validation = createRequestSchema.safeParse(body);
-  if (!validation.success) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'VALIDATION_ERROR',
-        message: 'Invalid request payload',
-        details: validation.error.flatten()
-      },
-      { status: 400 }
-    );
-  }
-
-  const { title, description, category_id, priority_code } = validation.data;
-
-  // 4. Create request
-  const { data: newRequest, error: insertError } = await supabase
-    .from('ceo_requests')
-    .insert({
-      org_id: orgId,
-      title,
-      description,
-      category_id,
-      priority_code,
-      status_code: 'DRAFT',
-      requester_id: authUser.id,
-      request_version: 1
-    })
-    .select()
-    .single();
-
-  if (insertError) {
-    console.error('POST /api/requests error:', {
-      error: insertError,
-      orgId,
-      userId: authUser.id,
-      requestData: { title, priority_code }
-    });
-    return NextResponse.json(
-      { success: false, error: 'INSERT_FAILED' },
-      { status: 500 }
-    );
-  }
-
-  // 5. Audit log (service role)
-  await writeAuditLog({
-    org_id: orgId,
-    user_id: authUser.id,
-    action: 'REQUEST_CREATED',
-    resource_type: 'request',
-    resource_id: newRequest.id,
-    metadata: { title, status: newRequest.status_code }
-  });
-
-  return NextResponse.json(
-    { success: true, data: newRequest },
-    { status: 201 }
-  );
+  
+  // Use profile.org_id for RLS-scoped queries
 }
 ```
 
 ---
 
-## 3. Common Patterns
-
-### Authentication (Always Use This)
+## 7. Audit Logging
 
 ```typescript
-const { data: { user: authUser }, error: authError } = await auth.getUser();
-if (authError || !authUser?.id) {
-  return NextResponse.json(
-    { success: false, error: 'UNAUTHORIZED' },
-    { status: 401 }
-  );
-}
-const userId = authUser.id;
-```
+import { writeAuditLog } from '@/lib/supabase/server';
 
-### Validation (Always Safe-Parse)
-
-```typescript
-const validation = mySchema.safeParse(body);
-if (!validation.success) {
-  return NextResponse.json(
-    {
-      success: false,
-      error: 'VALIDATION_ERROR',
-      details: validation.error.flatten()
-    },
-    { status: 400 }
-  );
-}
-const data = validation.data;
-```
-
-### Audit Logging (Always Use Helper)
-
-```typescript
-// ❌ WRONG - Will fail RLS
-await supabase.from('ceo_audit_logs').insert({ ... });
-
-// ✅ CORRECT
 await writeAuditLog({
   org_id: orgId,
   user_id: userId,
-  action: 'REQUEST_CREATED',
-  resource_type: 'request',
-  resource_id: requestId,
-  metadata: { title, status }
+  entity_type: 'request',
+  entity_id: requestId,
+  action: 'created',
+  actor_role_code: roleCode,
+  new_values: { title, description },
 });
 ```
 
-### Error Logging (Always Include Context)
+**Important:** Audit logs are write-only via service role. No RLS INSERT policy exists for users.
+
+---
+
+## 8. Validation Pattern
 
 ```typescript
-// ❌ WRONG - No context
-console.error('Error:', error);
+import { z } from 'zod';
 
-// ✅ CORRECT
-console.error('POST /api/requests error:', {
-  error: error,
-  orgId,
-  userId,
-  requestData: { title, priority }
+const schema = z.object({
+  title: z.string().min(1).max(200),
+  priority_code: z.enum(['P1', 'P2', 'P3', 'P4', 'P5']),
 });
-```
 
-### Query with Org Isolation (Always Filter by org_id)
-
-```typescript
-// Get user's org context first
-const { data: userData } = await supabase
-  .from('ceo_users')
-  .select('org_id')
-  .eq('id', userId)
-  .single();
-
-const orgId = userData.org_id;
-
-// Then query with RLS (org_id filter enforced by RLS policy)
-const { data } = await supabase
-  .from('ceo_requests')
-  .select('*')
-  .eq('org_id', orgId);  // RLS will enforce this anyway
+// Use safeParse (not parse) for error handling
+const result = schema.safeParse(body);
+if (!result.success) {
+  return NextResponse.json(
+    { error: result.error.errors[0]?.message },
+    { status: 400 }
+  );
+}
 ```
 
 ---
 
-## 4. File Organization
+## 9. PRD Compliance
 
+This project uses [PRD_GUARD](https://github.com/pohlai88/PRD_GUARD) for document sync.
+
+```bash
+npm run prd:validate   # Sync check
+npm run prd:check      # Code compliance
+npm run prd:generate   # Regenerate docs
+npm run validate:all   # Full pipeline
 ```
-Request Ticket/
-├── app/
-│   ├── api/
-│   │   └── requests/
-│   │       ├── route.ts           (POST, GET)
-│   │       └── [id]/
-│   │           └── route.ts       (GET, PATCH, DELETE)
-│   ├── requests/
-│   │   ├── page.tsx               (List view)
-│   │   ├── new/
-│   │   │   └── page.tsx           (Create form)
-│   │   └── [id]/
-│   │       └── page.tsx           (Detail view)
-│   └── ...
-├── lib/
-│   ├── auth.ts                    (Auth client)
-│   ├── supabase/
-│   │   ├── client.ts              (Supabase client instance)
-│   │   ├── server.ts              (Server-side client)
-│   │   └── admin.ts               (Service role client)
-│   ├── server/
-│   │   ├── audit.ts               (writeAuditLog helper)
-│   │   └── ...
-│   ├── types/
-│   │   ├── database.ts            (Database interfaces)
-│   │   └── api.ts                 (API response types)
-│   └── validation/
-│       └── schemas.ts             (Zod schemas)
-├── db/
-│   └── schema.sql                 (Database schema - ALL ceo_ prefixed)
-├── PRD.md                         (Product Requirements Document)
-├── SCHEMA_VALIDATION_REPORT.md    (Schema validation results)
-└── ARCHITECTURAL_DECISIONS.md     (ADRs with rationale)
+
+### Canonical Source
+
+All constants sync from:
+- **External:** `prd-guard/src/canonical.ts` (SSOT)
+- **Runtime:** `lib/constants/status.ts` (inlined copy)
+
+---
+
+## 10. Scripts
+
+```bash
+npm run dev           # Development (Turbopack)
+npm run build         # Production build
+npm run type-check    # TypeScript validation
+npm run lint          # ESLint
+npm run lint:fix      # Auto-fix
+npm run validate:all  # Type + Lint + Glossary + PRD
 ```
 
 ---
 
-## 5. Environment Variables
+## 11. Environment Variables
 
-**Required in `.env.local`:**
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://[project].supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ[public key]...
-SUPABASE_SERVICE_ROLE_KEY=eyJ[secret key]...
-```
-
-**Never commit `.env.local`**
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Anonymous key (browser) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Service role (server-only) |
 
 ---
 
-## 6. Common SQL Queries (For Testing)
+## 12. Key Files Reference
 
-### Verify Tables Exist
-
-```sql
-SELECT tablename FROM pg_tables 
-WHERE tablename LIKE 'ceo_%' AND table_schema='public'
-ORDER BY tablename;
--- Expected: 16 rows
-```
-
-### Check RLS Policies
-
-```sql
-SELECT schemaname, tablename, policyname
-FROM pg_policies
-WHERE tablename LIKE 'ceo_%'
-ORDER BY tablename;
--- Expected: 60+ rows
-```
-
-### View Audit Logs
-
-```sql
-SELECT * FROM ceo_audit_logs
-WHERE org_id = '[your-org-id]'
-ORDER BY created_at DESC
-LIMIT 20;
-```
-
----
-
-## 7. Troubleshooting
-
-### Issue: "relation 'requests' does not exist"
-
-**Problem:** Code or SQL is querying old table name  
-**Solution:** Check schema uses `ceo_requests`, check code uses Supabase client (not hardcoded)  
-**Verify:**
-```sql
-SELECT * FROM ceo_requests LIMIT 1;  -- Should work
-SELECT * FROM requests LIMIT 1;       -- Should fail
-```
-
-### Issue: "new row violates row-level security policy"
-
-**Problem:** Trying to write audit logs directly  
-**Solution:** Use `writeAuditLog()` helper instead of `.insert()`  
-**Check:**
-```typescript
-// ❌ WRONG
-await supabase.from('ceo_audit_logs').insert({ ... });
-
-// ✅ CORRECT
-await writeAuditLog({ org_id, user_id, action, ... });
-```
-
-### Issue: "no row returned by statement" on `getUser()`
-
-**Problem:** User authenticated but not in `ceo_users` table  
-**Solution:** Check bootstrap logic in auth callback route  
-**Verify:**
-```sql
-SELECT * FROM ceo_users WHERE id = '[user-id]';
--- Should return exactly one row
-```
-
-### Issue: Audit logs not appearing
-
-**Problem:** No error, but logs don't show up  
-**Solution:** Check service role key is set in SUPABASE_SERVICE_ROLE_KEY env var  
-**Verify:**
-```typescript
-// In lib/server/audit.ts, verify adminClient is initialized
-console.log('Service role key set:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
-```
-
----
-
-## 8. Build & Deployment Checklist
-
-Before deploying to production:
-
-- [ ] All 16 tables exist in Supabase with `ceo_` prefix
-- [ ] `npm run build` succeeds with 0 errors
-- [ ] TypeScript `npm run lint` passes
-- [ ] `.env.local` has all required vars (never commit)
-- [ ] Test signup → bootstrap → create request → verify audit log
-- [ ] Verify RLS policies work (can't access other org's data)
-- [ ] Verify audit logs appear for all operations
-- [ ] Check error logs for any warnings
-
----
-
-## 9. Phase 3 Status
-
-| Feature | Status | API Route | Database Tables | Pages |
-|---------|--------|-----------|-----------------|-------|
-| Request CRUD | ✅ Complete | POST/GET /api/requests | ceo_requests | /requests, /requests/new, /requests/[id] |
-| Soft Delete | ✅ Complete | DELETE /api/requests/[id] | (deleted_at field) | - |
-| Audit Logging | ✅ Complete | All routes | ceo_audit_logs | - |
-| Status Tracking | ✅ Complete | PATCH /api/requests/[id] | (status_code field) | /requests/[id] detail |
-| Comments | 🚧 UI Only | - | ceo_request_comments | - |
-| Attachments | 🚧 UI Only | - | ceo_request_attachments | - |
-| Watchers | 🚧 UI Only | - | ceo_request_watchers | - |
-
----
-
-## 10. Resources
-
-- **PRD:** [PRD.md](PRD.md) — Full product requirements
-- **Validation Report:** [SCHEMA_VALIDATION_REPORT.md](SCHEMA_VALIDATION_REPORT.md) — Schema verification
-- **Architectural Decisions:** [ARCHITECTURAL_DECISIONS.md](ARCHITECTURAL_DECISIONS.md) — Why key decisions made
-- **Database Schema:** [db/schema.sql](db/schema.sql) — Complete schema (all ceo_ prefixed)
-- **Type Definitions:** [lib/types/database.ts](lib/types/database.ts) — TypeScript interfaces
-
----
-
-**Generated:** January 2025  
-**Status:** Current for Phase 3  
-**Next Update:** After Phase 4 completion
+| File | Purpose |
+|------|---------|
+| [lib/constants/status.ts](../lib/constants/status.ts) | FSM, transitions, metadata |
+| [lib/supabase/server.ts](../lib/supabase/server.ts) | writeAuditLog helper |
+| [lib/validations/request.ts](../lib/validations/request.ts) | Zod schemas |
+| [db/schema.sql](../db/schema.sql) | Full database schema |
+| [docs/REQUEST_CONSTITUTION.md](REQUEST_CONSTITUTION.md) | Business rules |
+| [docs/CONVENTION_LOCK.md](CONVENTION_LOCK.md) | Security patterns |
 
